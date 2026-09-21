@@ -19,15 +19,15 @@ const garamond = EB_Garamond({
 export const metadata: Metadata = {
   metadataBase: new URL(seitenUrl()),
   title: {
-    default: "Lusine — Malerei",
-    template: "%s — Lusine",
+    default: "LUART — Malerei",
+    template: "%s — LUART",
   },
   description:
     "Originale Malerei von Lusine. Jedes Werk ein Unikat, jedes mit seiner eigenen Geschichte.",
   openGraph: {
     type: "website",
     locale: "de_DE",
-    siteName: "Lusine",
+    siteName: "LUART",
   },
   robots: { index: true, follow: true },
 };

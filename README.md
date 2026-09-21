@@ -1,4 +1,4 @@
-# Lusine — Malerei
+# LUART — Malerei
 
 Online-Galerie für originale Malerei.
 Kein Shop: wenige, kuratierte Werke, jedes mit seiner eigenen Geschichte.
@@ -85,7 +85,7 @@ Sie ist zunächst leer; die Beispielwerke gehören zum Demo-Modus.
 ```bash
 cd worker
 npx wrangler login
-npx wrangler r2 bucket create lusine-werke
+npx wrangler r2 bucket create luart-werke
 npx wrangler deploy
 ```
 
@@ -96,8 +96,8 @@ Die ausgegebene Worker-Adresse und die R2-Zugangsdaten
 R2_KONTO_ID=
 R2_ZUGRIFFSSCHLUESSEL_ID=
 R2_GEHEIMER_SCHLUESSEL=
-R2_BUCKET=lusine-werke
-NEXT_PUBLIC_BILD_BASIS_URL=https://lusine-bilder.<konto>.workers.dev
+R2_BUCKET=luart-werke
+NEXT_PUBLIC_BILD_BASIS_URL=https://luart-bilder.<konto>.workers.dev
 ```
 
 Ab jetzt lassen sich Bilder hochladen. Näheres in `worker/README.md`.
@@ -110,7 +110,7 @@ verifizieren:
 
 ```
 RESEND_API_KEY=
-EMAIL_ABSENDER="Lusine <atelier@deine-domain.de>"
+EMAIL_ABSENDER="LUART <atelier@deine-domain.de>"
 EMAIL_ATELIER=
 ```
 

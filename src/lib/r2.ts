@@ -37,7 +37,7 @@ export function r2Client(): S3Client | null {
 }
 
 function bucket(): string {
-  return process.env.R2_BUCKET ?? "lusine-werke";
+  return process.env.R2_BUCKET ?? "luart-werke";
 }
 
 /** Legt ein Objekt im Speicher ab. */

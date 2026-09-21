@@ -1,6 +1,6 @@
-# Lusine — Umsetzungsplan
+# LUART — Umsetzungsplan
 
-Online-Galerie für die Künstlerin Lusine.
+Online-Galerie für die Künstlerin Lusine, unter dem Namen LUART.
 Kein Shop: wenige, kuratierte Originale, jedes mit seiner eigenen Geschichte.
 
 > **Änderung während der Umsetzung:** Der ursprünglich geplante Direktkauf
@@ -31,6 +31,7 @@ Gestaltungsprinzipien, die jede spätere Entscheidung überstimmen:
 
 | Thema | Entscheidung |
 |---|---|
+| Name der Seite | LUART |
 | Künstlerin | Lusine, Einzelkünstlerin |
 | Technik | Next.js (App Router, TypeScript) |
 | Sprache | Deutsch |

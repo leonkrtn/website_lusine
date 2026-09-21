@@ -1,5 +1,5 @@
 /**
- * Bild-Worker für lusine
+ * Bild-Worker für LUART
  * =======================
  *
  * Liefert die Werkbilder aus dem R2-Speicher aus.

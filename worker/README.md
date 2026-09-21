@@ -34,7 +34,7 @@ zwischengespeichert werden.
 ```bash
 cd worker
 npx wrangler login
-npx wrangler r2 bucket create lusine-werke
+npx wrangler r2 bucket create luart-werke
 npx wrangler deploy
 ```
 

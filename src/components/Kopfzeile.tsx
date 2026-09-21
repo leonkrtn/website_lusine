@@ -37,9 +37,9 @@ export function Kopfzeile() {
         <Link
           href="/"
           className="text-[1.375rem] leading-none tracking-[0.2em] uppercase"
-          aria-label="Lusine — zur Startseite"
+          aria-label="LUART — zur Startseite"
         >
-          Lusine
+          LUART
         </Link>
 
         <nav aria-label="Hauptnavigation" className="hidden sm:block">

@@ -1,5 +1,5 @@
 -- ===========================================================================
---  Website Lusine — Datenbankschema
+--  LUART — Datenbankschema
 --
 --  Einspielen:
 --    Supabase Dashboard -> SQL Editor -> New query -> dieses Skript

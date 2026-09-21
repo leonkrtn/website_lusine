@@ -15,7 +15,7 @@ function client(): Resend | null {
 }
 
 function absender(): string {
-  return process.env.EMAIL_ABSENDER ?? "Lusine <onboarding@resend.dev>";
+  return process.env.EMAIL_ABSENDER ?? "LUART <onboarding@resend.dev>";
 }
 
 /** Schuetzt gegen eingeschleuste Auszeichnung in E-Mail-Texten. */
@@ -30,7 +30,7 @@ function sicher(text: string): string {
 function rahmen(inhalt: string): string {
   return `<div style="font-family:Georgia,'Times New Roman',serif;font-size:16px;line-height:1.7;color:#111111;background:#ffffff;padding:32px;max-width:560px">
 ${inhalt}
-<p style="margin-top:40px;font-size:12px;letter-spacing:0.14em;text-transform:uppercase;color:#6f6a66">Lusine</p>
+<p style="margin-top:40px;font-size:12px;letter-spacing:0.14em;text-transform:uppercase;color:#6f6a66">LUART</p>
 </div>`;
 }
 

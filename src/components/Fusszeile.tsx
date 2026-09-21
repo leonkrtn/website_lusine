@@ -13,7 +13,7 @@ export function Fusszeile() {
       <div className="mx-auto max-w-[110rem] px-4 py-16 sm:px-10 lg:px-16">
         <div className="flex flex-col gap-12 sm:flex-row sm:justify-between">
           <div>
-            <p className="text-[1.25rem] tracking-[0.2em] uppercase">Lusine</p>
+            <p className="text-[1.25rem] tracking-[0.2em] uppercase">LUART</p>
             <p className="mt-3 max-w-xs text-klein text-tinte-leise">
               Originale Malerei. Jedes Werk ein Unikat.
             </p>
@@ -36,7 +36,7 @@ export function Fusszeile() {
         </div>
 
         <p className="mt-16 text-fluestern text-tinte-still">
-          © {new Date().getFullYear()} Lusine. Alle Werke urheberrechtlich geschützt.
+          © {new Date().getFullYear()} LUART. Alle Werke urheberrechtlich geschützt.
         </p>
       </div>
     </footer>
