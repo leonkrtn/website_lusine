@@ -1,0 +1,232 @@
+@import "tailwindcss";
+
+/* ==========================================================================
+   Lusine — Design-System
+
+   Grundsatz: Die Seite ist ein Ausstellungsraum. Der Hintergrund ist
+   ueberall exakt #FFFFFF, damit ein Gemaelde, das auf Reinweiss
+   freigestellt ist, ohne sichtbare Kante auf der Seite steht.
+
+   Daraus folgt eine harte Verbotsliste, siehe ganz unten in dieser Datei.
+   ========================================================================== */
+
+@theme {
+  /* --- Farbe -------------------------------------------------------------
+     Bewusst nur vier Werte. Die Farbe der Seite kommt aus den Gemaelden,
+     nicht aus der Gestaltung. */
+  --color-papier: #ffffff;
+  --color-tinte: #111111;
+  --color-tinte-leise: #6f6a66;
+  --color-tinte-still: #a9a39d;
+  --color-linie: #e7e4e0;
+
+  /* --- Schrift ----------------------------------------------------------- */
+  --font-serif: var(--schrift-garamond), "EB Garamond", Georgia, serif;
+
+  /* Fliessende Groessen: waechst mit dem Fenster, ohne Sprunge.
+     Die Werte sind auf EB Garamond abgestimmt, die klein laeuft. */
+  --text-fluestern: 0.75rem;
+  --text-klein: 0.875rem;
+  --text-basis: clamp(1.0625rem, 0.99rem + 0.36vw, 1.3125rem);
+  --text-lead: clamp(1.25rem, 1.1rem + 0.7vw, 1.75rem);
+  --text-titel: clamp(1.75rem, 1.4rem + 1.6vw, 3rem);
+  --text-gross: clamp(2.25rem, 1.6rem + 3vw, 4.5rem);
+  --text-riesig: clamp(3rem, 1.8rem + 6vw, 8rem);
+
+  /* --- Rhythmus ----------------------------------------------------------
+     Der Weissraum ist Inhalt. Diese Stufen sind absichtlich gross. */
+  --spacing-atem: 4rem;
+  --spacing-pause: 8rem;
+  --spacing-stille: clamp(6rem, 12vh, 14rem);
+
+  /* --- Bewegung ----------------------------------------------------------
+     Langsam und weich. Nichts zuckt, nichts federt. */
+  --ease-ruhig: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --dauer-blende: 900ms;
+  --dauer-seite: 420ms;
+}
+
+/* --------------------------------------------------------------------------
+   Grundlagen
+   -------------------------------------------------------------------------- */
+
+:root {
+  /* Ausdruecklich KEIN Dark Mode. Er steht im direkten Widerspruch zum
+     rahmenlosen Weiss-auf-Weiss-Prinzip: ein auf Weiss freigestelltes
+     Gemaelde bekaeme auf dunklem Grund sofort eine sichtbare Kante. */
+  color-scheme: light only;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-papier);
+  color: var(--color-tinte);
+  font-family: var(--font-serif);
+  font-size: var(--text-basis);
+  line-height: 1.7;
+  font-synthesis-weight: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* Kein horizontales Scrollen, auch wenn der Parallax ueberzeichnet. */
+  overflow-x: hidden;
+}
+
+/* Auswahlfarbe: ein ruhiges Grau statt des grellen Systemblaus. */
+::selection {
+  background-color: #eceae7;
+  color: var(--color-tinte);
+}
+
+/* Sichtbarer Fokus fuer Tastaturbedienung — nie entfernen, nur leiser. */
+:focus-visible {
+  outline: 1px solid var(--color-tinte);
+  outline-offset: 4px;
+}
+
+/* --------------------------------------------------------------------------
+   Typografische Bausteine
+   -------------------------------------------------------------------------- */
+
+/* Beschriftungen: klein, weit laufend, nie laut. Fuer Jahreszahlen,
+   Techniken, Status. */
+.beschriftung {
+  font-size: var(--text-fluestern);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-tinte-leise);
+  line-height: 1.6;
+}
+
+/* Erzaehltext. Begrenzte Zeilenlaenge ist hier kein Detail, sondern
+   Voraussetzung dafuer, dass lange Texte gelesen werden. */
+.erzaehlung {
+  font-size: var(--text-lead);
+  line-height: 1.85;
+  max-width: 34rem;
+  letter-spacing: 0.003em;
+}
+
+.erzaehlung p + p {
+  margin-top: 1.4em;
+}
+
+/* Der erste Absatz einer Geschichte bekommt etwas mehr Gewicht. */
+.erzaehlung > p:first-child {
+  font-size: 1.06em;
+}
+
+/* --------------------------------------------------------------------------
+   Bewegung
+
+   Alle Effekte sind hier zentral definiert, damit "wenige, aber
+   wirkungsvolle Effekte" auch bei wachsendem Projekt eingehalten wird.
+   -------------------------------------------------------------------------- */
+
+/* 1. Einblenden beim Scrollen. Wird von useEinblenden gesetzt. */
+.einblenden {
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity var(--dauer-blende) var(--ease-ruhig),
+    transform var(--dauer-blende) var(--ease-ruhig);
+  will-change: opacity, transform;
+}
+
+.einblenden[data-sichtbar="true"] {
+  opacity: 1;
+  transform: none;
+}
+
+/* 2. Weicher Seitenuebergang. */
+@keyframes seite-herein {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.seitenwechsel {
+  animation: seite-herein var(--dauer-seite) var(--ease-ruhig) both;
+}
+
+/* 3. Parallax. Der Versatz wird per CSS-Variable von JavaScript gesetzt,
+   damit die Berechnung ausserhalb des Layouts bleibt. */
+.parallax {
+  transform: translate3d(0, var(--parallax-versatz, 0px), 0);
+  will-change: transform;
+}
+
+/* Wer ruhige Darstellung eingestellt hat, bekommt sie auch.
+   Der Inhalt bleibt vollstaendig sichtbar und bedienbar. */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .einblenden {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .seitenwechsel {
+    animation: none;
+  }
+
+  .parallax {
+    transform: none !important;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Die Verbotsliste
+
+   Diese Regeln sind der technische Schutz des rahmenlosen Prinzips. Ein
+   Gemaelde darf nie einen Rahmen, Schatten, abgerundete Ecke oder einen
+   farbigen Grund bekommen — sonst entsteht genau die Kante, die es
+   nicht geben soll. Die Klasse .werkbild markiert jede Bildflaeche, auf
+   der ein Gemaelde liegt.
+   -------------------------------------------------------------------------- */
+
+.werkbild,
+.werkbild img {
+  background-color: var(--color-papier);
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  outline: none;
+}
+
+/* Waehrend des Ladens ebenfalls reinweiss — ein grauer Platzhalter waere
+   fuer den Bruchteil einer Sekunde ein sichtbarer Rahmen. */
+.werkbild img {
+  color: transparent;
+}
+
+/* Druckausgabe: Katalogseiten sollen sauber aussehen. */
+@media print {
+  .nicht-drucken {
+    display: none !important;
+  }
+
+  body {
+    font-size: 11pt;
+  }
+}
