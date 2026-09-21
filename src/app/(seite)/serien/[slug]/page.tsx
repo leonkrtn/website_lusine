@@ -3,13 +3,17 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Einblenden } from "@/components/Einblenden";
 import { Werkkachel } from "@/components/Werkkachel";
-import { holeSerie, holeSerien, holeWerkeDerSerie } from "@/lib/daten";
+import {
+  holeSerie,
+  holeSerienFuerStatischePfade,
+  holeWerkeDerSerie,
+} from "@/lib/daten";
 
 type Props = { params: Promise<{ slug: string }> };
 
 export async function generateStaticParams() {
-  const serien = await holeSerien();
-  return serien.map((serie) => ({ slug: serie.slug }));
+  const slugs = await holeSerienFuerStatischePfade();
+  return slugs.map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

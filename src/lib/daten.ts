@@ -1,4 +1,4 @@
-import { supabaseServer } from "@/lib/supabase/server";
+import { supabaseOeffentlich, supabaseServer } from "@/lib/supabase/server";
 import { demoModus } from "@/lib/umgebung";
 import { SERIEN_SEED } from "@/data/serien";
 import { WERKE_SEED } from "@/data/werke";
@@ -119,6 +119,28 @@ export async function holeSerien(): Promise<Serie[]> {
   return data.map(zuSerie);
 }
 
+/**
+ * Die Slugs, die waehrend des Produktionsbaus vorgerendert werden.
+ *
+ * `generateStaticParams` hat keinen HTTP-Request und darf folglich keinen
+ * Cookie-basierten Client verwenden. Serien sind oeffentlich lesbar, daher
+ * reicht hier der anonyme, zustandslose Client aus.
+ */
+export async function holeSerienFuerStatischePfade(): Promise<string[]> {
+  if (demoModus()) return SERIEN_SEED.map((serie) => serie.slug);
+
+  const client = supabaseOeffentlich();
+  if (!client) return [];
+
+  const { data, error } = await client
+    .from("serien")
+    .select("slug")
+    .order("sortierung", { ascending: true });
+
+  if (error || !data) return [];
+  return data.map((serie) => String(serie.slug));
+}
+
 export async function holeSerie(slug: string): Promise<Serie | null> {
   if (demoModus()) {
     return SERIEN_SEED.find((serie) => serie.slug === slug) ?? null;
@@ -152,6 +174,22 @@ export async function holeWerke(): Promise<Werk[]> {
 
   if (error || !data) return [];
   return data.map(zuWerk);
+}
+
+/** Siehe `holeSerienFuerStatischePfade` fuer den Grund des separaten Clients. */
+export async function holeWerkeFuerStatischePfade(): Promise<string[]> {
+  if (demoModus()) return WERKE_SEED.map((werk) => werk.slug);
+
+  const client = supabaseOeffentlich();
+  if (!client) return [];
+
+  const { data, error } = await client
+    .from("werke")
+    .select("slug")
+    .order("sortierung", { ascending: false });
+
+  if (error || !data) return [];
+  return data.map((werk) => String(werk.slug));
 }
 
 export async function holeWerk(slug: string): Promise<WerkMitSerie | null> {
