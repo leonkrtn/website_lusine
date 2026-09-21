@@ -16,9 +16,22 @@
      nicht aus der Gestaltung. */
   --color-papier: #ffffff;
   --color-tinte: #111111;
-  --color-tinte-leise: #6f6a66;
-  --color-tinte-still: #a9a39d;
+
+  /* Die beiden leisen Grautoene sind nachgemessen, nicht geschaetzt.
+     Beide erreichen auf Reinweiss mindestens 4.5:1 und sind damit
+     auch in den kleinen Beschriftungen lesbar — ein Hinweistext, den
+     man nicht entziffern kann, ist kein zurueckhaltendes Design,
+     sondern ein Fehler. */
+  --color-tinte-leise: #5f5a55; /* 6.8:1 */
+  --color-tinte-still: #746e68; /* 5.0:1 */
+
+  /* Rein dekorative Trennlinie zwischen Abschnitten. */
   --color-linie: #e7e4e0;
+
+  /* Die Unterkante eines Eingabefelds ist das Einzige, was das Feld
+     ueberhaupt sichtbar macht. Sie ist damit ein Bedienelement und
+     braucht 3:1, nicht die Zartheit einer Trennlinie. */
+  --color-feldlinie: #8f887f; /* 3.5:1 */
 
   /* --- Schrift ----------------------------------------------------------- */
   --font-serif: var(--schrift-garamond), "EB Garamond", Georgia, serif;

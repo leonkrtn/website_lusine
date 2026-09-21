@@ -28,7 +28,7 @@ function Absenden() {
 }
 
 const feldKlasse =
-  "mt-2 w-full border-0 border-b border-linie bg-papier pb-2 text-basis " +
+  "mt-2 w-full border-0 border-b border-feldlinie bg-papier pb-2 text-basis " +
   "outline-none transition-colors duration-500 focus:border-tinte";
 
 /**

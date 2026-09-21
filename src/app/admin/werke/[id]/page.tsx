@@ -1,0 +1,66 @@
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { Werkformular } from "@/components/admin/Werkformular";
+import { Bilderverwaltung } from "@/components/admin/Bilderverwaltung";
+import { holeSerien, holeWerkNachId } from "@/lib/daten";
+import { demoModus, r2Konfiguriert } from "@/lib/umgebung";
+
+type Props = {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ neu?: string }>;
+};
+
+export default async function WerkBearbeiten({ params, searchParams }: Props) {
+  const { id } = await params;
+  const { neu } = await searchParams;
+
+  const [werk, serien] = await Promise.all([holeWerkNachId(id), holeSerien()]);
+
+  if (!werk) notFound();
+
+  const gesperrt = demoModus();
+
+  return (
+    <div>
+      <Link href="/admin/werke" className="beschriftung">
+        ← Werke
+      </Link>
+
+      <h1 className="mt-6 text-titel leading-tight">{werk.titel}</h1>
+
+      {neu && (
+        <p className="mt-6 max-w-xl bg-[#fdf4d8] px-4 py-3 text-klein">
+          Das Werk ist angelegt. Jetzt fehlen noch die Bilder — mindestens ein
+          Hauptbild, damit es auf der Seite erscheint.
+        </p>
+      )}
+
+      {/* --- Bilder zuerst ------------------------------------------------
+          Sie sind der Grund, warum es diese Seite gibt. Ein Formular mit
+          zwanzig Textfeldern ueber den Bildern wuerde den eigentlichen
+          Arbeitsschritt verstecken. */}
+      <section className="mt-12 border-t border-linie pt-10">
+        <h2 className="text-lead leading-snug">Bilder</h2>
+
+        {!r2Konfiguriert() && !gesperrt && (
+          <p className="mt-4 max-w-xl bg-[#fdf4d8] px-4 py-3 text-klein">
+            Der Bildspeicher ist noch nicht eingerichtet. Sobald die
+            Cloudflare-Zugangsdaten hinterlegt sind, lassen sich hier Bilder
+            hochladen.
+          </p>
+        )}
+
+        <div className="mt-8">
+          <Bilderverwaltung
+            werk={werk}
+            gesperrt={gesperrt || !r2Konfiguriert()}
+          />
+        </div>
+      </section>
+
+      <div className="mt-16">
+        <Werkformular werk={werk} serien={serien} gesperrt={gesperrt} />
+      </div>
+    </div>
+  );
+}
