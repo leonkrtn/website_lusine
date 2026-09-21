@@ -1,0 +1,34 @@
+# ---------------------------------------------------------------------------
+#  Bild-Worker für lusine
+#
+#  Veröffentlichen:
+#    cd worker
+#    npx wrangler login
+#    npx wrangler r2 bucket create lusine-werke      # einmalig
+#    npx wrangler deploy
+#
+#  Danach die öffentliche Adresse des Workers in der Website als
+#  NEXT_PUBLIC_BILD_BASIS_URL eintragen.
+# ---------------------------------------------------------------------------
+
+name = "lusine-bilder"
+main = "src/index.js"
+compatibility_date = "2025-09-01"
+
+# Der R2-Speicher, in dem die Werkbilder liegen. Der Name links
+# (WERKE) ist der Name der Bindung im Code, rechts steht der echte
+# Bucket-Name.
+[[r2_buckets]]
+binding = "WERKE"
+bucket_name = "lusine-werke"
+
+# Eigene Adresse für die Bilder. Erst eintragen, wenn die Domain bei
+# Cloudflare liegt — bis dahin läuft der Worker unter seiner
+# workers.dev-Adresse.
+#
+# [[routes]]
+# pattern = "bilder.lusine-kunst.de/*"
+# custom_domain = true
+
+[observability]
+enabled = true
