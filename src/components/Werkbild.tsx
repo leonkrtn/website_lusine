@@ -72,9 +72,9 @@ export function Werkbild({
     .join(", ");
 
   return (
-    // eslint-disable-next-line @next/next/no-img-element -- Die Varianten
-    // liegen fertig im Speicher; next/image wuerde sie ein zweites Mal
-    // verkleinern und dabei Schaerfe kosten.
+    /* Die Varianten liegen fertig im Speicher; next/image wuerde sie ein
+       zweites Mal verkleinern und dabei Schaerfe kosten. */
+    // eslint-disable-next-line @next/next/no-img-element
     <img
       src={`${quelle}?b=${verfuegbar[verfuegbar.length - 1]}`}
       srcSet={srcSet}

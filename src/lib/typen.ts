@@ -19,21 +19,6 @@ export const STATUS_BESCHRIFTUNG: Record<WerkStatus, string> = {
 export const BILD_ART = ["haupt", "detail"] as const;
 export type BildArt = (typeof BILD_ART)[number];
 
-export const BESTELL_STATUS = [
-  "offen",
-  "bezahlt",
-  "versandt",
-  "storniert",
-] as const;
-export type BestellStatus = (typeof BESTELL_STATUS)[number];
-
-export const BESTELL_STATUS_BESCHRIFTUNG: Record<BestellStatus, string> = {
-  offen: "Offen",
-  bezahlt: "Bezahlt",
-  versandt: "Versandt",
-  storniert: "Storniert",
-};
-
 export const ANFRAGE_STATUS = ["neu", "beantwortet", "abgeschlossen"] as const;
 export type AnfrageStatus = (typeof ANFRAGE_STATUS)[number];
 
@@ -91,10 +76,10 @@ export type Werk = {
   editionInfo: string | null;
 
   preisCent: number | null;
+  /** Nur zur Information neben dem Preis — es wird nichts berechnet. */
   versandCent: number;
   waehrung: string;
   status: WerkStatus;
-  direktkaufErlaubt: boolean;
   anfrageErlaubt: boolean;
 
   /** Die individuelle Signatur dieses Werks als freigestelltes PNG. */
@@ -109,30 +94,6 @@ export type Werk = {
 
 /** Ein Werk mit aufgeloester Serie — was die Detailseite braucht. */
 export type WerkMitSerie = Werk & { serie: Serie | null };
-
-export type Bestellung = {
-  id: string;
-  werkId: string | null;
-  werkTitel: string;
-  stripeSitzungId: string | null;
-  kaeuferName: string | null;
-  kaeuferEmail: string | null;
-  betragCent: number;
-  versandCent: number;
-  waehrung: string;
-  lieferadresse: Lieferadresse | null;
-  status: BestellStatus;
-  erstelltAm: string;
-};
-
-export type Lieferadresse = {
-  name?: string | null;
-  strasse?: string | null;
-  zusatz?: string | null;
-  plz?: string | null;
-  ort?: string | null;
-  land?: string | null;
-};
 
 export type Anfrage = {
   id: string;

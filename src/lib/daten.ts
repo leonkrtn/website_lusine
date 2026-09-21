@@ -1,12 +1,10 @@
 import { supabaseServer } from "@/lib/supabase/server";
-import { supabaseDienst } from "@/lib/supabase/dienst";
 import { demoModus } from "@/lib/umgebung";
 import { SERIEN_SEED } from "@/data/serien";
 import { WERKE_SEED } from "@/data/werke";
 import {
   TEXTE_STANDARD,
   type Anfrage,
-  type Bestellung,
   type SeitenTexte,
   type Serie,
   type Werk,
@@ -88,7 +86,6 @@ function zuWerk(zeile: Zeile): Werk {
         : zeile.status === "reserviert"
           ? "reserviert"
           : "verfuegbar",
-    direktkaufErlaubt: zeile.direktkauf_erlaubt !== false,
     anfrageErlaubt: zeile.anfrage_erlaubt !== false,
     signaturSchluessel: zeile.signatur_schluessel
       ? String(zeile.signatur_schluessel)
@@ -287,32 +284,8 @@ export async function holeTexte(): Promise<SeitenTexte> {
 }
 
 // ---------------------------------------------------------------------------
-//  Bestellungen und Anfragen — ausschliesslich fuer das Admin-Panel
+//  Anfragen — ausschliesslich fuer das Admin-Panel
 // ---------------------------------------------------------------------------
-
-function zuBestellung(zeile: Zeile): Bestellung {
-  return {
-    id: String(zeile.id),
-    werkId: zeile.werk_id ? String(zeile.werk_id) : null,
-    werkTitel: String(zeile.werk_titel ?? ""),
-    stripeSitzungId: zeile.stripe_sitzung_id
-      ? String(zeile.stripe_sitzung_id)
-      : null,
-    kaeuferName: zeile.kaeufer_name ? String(zeile.kaeufer_name) : null,
-    kaeuferEmail: zeile.kaeufer_email ? String(zeile.kaeufer_email) : null,
-    betragCent: zuZahl(zeile.betrag_cent) ?? 0,
-    versandCent: zuZahl(zeile.versand_cent) ?? 0,
-    waehrung: String(zeile.waehrung ?? "eur"),
-    lieferadresse: (zeile.lieferadresse as Bestellung["lieferadresse"]) ?? null,
-    status:
-      zeile.status === "bezahlt" ||
-      zeile.status === "versandt" ||
-      zeile.status === "storniert"
-        ? zeile.status
-        : "offen",
-    erstelltAm: String(zeile.erstellt_am ?? ""),
-  };
-}
 
 function zuAnfrage(zeile: Zeile): Anfrage {
   return {
@@ -330,19 +303,6 @@ function zuAnfrage(zeile: Zeile): Anfrage {
   };
 }
 
-export async function holeBestellungen(): Promise<Bestellung[]> {
-  if (demoModus()) return [];
-
-  const client = await supabaseServer();
-  const { data, error } = await client
-    .from("bestellungen")
-    .select("*")
-    .order("erstellt_am", { ascending: false });
-
-  if (error || !data) return [];
-  return (data as Zeile[]).map(zuBestellung);
-}
-
 export async function holeAnfragen(): Promise<Anfrage[]> {
   if (demoModus()) return [];
 
@@ -354,21 +314,4 @@ export async function holeAnfragen(): Promise<Anfrage[]> {
 
   if (error || !data) return [];
   return (data as Zeile[]).map(zuAnfrage);
-}
-
-/**
- * Setzt ein Werk auf "verkauft" und sperrt den Direktkauf.
- *
- * Laeuft nach erfolgreicher Zahlung im Stripe-Webhook, also ohne
- * angemeldeten Benutzer — darum ueber den Dienstschluessel. Bei
- * Unikaten ist das der Schutz vor Doppelverkauf.
- */
-export async function markiereWerkAlsVerkauft(werkId: string): Promise<void> {
-  const client = supabaseDienst();
-  if (!client) return;
-
-  await client
-    .from("werke")
-    .update({ status: "verkauft", direktkauf_erlaubt: false })
-    .eq("id", werkId);
 }

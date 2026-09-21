@@ -52,6 +52,11 @@ export default function DatenschutzSeite() {
           Es findet keine Reichweitenmessung statt, es werden keine Profile
           gebildet, und es sind keine Inhalte sozialer Netzwerke eingebunden.
         </p>
+        <p>
+          Über diese Website werden auch keine Zahlungen abgewickelt. Es ist
+          kein Zahlungsdienstleister eingebunden, und es werden zu keinem
+          Zeitpunkt Zahlungsdaten erhoben.
+        </p>
       </Abschnitt>
 
       <Abschnitt ueberschrift="4. Kontakt- und Anfrageformular">
@@ -72,45 +77,23 @@ export default function DatenschutzSeite() {
         </p>
       </Abschnitt>
 
-      <Abschnitt ueberschrift="5. Zahlungsabwicklung">
+      <Abschnitt ueberschrift="5. Speicherung der Werkdaten">
         <p>
-          Für Zahlungen wird Stripe Payments Europe Ltd., 1 Grand Canal Street
-          Lower, Dublin 2, Irland, eingesetzt. Beim Kauf werden die zur
-          Abwicklung erforderlichen Daten an Stripe übermittelt: Name,
-          E-Mail-Adresse, Lieferadresse, Kaufbetrag und Zahlungsdaten.
-        </p>
-        <p>
-          Die Zahlungsdaten selbst werden ausschließlich von Stripe verarbeitet
-          und erreichen diese Website zu keinem Zeitpunkt. Rechtsgrundlage ist
-          Art. 6 Abs. 1 lit. b DSGVO.
-        </p>
-        <p>
-          Näheres unter{" "}
-          <a href="https://stripe.com/de/privacy" rel="noopener noreferrer" target="_blank">
-            stripe.com/de/privacy
-          </a>
-          .
-        </p>
-      </Abschnitt>
-
-      <Abschnitt ueberschrift="6. Speicherung der Werkdaten">
-        <p>
-          Werke, Texte, Bestellungen und Anfragen werden bei Supabase Inc.
-          gespeichert. Die Bilddateien liegen bei Cloudflare, Inc. und werden
+          Werke, Texte und Anfragen werden bei Supabase Inc. gespeichert. Die Bilddateien liegen bei Cloudflare, Inc. und werden
           von dort ausgeliefert. Beide Anbieter verarbeiten die Daten als
           Auftragsverarbeiter auf Grundlage eines Vertrags nach Art. 28 DSGVO.
         </p>
       </Abschnitt>
 
-      <Abschnitt ueberschrift="7. E-Mail-Versand">
+      <Abschnitt ueberschrift="6. E-Mail-Versand">
         <p>
-          Bestätigungen zu Anfragen und Käufen werden über Resend, Inc.
+          Die Eingangsbestätigung zu Ihrer Anfrage wird über Resend, Inc.
           versendet. Dabei werden Ihre E-Mail-Adresse und der Inhalt der
           Nachricht verarbeitet.
         </p>
       </Abschnitt>
 
-      <Abschnitt ueberschrift="8. Ihre Rechte">
+      <Abschnitt ueberschrift="7. Ihre Rechte">
         <p>Sie haben jederzeit das Recht auf</p>
         <ul>
           <li>Auskunft über die zu Ihnen gespeicherten Daten (Art. 15 DSGVO),</li>

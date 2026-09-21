@@ -5,7 +5,6 @@ import { createClient, type SupabaseClient } from "@supabase/supabase-js";
  *
  * Nur fuer Vorgaenge, die ohne angemeldeten Benutzer stattfinden und
  * trotzdem schreiben muessen:
- *   - der Stripe-Webhook, der eine Bestellung anlegt
  *   - das Anfrageformular, das eine Nachricht speichert
  *
  * Darf niemals in eine Client Component importiert werden. Der

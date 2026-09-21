@@ -144,8 +144,8 @@ export function Zoomansicht({ schluessel, alt, offen, beimSchliessen }: Props) {
         className="flex h-full w-full items-center justify-center overflow-hidden p-4 sm:p-10"
         onMouseMove={beiBewegung}
       >
-        {/* eslint-disable-next-line @next/next/no-img-element -- volle
-            Aufloesung ohne Zwischenschritt, siehe Werkbild.tsx */}
+        {/* Volle Aufloesung ohne Zwischenschritt, siehe Werkbild.tsx */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={adresse}
           alt={alt}

@@ -6,9 +6,9 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: "/",
-      // Das Admin-Panel, die Schnittstellen und die Danke-Seite gehoeren
-      // nicht in einen Suchindex.
-      disallow: ["/admin", "/admin/", "/api/", "/kauf/"],
+      // Das Admin-Panel und die Schnittstellen gehoeren nicht in einen
+      // Suchindex.
+      disallow: ["/admin", "/admin/", "/api/"],
     },
     sitemap: `${seitenUrl()}/sitemap.xml`,
   };

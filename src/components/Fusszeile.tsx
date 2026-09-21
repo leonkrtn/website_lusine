@@ -3,7 +3,7 @@ import Link from "next/link";
 const rechtliches = [
   { pfad: "/impressum", name: "Impressum" },
   { pfad: "/datenschutz", name: "Datenschutz" },
-  { pfad: "/agb", name: "AGB" },
+  { pfad: "/agb", name: "Verkaufsbedingungen" },
   { pfad: "/widerruf", name: "Widerruf" },
 ];
 

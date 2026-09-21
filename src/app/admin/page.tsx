@@ -1,7 +1,6 @@
 import Link from "next/link";
-import { holeAnfragen, holeBestellungen, holeWerke } from "@/lib/daten";
-import { preisText } from "@/lib/bilder";
-import { demoModus, r2Konfiguriert, resendKonfiguriert, stripeKonfiguriert } from "@/lib/umgebung";
+import { holeAnfragen, holeWerke } from "@/lib/daten";
+import { demoModus, r2Konfiguriert, resendKonfiguriert } from "@/lib/umgebung";
 import { STATUS_BESCHRIFTUNG } from "@/lib/typen";
 
 /**
@@ -9,55 +8,37 @@ import { STATUS_BESCHRIFTUNG } from "@/lib/typen";
  * Ist etwas zu tun? Wie steht die Galerie da? Was fehlt noch technisch?
  */
 export default async function AdminUebersicht() {
-  const [werke, bestellungen, anfragen] = await Promise.all([
-    holeWerke(),
-    holeBestellungen(),
-    holeAnfragen(),
-  ]);
+  const [werke, anfragen] = await Promise.all([holeWerke(), holeAnfragen()]);
 
-  const offeneAnfragen = anfragen.filter((a) => a.status === "neu");
-  const offeneBestellungen = bestellungen.filter((b) => b.status === "bezahlt");
-  const verfuegbar = werke.filter((w) => w.status === "verfuegbar");
-  const verkauft = werke.filter((w) => w.status === "verkauft");
-  const aufStartseite = werke.filter((w) => w.aufStartseite);
-  const ohneBild = werke.filter((w) => w.bilder.length === 0);
+  const offeneAnfragen = anfragen.filter((anfrage) => anfrage.status === "neu");
+  const verfuegbar = werke.filter((werk) => werk.status === "verfuegbar");
+  const verkauft = werke.filter((werk) => werk.status === "verkauft");
+  const aufStartseite = werke.filter((werk) => werk.aufStartseite);
+  const ohneBild = werke.filter((werk) => werk.bilder.length === 0);
+  const ohnePreis = verfuegbar.filter((werk) => werk.preisCent === null);
 
   const einrichtung = [
     { name: "Datenbank (Supabase)", fertig: !demoModus() },
     { name: "Bildspeicher (Cloudflare R2)", fertig: r2Konfiguriert() },
-    { name: "Zahlung (Stripe)", fertig: stripeKonfiguriert() },
     { name: "E-Mail (Resend)", fertig: resendKonfiguriert() },
   ];
-  const offeneEinrichtung = einrichtung.filter((e) => !e.fertig);
+  const offeneEinrichtung = einrichtung.filter((eintrag) => !eintrag.fertig);
 
   return (
     <div>
       <h1 className="text-titel leading-tight">Übersicht</h1>
 
       {/* --- Was zu tun ist ------------------------------------------------ */}
-      {(offeneAnfragen.length > 0 || offeneBestellungen.length > 0) && (
+      {offeneAnfragen.length > 0 && (
         <section className="mt-12">
           <h2 className="beschriftung">Zu erledigen</h2>
-          <ul className="mt-6 space-y-3">
-            {offeneBestellungen.length > 0 && (
-              <li>
-                <Link href="/admin/bestellungen" className="border-b border-tinte pb-0.5">
-                  {offeneBestellungen.length === 1
-                    ? "1 bezahlte Bestellung wartet auf Versand"
-                    : `${offeneBestellungen.length} bezahlte Bestellungen warten auf Versand`}
-                </Link>
-              </li>
-            )}
-            {offeneAnfragen.length > 0 && (
-              <li>
-                <Link href="/admin/anfragen" className="border-b border-tinte pb-0.5">
-                  {offeneAnfragen.length === 1
-                    ? "1 unbeantwortete Anfrage"
-                    : `${offeneAnfragen.length} unbeantwortete Anfragen`}
-                </Link>
-              </li>
-            )}
-          </ul>
+          <p className="mt-6">
+            <Link href="/admin/anfragen" className="border-b border-tinte pb-0.5">
+              {offeneAnfragen.length === 1
+                ? "1 unbeantwortete Anfrage"
+                : `${offeneAnfragen.length} unbeantwortete Anfragen`}
+            </Link>
+          </p>
         </section>
       )}
 
@@ -83,14 +64,23 @@ export default async function AdminUebersicht() {
             {ohneBild.length === 1
               ? "Ein Werk hat noch kein Bild: "
               : `${ohneBild.length} Werke haben noch kein Bild: `}
-            {ohneBild.slice(0, 4).map((werk, i) => (
+            {ohneBild.slice(0, 4).map((werk, nummer) => (
               <span key={werk.id}>
-                {i > 0 && ", "}
+                {nummer > 0 && ", "}
                 <Link href={`/admin/werke/${werk.id}`} className="border-b border-linie">
                   {werk.titel}
                 </Link>
               </span>
             ))}
+          </p>
+        )}
+
+        {ohnePreis.length > 0 && (
+          <p className="mt-4 text-klein text-tinte-leise">
+            {ohnePreis.length === 1
+              ? "Bei einem verfügbaren Werk steht kein Preis"
+              : `Bei ${ohnePreis.length} verfügbaren Werken steht kein Preis`}{" "}
+            — dort erscheint „Preis auf Anfrage“.
           </p>
         )}
 
@@ -102,16 +92,21 @@ export default async function AdminUebersicht() {
         )}
       </section>
 
-      {/* --- Letzte Bestellungen ------------------------------------------- */}
-      {bestellungen.length > 0 && (
+      {/* --- Letzte Anfragen ----------------------------------------------- */}
+      {anfragen.length > 0 && (
         <section className="mt-16">
-          <h2 className="beschriftung">Zuletzt verkauft</h2>
+          <h2 className="beschriftung">Zuletzt eingegangen</h2>
           <ul className="mt-6 space-y-3">
-            {bestellungen.slice(0, 5).map((bestellung) => (
-              <li key={bestellung.id} className="flex justify-between gap-6 text-klein">
-                <span>{bestellung.werkTitel}</span>
+            {anfragen.slice(0, 5).map((anfrage) => (
+              <li key={anfrage.id} className="flex justify-between gap-6 text-klein">
+                <span>
+                  {anfrage.name}
+                  {anfrage.werkTitel && (
+                    <span className="text-tinte-leise"> · {anfrage.werkTitel}</span>
+                  )}
+                </span>
                 <span className="text-tinte-leise">
-                  {preisText(bestellung.betragCent, bestellung.waehrung)}
+                  {anfrage.status === "neu" ? "offen" : "erledigt"}
                 </span>
               </li>
             ))}

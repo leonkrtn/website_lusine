@@ -274,3 +274,31 @@ body {
   left: 0;
   color: var(--color-tinte-still);
 }
+
+/* --------------------------------------------------------------------------
+   Der Auslauf unter der Kopfzeile
+
+   Die Kopfzeile bleibt beim Scrollen stehen. Ohne Zutun schneidet ihre
+   Unterkante alles hart ab, was darunter hinweglaeuft — mitten durch
+   Buchstaben und mitten durch ein Gemaelde.
+
+   Ein kurzer Verlauf von Papier nach durchsichtig laesst den Inhalt
+   stattdessen weich verschwinden. Auf Reinweiss ist der Verlauf selbst
+   unsichtbar; zu sehen ist nur, dass nichts mehr abgeschnitten wird.
+   -------------------------------------------------------------------------- */
+
+.kopfzeile::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  height: 2.5rem;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    var(--color-papier) 0%,
+    color-mix(in srgb, var(--color-papier) 60%, transparent) 55%,
+    transparent 100%
+  );
+}

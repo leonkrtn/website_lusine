@@ -18,7 +18,3 @@ export const ANFRAGE_START: AnfrageZustand = {
   fehler: null,
   felderfehler: {},
 };
-
-export type KaufZustand = { fehler: string | null };
-
-export const KAUF_START: KaufZustand = { fehler: null };

@@ -35,8 +35,10 @@ export function Einblenden({
     if (!knoten) return;
 
     // Kein IntersectionObserver (sehr alte Browser): sofort zeigen.
+    // Ueber queueMicrotask, damit der Zustandswechsel nicht noch im
+    // laufenden Effekt passiert und eine zweite Renderrunde ausloest.
     if (typeof IntersectionObserver === "undefined") {
-      setSichtbar(true);
+      queueMicrotask(() => setSichtbar(true));
       return;
     }
 

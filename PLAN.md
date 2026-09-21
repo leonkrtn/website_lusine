@@ -1,7 +1,13 @@
 # Lusine — Umsetzungsplan
 
-Online-Galerie und Verkaufsplattform für die Künstlerin Lusine.
-Kein Massenshop: wenige, kuratierte Originale, jedes mit seiner eigenen Geschichte.
+Online-Galerie für die Künstlerin Lusine.
+Kein Shop: wenige, kuratierte Originale, jedes mit seiner eigenen Geschichte.
+
+> **Änderung während der Umsetzung:** Der ursprünglich geplante Direktkauf
+> über Stripe ist entfallen. Die Seite zeigt Werke und Preise; der Kauf
+> entsteht im persönlichen Austausch über das Anfrageformular. Damit
+> verschwinden Zahlungsdienst, Bestellverwaltung und die automatische
+> Verkaufssperre — und mit ihnen ein gutes Stück Pflichten und Wartung.
 
 ---
 
@@ -28,7 +34,7 @@ Gestaltungsprinzipien, die jede spätere Entscheidung überstimmen:
 | Künstlerin | Lusine, Einzelkünstlerin |
 | Technik | Next.js (App Router, TypeScript) |
 | Sprache | Deutsch |
-| Verkauf | Stripe-Direktkauf **und** persönliche Kaufanfrage |
+| Verkauf | Preisanzeige, Erwerb über persönliche Anfrage |
 | Struktur | Klassische Galerie-Navigation, eigene URL pro Werk |
 | Umfang | 8–20 Werke, kuratiert |
 | Serien | Eigene Ebene mit Einleitungstext |
@@ -42,7 +48,7 @@ Gestaltungsprinzipien, die jede spätere Entscheidung überstimmen:
 | Effekte | Scroll-Einblendung, weiche Seitenübergänge, Bild-Zoom, sanfter Parallax |
 | Signatur | Individuelles PNG je Werk — unter dem Werk, als Textabschluss, beim Hover |
 | Material | Start mit Platzhaltern, Lusine füllt über das Admin-Panel |
-| Recht/Versand | Versandkosten je Werk, Rechtstexte, Auto-Sperre nach Verkauf, Bestätigungsmails |
+| Recht/Versand | Versandkosten je Werk als Hinweis, Rechtstexte, Bestätigungsmails |
 | Hosting | Vercel |
 
 ---
@@ -91,8 +97,8 @@ Das ist die wichtigste Seite der Website. Aufbau von oben nach unten:
    Wandtext im Museum.
 5. **Detailaufnahmen.** Nahaufnahmen von Struktur, Pinselstrich, Kanten.
 6. **Datenblatt.** Technik, Material, Maße, Unikat/Edition — klein und sachlich.
-7. **Erwerb.** Preis, Verfügbarkeit, „Erwerben" (Stripe) und „Anfragen".
-   Bei verkauften Werken statt dessen ein ruhiger Hinweis „Verkauft".
+7. **Erwerb.** Preis, Verfügbarkeit und der Weg zur Anfrage. Bei
+   verkauften Werken stattdessen ein ruhiger Hinweis „Verkauft".
 8. **Weiter.** Ein bis zwei verwandte Werke aus derselben Serie.
 
 ---
@@ -107,22 +113,19 @@ artworks        id, slug, titel, jahr, serie_id,
                 ist_unikat, edition_info,
                 preis_cent, versand_cent, währung,
                 status (verfügbar | reserviert | verkauft),
-                direktkauf_erlaubt, anfrage_erlaubt,
+                anfrage_erlaubt,
                 signatur_key,
                 auf_startseite, startseite_sortierung, sortierung
 artwork_images  id, artwork_id, r2_key, art (haupt | detail),
                 alt_text, breite_px, höhe_px, sortierung
-orders          id, artwork_id, stripe_session_id, stripe_payment_intent,
-                käufer_name, käufer_email, betrag_cent, versand_cent,
-                lieferadresse, status (offen | bezahlt | versandt | storniert)
 inquiries       id, artwork_id, name, email, nachricht,
                 status (neu | beantwortet | abgeschlossen)
 site_content    key, value  — Startseiten- und Über-Texte
 ```
 
 **Zugriffsschutz:** Row Level Security. Öffentlich lesbar sind nur Werke,
-Serien, Bilder und Texte. Bestellungen und Anfragen sind ausschließlich für den
-angemeldeten Admin-Account sichtbar; geschrieben wird dort nur serverseitig.
+Serien, Bilder und Texte. Anfragen sind ausschließlich für den angemeldeten
+Admin-Account sichtbar; geschrieben wird dort nur serverseitig.
 
 ---
 
@@ -178,21 +181,20 @@ Nichts blockiert den Inhalt: Texte sind auch ohne JavaScript lesbar.
 
 ---
 
-## 9. Verkauf
+## 9. Erwerb
 
-**Direktkauf.** „Erwerben" erzeugt eine Stripe-Checkout-Session mit Preis plus
-werkspezifischen Versandkosten. Nach erfolgreicher Zahlung meldet ein
-Stripe-Webhook zurück, die Bestellung wird gespeichert und das Werk
-**automatisch auf „verkauft" gesetzt** — es bleibt sichtbar, ist aber nicht mehr
-kaufbar. Das schützt Unikate vor Doppelverkauf.
+**Kein Kauf über die Website.** Der Preis steht offen auf der Werkseite,
+daneben der Hinweis auf die Versandkosten. Wer ein Werk möchte, schreibt
+über „Dieses Werk anfragen" eine Nachricht; Lusine antwortet persönlich
+und klärt Versand, Zahlung und Zeitpunkt.
 
-**Anfrage.** „Anfragen" öffnet ein schlankes Formular (Name, E-Mail,
-Nachricht). Die Anfrage landet im Admin-Panel und per E-Mail bei Lusine.
+Das passt zu Originalen, die es je nur einmal gibt — und es erspart der
+Seite einen Zahlungsdienst samt Warenkorb, Bestellverwaltung und den
+Pflichten eines Online-Shops.
 
-**E-Mails** über Resend: Kaufbestätigung an den Käufer, Benachrichtigung an
-Lusine, Eingangsbestätigung bei Anfragen.
-
----
+**Anfragen** landen im Admin-Panel und werden dort auf neu, beantwortet
+oder abgeschlossen gesetzt. **E-Mails** über Resend: Benachrichtigung an
+Lusine, Eingangsbestätigung an die anfragende Person.
 
 ## 10. Arbeitsphasen
 
@@ -204,7 +206,7 @@ Lusine, Eingangsbestätigung bei Anfragen.
 | **3** | Bild-Pipeline: R2, Worker, Upload, Weißprüfung, Image-Loader | Bilder laufen |
 | **4** | Öffentliches Frontend: Start, Katalog, Werk, Serien, Über, Kontakt | Website steht |
 | **5** | Admin-Panel: Werke, Serien, Bilder, Signaturen, Texte | Lusine kann pflegen |
-| **6** | Stripe, Anfragen, E-Mails, Auto-Sperre | Verkauf läuft |
+| **6** | Anfragen und E-Mails | Interessenten erreichen Lusine |
 | **7** | Rechtstexte, SEO, Performance, Barrierefreiheit, Deployment auf Vercel | Live |
 
 ---
@@ -216,7 +218,6 @@ werden Zugänge benötigt:
 
 - Supabase-Projekt (URL, Anon-Key, Service-Key)
 - Cloudflare-Konto mit R2-Bucket und Worker-Route
-- Stripe-Konto (Test- und Live-Schlüssel, Webhook-Secret)
 - Resend-Konto für E-Mails
 - Gewünschte Domain
 - Angaben für das Impressum
@@ -230,9 +231,12 @@ Alle Schlüssel gehören in Umgebungsvariablen, niemals ins Repo. Ich lege eine
 
 - **Anmeldung:** Supabase Auth mit E-Mail und Passwort, ein einziger Account für
   Lusine. Kein öffentliches Registrierungsformular.
-- **Rechtstexte:** Ich lege vollständige Seitengerüste mit Platzhaltern an.
-  Die endgültigen Texte sollten vor dem Livegang juristisch geprüft werden —
-  beim Verkauf an Privatpersonen in Deutschland ist das keine Formalie.
+- **Rechtstexte:** Impressum und Datenschutzerklärung sind verpflichtend.
+  Verkaufsbedingungen und Widerrufsbelehrung sind für die Website selbst
+  nicht vorgeschrieben, weil dort kein Vertrag geschlossen wird — sie sind
+  für den Fall da, dass der Kauf per E-Mail zustande kommt. Das ist dann
+  ein Fernabsatzvertrag, und die Belehrung muss vor Vertragsschluss
+  vorliegen. Alle vier sollten vor dem Livegang juristisch geprüft werden.
 - **Kein Dark Mode.** Er steht im direkten Widerspruch zum rahmenlosen
   Weiß-auf-Weiß-Prinzip.
 - **Bildqualität ist Verkaufsargument.** Die Zoom-Ansicht lebt von hochauflösenden

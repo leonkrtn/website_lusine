@@ -21,11 +21,6 @@ export function Kopfzeile() {
   const pfad = usePathname();
   const [menueOffen, setMenueOffen] = useState(false);
 
-  // Beim Seitenwechsel das mobile Menue schliessen.
-  useEffect(() => {
-    setMenueOffen(false);
-  }, [pfad]);
-
   // Bei offenem Menue nicht im Hintergrund scrollen.
   useEffect(() => {
     document.body.style.overflow = menueOffen ? "hidden" : "";
@@ -37,7 +32,7 @@ export function Kopfzeile() {
   const istAktiv = (ziel: string) => pfad === ziel || pfad.startsWith(`${ziel}/`);
 
   return (
-    <header className="nicht-drucken sticky top-0 z-40 bg-papier">
+    <header className="kopfzeile nicht-drucken sticky top-0 z-40 bg-papier">
       <div className="mx-auto flex max-w-[110rem] items-baseline justify-between px-4 py-6 sm:px-10 lg:px-16">
         <Link
           href="/"
@@ -88,6 +83,10 @@ export function Kopfzeile() {
                 <Link
                   href={eintrag.pfad}
                   aria-current={istAktiv(eintrag.pfad) ? "page" : undefined}
+                  // Direkt beim Klick schliessen statt ueber einen Effekt
+                  // auf den Pfad: der Zielpfad kann derselbe sein, dann
+                  // faende gar kein Wechsel statt und das Menue bliebe offen.
+                  onClick={() => setMenueOffen(false)}
                   className="text-titel"
                 >
                   {eintrag.name}

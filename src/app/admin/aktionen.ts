@@ -134,7 +134,6 @@ export async function speichereWerk(
     preis_cent: zuCent(d.preis ?? ""),
     versand_cent: zuCent(d.versand ?? "") ?? 0,
     status: d.status,
-    direktkauf_erlaubt: formular.get("direktkaufErlaubt") === "ja",
     anfrage_erlaubt: formular.get("anfrageErlaubt") === "ja",
     auf_startseite: formular.get("aufStartseite") === "ja",
     startseite_sortierung: zahlOderNull(String(formular.get("startseiteSortierung") ?? "")) ?? 0,
@@ -334,22 +333,8 @@ export async function speichereTexte(
 }
 
 // ---------------------------------------------------------------------------
-//  Bestellungen und Anfragen
+//  Anfragen
 // ---------------------------------------------------------------------------
-
-export async function setzeBestellstatus(formular: FormData): Promise<void> {
-  await stelleSicherAngemeldet();
-
-  const id = String(formular.get("id") ?? "");
-  const status = String(formular.get("status") ?? "");
-  if (!id || !status) return;
-
-  const client = await supabaseServer();
-  await client.from("bestellungen").update({ status }).eq("id", id);
-
-  revalidatePath("/admin/bestellungen");
-  revalidatePath("/admin");
-}
 
 export async function setzeAnfragestatus(formular: FormData): Promise<void> {
   await stelleSicherAngemeldet();

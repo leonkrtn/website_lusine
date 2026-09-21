@@ -2,7 +2,7 @@
  * Zentrale Stelle fuer alle Umgebungsvariablen.
  *
  * Die Seite muss in jedem Ausbauzustand lauffaehig sein: ohne Supabase,
- * ohne Cloudflare, ohne Stripe. Jede Pruefung hier beantwortet die Frage
+ * ohne Cloudflare, ohne E-Mail-Dienst. Jede Pruefung hier beantwortet die Frage
  * "ist dieser Baustein schon angeschlossen?" — der Rest des Codes
  * entscheidet daran, ob er echte Daten nutzt oder den Demo-Modus.
  */
@@ -49,14 +49,6 @@ export function r2Konfiguriert(): boolean {
       process.env.R2_ZUGRIFFSSCHLUESSEL_ID &&
       process.env.R2_GEHEIMER_SCHLUESSEL &&
       process.env.R2_BUCKET,
-  );
-}
-
-/** Kann echt bezahlt werden? */
-export function stripeKonfiguriert(): boolean {
-  return Boolean(
-    process.env.STRIPE_GEHEIMSCHLUESSEL &&
-      process.env.NEXT_PUBLIC_STRIPE_VEROEFFENTLICHBARER_SCHLUESSEL,
   );
 }
 

@@ -8,7 +8,6 @@ const eintraege = [
   { pfad: "/admin", name: "Übersicht", genau: true },
   { pfad: "/admin/werke", name: "Werke" },
   { pfad: "/admin/serien", name: "Serien" },
-  { pfad: "/admin/bestellungen", name: "Bestellungen" },
   { pfad: "/admin/anfragen", name: "Anfragen" },
   { pfad: "/admin/texte", name: "Texte" },
 ];

@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useRef, useState, type ChangeEvent, type DragEvent } from "react";
+import { useState, type ChangeEvent, type DragEvent } from "react";
 import { Werkbild } from "@/components/Werkbild";
 import { Signatur } from "@/components/Signatur";
 import { entferneBild, entferneSignatur } from "@/app/admin/aktionen";
@@ -103,6 +103,62 @@ async function messeRand(datei: File): Promise<Befund | null> {
 
 type Art = "haupt" | "detail" | "signatur";
 
+type AblageProps = {
+  art: Art;
+  beschriftung: string;
+  istAktiv: boolean;
+  istZiel: boolean;
+  gesperrt: boolean;
+  beiAuswahl: (ereignis: ChangeEvent<HTMLInputElement>, art: Art) => void;
+  beiAblegen: (ereignis: DragEvent<HTMLLabelElement>, art: Art) => void;
+  setUeberZiel: (art: Art | null) => void;
+};
+
+/**
+ * Ein Ablagefeld fuer eine Datei.
+ *
+ * Steht bewusst ausserhalb von Bilderverwaltung. Eine innerhalb des
+ * Renderns definierte Komponente ist bei jedem Zustandswechsel eine
+ * andere Komponente — React haengt sie dann aus und neu ein, das
+ * Dateifeld verliert dabei seinen Knoten, und die Referenz darauf
+ * zeigt ins Leere.
+ */
+function Ablage({
+  art,
+  beschriftung,
+  istAktiv,
+  istZiel,
+  gesperrt,
+  beiAuswahl,
+  beiAblegen,
+  setUeberZiel,
+}: AblageProps) {
+  return (
+    <label
+      onDragOver={(e) => {
+        e.preventDefault();
+        setUeberZiel(art);
+      }}
+      onDragLeave={() => setUeberZiel(null)}
+      onDrop={(e) => beiAblegen(e, art)}
+      className={`flex cursor-pointer items-center justify-center border border-dashed px-6 py-10 text-center text-klein transition-colors duration-300 ${
+        istZiel
+          ? "border-tinte text-tinte"
+          : "border-linie text-tinte-leise hover:border-tinte-still"
+      } ${istAktiv ? "pointer-events-none opacity-50" : ""}`}
+    >
+      <input
+        type="file"
+        accept="image/jpeg,image/png,image/webp,image/avif,image/tiff"
+        onChange={(e) => beiAuswahl(e, art)}
+        disabled={istAktiv || gesperrt}
+        className="sr-only"
+      />
+      {istAktiv ? "Wird verarbeitet — das dauert einen Moment …" : beschriftung}
+    </label>
+  );
+}
+
 export function Bilderverwaltung({
   werk,
   gesperrt = false,
@@ -115,7 +171,6 @@ export function Bilderverwaltung({
   const [fehler, setFehler] = useState<string | null>(null);
   const [hinweis, setHinweis] = useState<string | null>(null);
   const [ueberZiel, setUeberZiel] = useState<Art | null>(null);
-  const eingaben = useRef<Record<string, HTMLInputElement | null>>({});
 
   async function verarbeite(datei: File, art: Art) {
     setFehler(null);
@@ -214,14 +269,20 @@ export function Bilderverwaltung({
       setFehler(problem instanceof Error ? problem.message : "Unbekannter Fehler.");
     } finally {
       setLaeuft(null);
-      const eingabe = eingaben.current[art];
-      if (eingabe) eingabe.value = "";
     }
   }
 
   function beiAuswahl(ereignis: ChangeEvent<HTMLInputElement>, art: Art) {
-    const datei = ereignis.target.files?.[0];
-    if (datei) void verarbeite(datei, art);
+    const eingabe = ereignis.target;
+    const datei = eingabe.files?.[0];
+    if (!datei) return;
+
+    // Das Feld leeren, sobald die Datei verarbeitet ist. Sonst laesst
+    // sich dieselbe Datei kein zweites Mal auswaehlen — der Browser
+    // meldet dann keine Aenderung.
+    void verarbeite(datei, art).finally(() => {
+      eingabe.value = "";
+    });
   }
 
   function beiAblegen(ereignis: DragEvent<HTMLLabelElement>, art: Art) {
@@ -233,38 +294,6 @@ export function Bilderverwaltung({
 
   const hauptbild = werk.bilder.find((bild) => bild.art === "haupt");
   const details = werk.bilder.filter((bild) => bild.art === "detail");
-
-  function Ablage({ art, beschriftung }: { art: Art; beschriftung: string }) {
-    const istAktiv = laeuft === art;
-
-    return (
-      <label
-        onDragOver={(e) => {
-          e.preventDefault();
-          setUeberZiel(art);
-        }}
-        onDragLeave={() => setUeberZiel(null)}
-        onDrop={(e) => beiAblegen(e, art)}
-        className={`flex cursor-pointer items-center justify-center border border-dashed px-6 py-10 text-center text-klein transition-colors duration-300 ${
-          ueberZiel === art
-            ? "border-tinte text-tinte"
-            : "border-linie text-tinte-leise hover:border-tinte-still"
-        } ${istAktiv ? "pointer-events-none opacity-50" : ""}`}
-      >
-        <input
-          ref={(element) => {
-            eingaben.current[art] = element;
-          }}
-          type="file"
-          accept="image/jpeg,image/png,image/webp,image/avif,image/tiff"
-          onChange={(e) => beiAuswahl(e, art)}
-          disabled={istAktiv || gesperrt}
-          className="sr-only"
-        />
-        {istAktiv ? "Wird verarbeitet — das dauert einen Moment …" : beschriftung}
-      </label>
-    );
-  }
 
   return (
     <div className="space-y-12">
@@ -320,6 +349,12 @@ export function Bilderverwaltung({
                 ? "Neues Hauptbild hierher ziehen oder klicken — das bisherige wird zur Detailaufnahme"
                 : "Hauptbild hierher ziehen oder klicken"
             }
+            istAktiv={laeuft === "haupt"}
+            istZiel={ueberZiel === "haupt"}
+            gesperrt={gesperrt}
+            beiAuswahl={beiAuswahl}
+            beiAblegen={beiAblegen}
+            setUeberZiel={setUeberZiel}
           />
         </div>
       </section>
@@ -361,7 +396,16 @@ export function Bilderverwaltung({
         )}
 
         <div className="mt-6">
-          <Ablage art="detail" beschriftung="Detailaufnahme hierher ziehen oder klicken" />
+          <Ablage
+            art="detail"
+            beschriftung="Detailaufnahme hierher ziehen oder klicken"
+            istAktiv={laeuft === "detail"}
+            istZiel={ueberZiel === "detail"}
+            gesperrt={gesperrt}
+            beiAuswahl={beiAuswahl}
+            beiAblegen={beiAblegen}
+            setUeberZiel={setUeberZiel}
+          />
         </div>
       </section>
 
@@ -399,7 +443,16 @@ export function Bilderverwaltung({
             )}
           </div>
 
-          <Ablage art="signatur" beschriftung="Signatur-PNG hierher ziehen oder klicken" />
+          <Ablage
+            art="signatur"
+            beschriftung="Signatur-PNG hierher ziehen oder klicken"
+            istAktiv={laeuft === "signatur"}
+            istZiel={ueberZiel === "signatur"}
+            gesperrt={gesperrt}
+            beiAuswahl={beiAuswahl}
+            beiAblegen={beiAblegen}
+            setUeberZiel={setUeberZiel}
+          />
         </div>
       </section>
     </div>

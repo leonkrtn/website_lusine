@@ -37,9 +37,9 @@ export function Signatur({
     : `${quelle}?b=${breite > 400 ? 900 : 400}`;
 
   return (
-    // eslint-disable-next-line @next/next/no-img-element -- Signaturen sind
-    // kleine, transparente Grafiken; die Bildverarbeitung von next/image
-    // bringt hier nichts und wuerde die Transparenz gefaehrden.
+    /* Signaturen sind kleine, transparente Grafiken; die Bildverarbeitung
+       von next/image bringt hier nichts und gefaehrdet die Transparenz. */
+    // eslint-disable-next-line @next/next/no-img-element
     <img
       src={adresse}
       alt=""

@@ -53,7 +53,7 @@ function besterTyp(annahme) {
   return { endung: "jpg", typ: "image/jpeg" };
 }
 
-export default {
+const worker = {
   async fetch(anfrage, umgebung, kontext) {
     if (anfrage.method !== "GET" && anfrage.method !== "HEAD") {
       return fehler(405, "Nur GET und HEAD.");
@@ -147,3 +147,5 @@ export default {
     return antwort;
   },
 };
+
+export default worker;

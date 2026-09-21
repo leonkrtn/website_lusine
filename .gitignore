@@ -42,3 +42,6 @@ next-env.d.ts
 
 # env files: Beispieldatei gehoert ins Repo
 !.env.example
+
+# Aufnahmen der Browserpruefung
+/pruefung-aufnahmen

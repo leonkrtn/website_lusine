@@ -9,13 +9,28 @@ export const metadata: Metadata = {
 /**
  * Widerrufsbelehrung fuer Verbrauchervertraege im Fernabsatz.
  *
- * Der Text folgt dem gesetzlichen Muster. Er ist bewusst nicht
- * umformuliert: Abweichungen vom Muster kosten den gesetzlichen
- * Schutz, den das Muster bietet.
+ * Ueber diese Website wird nichts verkauft. Ein Vertrag entsteht erst
+ * im persoenlichen Austausch — kommt er dabei ausschliesslich ueber
+ * E-Mail oder Telefon zustande, ist er ein Fernabsatzvertrag, und die
+ * Belehrung muss dem Verbraucher vor Vertragsschluss vorliegen. Diese
+ * Seite ist dafuer da, aus einem Angebot heraus verlinkt zu werden.
+ *
+ * Der Text folgt dem gesetzlichen Muster und ist bewusst nicht
+ * umformuliert: Abweichungen vom Muster kosten den Schutz, den das
+ * Muster bietet.
  */
 export default function WiderrufSeite() {
   return (
     <Rechtstext titel="Widerrufsbelehrung">
+      <Abschnitt ueberschrift="Wann diese Belehrung gilt">
+        <p>
+          Über diese Website kann nichts gekauft werden. Ein Kaufvertrag kommt
+          erst im persönlichen Austausch zustande. Geschieht das ausschließlich
+          über Fernkommunikationsmittel — etwa per E-Mail — und ist der Käufer
+          Verbraucher, so gilt die folgende Belehrung.
+        </p>
+      </Abschnitt>
+
       <Abschnitt ueberschrift="Widerrufsrecht">
         <p>
           Sie haben das Recht, binnen vierzehn Tagen ohne Angabe von Gründen

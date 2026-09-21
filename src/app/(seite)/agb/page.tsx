@@ -2,72 +2,80 @@ import type { Metadata } from "next";
 import { Abschnitt, Auszufuellen, Rechtstext } from "@/components/Rechtstext";
 
 export const metadata: Metadata = {
-  title: "Allgemeine Geschäftsbedingungen",
+  title: "Verkaufsbedingungen",
   robots: { index: true, follow: false },
 };
 
-export default function AgbSeite() {
+/**
+ * Verkaufsbedingungen.
+ *
+ * Über diese Website wird nichts verkauft — sie zeigt Werke und Preise,
+ * der Kauf entsteht danach im persönlichen Austausch. Diese Seite
+ * beschreibt genau diesen Ablauf und ist als Anlage zu einem Angebot
+ * gedacht, nicht als Shop-AGB.
+ */
+export default function VerkaufsbedingungenSeite() {
   return (
-    <Rechtstext titel="Allgemeine Geschäftsbedingungen">
-      <Abschnitt ueberschrift="1. Geltungsbereich und Anbieterin">
+    <Rechtstext titel="Verkaufsbedingungen">
+      <Abschnitt ueberschrift="1. Anbieterin und Geltung">
         <p>
-          Diese Bedingungen gelten für alle Verträge über den Kauf von
-          Kunstwerken, die über diese Website zwischen{" "}
+          Diese Bedingungen gelten für Verträge über den Kauf von Kunstwerken
+          zwischen{" "}
           <Auszufuellen>Name und Anschrift der Künstlerin</Auszufuellen>{" "}
-          (nachfolgend „die Künstlerin“) und dem Käufer geschlossen werden.
+          (nachfolgend „die Künstlerin“) und dem Käufer.
         </p>
       </Abschnitt>
 
-      <Abschnitt ueberschrift="2. Vertragsgegenstand">
+      <Abschnitt ueberschrift="2. Kein Kauf über diese Website">
+        <p>
+          Über diese Website findet kein Verkauf statt. Die Darstellung der
+          Werke mit Preisangabe ist kein rechtlich bindendes Angebot, sondern
+          eine Einladung, Kontakt aufzunehmen.
+        </p>
+        <p>
+          Wer ein Werk erwerben möchte, sendet eine Anfrage. Die Künstlerin
+          antwortet mit einem persönlichen Angebot, das Preis, Versandart,
+          Versandkosten und Lieferzeit ausweist. Der Vertrag kommt erst
+          zustande, wenn dieses Angebot angenommen wird.
+        </p>
+      </Abschnitt>
+
+      <Abschnitt ueberschrift="3. Vertragsgegenstand">
         <p>
           Gegenstand des Vertrags ist der Verkauf eines Originalkunstwerks.
-          Alle angebotenen Werke sind Unikate und existieren jeweils nur
-          einmal. Die Abbildungen auf dieser Website geben Farbe und Oberfläche
-          so genau wieder, wie es fotografisch möglich ist; geringfügige
-          Abweichungen in der Darstellung auf unterschiedlichen Bildschirmen
-          sind technisch bedingt und stellen keinen Mangel dar.
-        </p>
-      </Abschnitt>
-
-      <Abschnitt ueberschrift="3. Vertragsschluss">
-        <p>
-          Die Darstellung der Werke auf dieser Website ist kein rechtlich
-          bindendes Angebot, sondern eine Aufforderung zur Bestellung. Mit dem
-          Abschluss des Zahlungsvorgangs gibt der Käufer ein verbindliches
-          Angebot ab. Der Vertrag kommt mit der Annahme durch die Künstlerin
-          zustande, spätestens mit dem Versand des Werks.
+          Alle Werke sind Unikate und existieren jeweils nur einmal. Ein
+          Anspruch auf ein bestimmtes Werk entsteht erst mit Vertragsschluss —
+          bis dahin kann es anderweitig verkauft werden.
         </p>
         <p>
-          Da jedes Werk nur einmal existiert, wird es unmittelbar nach
-          erfolgreicher Zahlung als verkauft gekennzeichnet und ist nicht mehr
-          erwerbbar.
+          Die Abbildungen geben Farbe und Oberfläche so genau wieder, wie es
+          fotografisch möglich ist. Geringfügige Abweichungen in der
+          Darstellung auf unterschiedlichen Bildschirmen sind technisch bedingt
+          und stellen keinen Mangel dar.
         </p>
       </Abschnitt>
 
       <Abschnitt ueberschrift="4. Preise und Zahlung">
         <p>
-          Alle Preise sind Endpreise. Die Versandkosten werden vor Abschluss
-          der Bestellung gesondert ausgewiesen und richten sich nach Format und
-          Gewicht des jeweiligen Werks.
+          Die auf dieser Website genannten Preise sind Endpreise. Angaben zu
+          Versandkosten dienen der Orientierung; verbindlich sind die Angaben
+          im persönlichen Angebot.
         </p>
         <p>
-          Die Zahlung erfolgt über den Zahlungsdienstleister Stripe. Es gelten
-          ergänzend dessen Bedingungen. Die Künstlerin erhält dabei keine
-          vollständigen Zahlungsdaten.
+          Die Zahlung erfolgt nach Rechnungsstellung per Überweisung, sofern
+          nichts anderes vereinbart ist.
         </p>
       </Abschnitt>
 
       <Abschnitt ueberschrift="5. Lieferung">
         <p>
-          Die Lieferung erfolgt versichert innerhalb von{" "}
-          <Auszufuellen>Lieferfrist, z. B. 5 bis 10 Werktagen</Auszufuellen>{" "}
-          nach Zahlungseingang an die vom Käufer angegebene Adresse. Es wird
-          nach Deutschland, Österreich und in die Schweiz geliefert.
+          Die Lieferung erfolgt versichert an die vereinbarte Adresse. Die
+          Lieferzeit wird im Angebot genannt.
         </p>
         <p>
           Die Werke werden fachgerecht verpackt. Transportschäden sind
-          unverzüglich nach Erhalt anzuzeigen und nach Möglichkeit fotografisch
-          zu dokumentieren.
+          unverzüglich nach Erhalt anzuzeigen und nach Möglichkeit
+          fotografisch zu dokumentieren.
         </p>
       </Abschnitt>
 
@@ -80,8 +88,10 @@ export default function AgbSeite() {
 
       <Abschnitt ueberschrift="7. Widerrufsrecht">
         <p>
-          Verbrauchern steht ein gesetzliches Widerrufsrecht zu. Einzelheiten
-          finden sich in der <a href="/widerruf">Widerrufsbelehrung</a>.
+          Wird der Vertrag mit einem Verbraucher ausschließlich über
+          Fernkommunikationsmittel geschlossen — etwa per E-Mail —, besteht ein
+          gesetzliches Widerrufsrecht. Einzelheiten stehen in der{" "}
+          <a href="/widerruf">Widerrufsbelehrung</a>.
         </p>
       </Abschnitt>
 
@@ -103,9 +113,8 @@ export default function AgbSeite() {
           Werks bedarf ihrer Zustimmung.
         </p>
         <p>
-          Die Künstlerin behält sich das Recht vor, das Werk weiterhin in
-          ihrem Werkverzeichnis, in Ausstellungen und in Publikationen
-          abzubilden.
+          Die Künstlerin behält sich das Recht vor, das Werk weiterhin in ihrem
+          Werkverzeichnis, in Ausstellungen und in Publikationen abzubilden.
         </p>
       </Abschnitt>
 

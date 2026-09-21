@@ -23,10 +23,6 @@ begin
     create type bild_art as enum ('haupt', 'detail');
   end if;
 
-  if not exists (select 1 from pg_type where typname = 'bestell_status') then
-    create type bestell_status as enum ('offen', 'bezahlt', 'versandt', 'storniert');
-  end if;
-
   if not exists (select 1 from pg_type where typname = 'anfrage_status') then
     create type anfrage_status as enum ('neu', 'beantwortet', 'abgeschlossen');
   end if;
@@ -74,8 +70,8 @@ create trigger serien_aktualisiert
 -- ---------------------------------------------------------------------------
 --  Werke
 --
---  Der Kern der Seite. Preise werden in Cent gespeichert, damit keine
---  Rundungsfehler entstehen und Stripe die Werte direkt uebernehmen kann.
+--  Der Kern der Seite. Preise werden in Cent gespeichert, damit beim
+--  Rechnen keine Rundungsfehler entstehen.
 -- ---------------------------------------------------------------------------
 
 create table if not exists werke (
@@ -98,12 +94,13 @@ create table if not exists werke (
   ist_unikat    boolean not null default true,
   edition_info  text,
 
+  -- Preis und Versand werden nur angezeigt. Es wird ueber diese Seite
+  -- nicht verkauft; die Abwicklung geschieht persoenlich.
   preis_cent    integer check (preis_cent is null or preis_cent >= 0),
   versand_cent  integer not null default 0 check (versand_cent >= 0),
   waehrung      text not null default 'eur',
   status        werk_status not null default 'verfuegbar',
-  direktkauf_erlaubt boolean not null default true,
-  anfrage_erlaubt    boolean not null default true,
+  anfrage_erlaubt boolean not null default true,
 
   -- Individuelle Signatur dieses Werks, freigestelltes PNG im R2-Speicher.
   signatur_schluessel text,
@@ -152,39 +149,6 @@ create table if not exists werk_bilder (
 );
 
 create index if not exists werk_bilder_werk_idx on werk_bilder (werk_id, sortierung);
-
--- ---------------------------------------------------------------------------
---  Bestellungen
---
---  Wird ausschliesslich vom Stripe-Webhook geschrieben, nie aus dem
---  Browser. Die Lieferadresse kommt von Stripe und wird als JSON abgelegt.
--- ---------------------------------------------------------------------------
-
-create table if not exists bestellungen (
-  id                uuid primary key default gen_random_uuid(),
-  werk_id           uuid references werke (id) on delete set null,
-  -- Titel wird mitgespeichert: eine Bestellung muss lesbar bleiben,
-  -- auch wenn das Werk spaeter geloescht wird.
-  werk_titel        text not null default '',
-  stripe_sitzung_id text unique,
-  stripe_zahlung_id text,
-  kaeufer_name      text,
-  kaeufer_email     text,
-  betrag_cent       integer not null default 0,
-  versand_cent      integer not null default 0,
-  waehrung          text not null default 'eur',
-  lieferadresse     jsonb,
-  status            bestell_status not null default 'offen',
-  erstellt_am       timestamptz not null default now(),
-  aktualisiert_am   timestamptz not null default now()
-);
-
-create index if not exists bestellungen_zeit_idx on bestellungen (erstellt_am desc);
-
-drop trigger if exists bestellungen_aktualisiert on bestellungen;
-create trigger bestellungen_aktualisiert
-  before update on bestellungen
-  for each row execute function setze_aktualisiert_am();
 
 -- ---------------------------------------------------------------------------
 --  Kaufanfragen
@@ -236,9 +200,9 @@ create trigger seiten_texte_aktualisiert
 --  Grundregel:
 --    * Oeffentlich lesbar sind Serien, Werke, Bilder und Texte.
 --    * Schreiben darf nur, wer angemeldet ist.
---    * Bestellungen und Anfragen sind fuer die Oeffentlichkeit weder
---      lesbar noch schreibbar. Sie werden ausschliesslich serverseitig
---      mit dem Dienstschluessel verarbeitet, der RLS umgeht.
+--    * Anfragen sind fuer die Oeffentlichkeit weder lesbar noch
+--      schreibbar. Sie werden ausschliesslich serverseitig mit dem
+--      Dienstschluessel verarbeitet, der RLS umgeht.
 --
 --  Da es genau einen Zugang gibt (Lusine), genuegt "angemeldet" als
 --  Kriterium. Wichtig: In den Supabase-Einstellungen unter
@@ -249,7 +213,6 @@ create trigger seiten_texte_aktualisiert
 alter table serien       enable row level security;
 alter table werke        enable row level security;
 alter table werk_bilder  enable row level security;
-alter table bestellungen enable row level security;
 alter table anfragen     enable row level security;
 alter table seiten_texte enable row level security;
 
@@ -305,23 +268,11 @@ create policy "seiten_texte pflegbar"
   to authenticated
   using (true) with check (true);
 
--- --- Bestellungen und Anfragen: nur lesen, nur angemeldet ------------------
+-- --- Anfragen: nur lesen, nur angemeldet ----------------------------------
 --
 --  Kein anon-Zugriff. Neue Anfragen legt der Server mit dem
 --  Dienstschluessel an — so kann niemand ueber den Browser fremde
---  Anfragen oder Bestellungen auslesen oder faelschen.
-
-drop policy if exists "bestellungen nur intern lesbar" on bestellungen;
-create policy "bestellungen nur intern lesbar"
-  on bestellungen for select
-  to authenticated
-  using (true);
-
-drop policy if exists "bestellungen intern pflegbar" on bestellungen;
-create policy "bestellungen intern pflegbar"
-  on bestellungen for update
-  to authenticated
-  using (true) with check (true);
+--  Anfragen auslesen oder faelschen.
 
 drop policy if exists "anfragen nur intern lesbar" on anfragen;
 create policy "anfragen nur intern lesbar"

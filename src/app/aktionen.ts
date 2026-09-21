@@ -1,22 +1,20 @@
 "use server";
 
-import { redirect } from "next/navigation";
 import { z } from "zod";
-import { stripe } from "@/lib/stripe";
 import { supabaseDienst } from "@/lib/supabase/dienst";
-import { holeWerkNachId, holeWerk } from "@/lib/daten";
 import { bestaetigeAnfrage, meldeAnfrageAnAtelier } from "@/lib/mail";
-import { demoModus, seitenUrl, stripeKonfiguriert } from "@/lib/umgebung";
-import type { AnfrageZustand, KaufZustand } from "@/lib/formularzustand";
+import { demoModus } from "@/lib/umgebung";
+import type { AnfrageZustand } from "@/lib/formularzustand";
 
 /**
- * Die Vorgaenge, die Besucher der Seite ausloesen koennen: ein Werk
- * kaufen oder danach fragen.
+ * Der einzige Vorgang, den Besucher der Seite ausloesen koennen: eine
+ * Anfrage zu einem Werk.
  *
- * Beide laufen ausschliesslich auf dem Server. Preise, Verfuegbarkeit
- * und Versandkosten werden hier frisch aus der Datenbank gelesen und
- * nie aus dem Formular uebernommen — sonst koennte jeder den Preis
- * eines Originals im Browser aendern.
+ * Es gibt keinen Kauf ueber die Website. Wer ein Werk erwerben will,
+ * schreibt eine Nachricht; alles Weitere — Preis, Versand, Zahlung —
+ * klaert Lusine persoenlich. Das passt zu Originalen, die es je nur
+ * einmal gibt, und erspart der Seite einen Zahlungsdienst samt der
+ * Pflichten, die daran haengen.
  */
 
 // ---------------------------------------------------------------------------
@@ -119,107 +117,4 @@ export async function sendeAnfrage(
   ]);
 
   return { erfolg: true, fehler: null, felderfehler: {} };
-}
-
-// ---------------------------------------------------------------------------
-//  Direktkauf
-// ---------------------------------------------------------------------------
-
-export async function starteKauf(
-  _zustand: KaufZustand,
-  formular: FormData,
-): Promise<KaufZustand> {
-  const werkId = String(formular.get("werkId") ?? "");
-  const werkSlug = String(formular.get("werkSlug") ?? "");
-
-  if (!werkId) return { fehler: "Unbekanntes Werk." };
-
-  if (!stripeKonfiguriert()) {
-    return {
-      fehler:
-        "Der Direktkauf ist noch nicht eingerichtet. Bitte nutzen Sie die Kaufanfrage — wir melden uns persönlich.",
-    };
-  }
-
-  // Frisch aus der Datenbank: Preis, Versand und Verfuegbarkeit duerfen
-  // niemals aus dem Formular stammen.
-  const werk = werkSlug ? await holeWerk(werkSlug) : await holeWerkNachId(werkId);
-
-  if (!werk) return { fehler: "Dieses Werk wurde nicht gefunden." };
-
-  if (werk.status !== "verfuegbar" || !werk.direktkaufErlaubt) {
-    return {
-      fehler:
-        "Dieses Werk ist nicht mehr direkt erhältlich. Schreiben Sie mir gern eine Nachricht.",
-    };
-  }
-
-  if (!werk.preisCent || werk.preisCent <= 0) {
-    return {
-      fehler: "Für dieses Werk ist kein Preis hinterlegt. Bitte fragen Sie an.",
-    };
-  }
-
-  const zahlung = stripe();
-  if (!zahlung) return { fehler: "Die Zahlung ist gerade nicht verfügbar." };
-
-  const basis = seitenUrl();
-  let adresse: string | null = null;
-
-  try {
-    const sitzung = await zahlung.checkout.sessions.create({
-      mode: "payment",
-      line_items: [
-        {
-          quantity: 1,
-          price_data: {
-            currency: werk.waehrung,
-            unit_amount: werk.preisCent,
-            product_data: {
-              name: werk.titel,
-              description: [werk.jahr, werk.technik].filter(Boolean).join(", "),
-            },
-          },
-        },
-      ],
-      // Versandkosten haengen am Werk: ein Grossformat kostet mehr als
-      // eine kleine Arbeit.
-      shipping_options: werk.versandCent
-        ? [
-            {
-              shipping_rate_data: {
-                type: "fixed_amount",
-                display_name: "Versicherter Versand",
-                fixed_amount: {
-                  amount: werk.versandCent,
-                  currency: werk.waehrung,
-                },
-              },
-            },
-          ]
-        : undefined,
-      shipping_address_collection: { allowed_countries: ["DE", "AT", "CH"] },
-      phone_number_collection: { enabled: false },
-      locale: "de",
-      // Ueber diese Angaben findet der Webhook das Werk wieder.
-      metadata: { werkId: werk.id, werkTitel: werk.titel, werkSlug: werk.slug },
-      success_url: `${basis}/kauf/danke?sitzung={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${basis}/werke/${werk.slug}`,
-    });
-
-    adresse = sitzung.url;
-  } catch {
-    return {
-      fehler:
-        "Die Zahlung konnte nicht gestartet werden. Bitte versuchen Sie es noch einmal.",
-    };
-  }
-
-  if (!adresse) {
-    return { fehler: "Die Zahlung konnte nicht gestartet werden." };
-  }
-
-  // redirect wirft intern eine besondere Ausnahme und muss deshalb
-  // ausserhalb des try-Blocks stehen.
-  redirect(adresse);
 }

@@ -174,7 +174,7 @@ export function Werkformular({ werk, serien, gesperrt = false }: Props) {
           <Feld
             name="preis"
             beschriftung="Preis in Euro"
-            hinweis="Leer lassen für „Preis auf Anfrage“."
+            hinweis="Wird auf der Werkseite angezeigt. Leer lassen für „Preis auf Anfrage“."
             standardwert={centZuEingabe(werk?.preisCent ?? null)}
             platzhalter="3400"
             gesperrt={gesperrt}
@@ -182,7 +182,7 @@ export function Werkformular({ werk, serien, gesperrt = false }: Props) {
           <Feld
             name="versand"
             beschriftung="Versandkosten in Euro"
-            hinweis="Gilt nur für dieses Werk. Großformate kosten mehr."
+            hinweis="Erscheint als Hinweis neben dem Preis. Es wird nichts berechnet — die Abwicklung klären Sie persönlich."
             standardwert={centZuEingabe(werk?.versandCent ?? 0)}
             platzhalter="120"
             gesperrt={gesperrt}
@@ -192,7 +192,7 @@ export function Werkformular({ werk, serien, gesperrt = false }: Props) {
         <Auswahl
           name="status"
           beschriftung="Status"
-          hinweis="Nach einem Kauf über die Website wird das Werk automatisch auf „Verkauft“ gesetzt."
+          hinweis="Steuert, was auf der Werkseite steht: Preis mit Anfrage, ein Hinweis auf die Reservierung oder schlicht „Verkauft“."
           standardwert={werk?.status ?? "verfuegbar"}
           optionen={WERK_STATUS.map((status) => ({
             wert: status,
@@ -201,16 +201,9 @@ export function Werkformular({ werk, serien, gesperrt = false }: Props) {
         />
 
         <Schalter
-          name="direktkaufErlaubt"
-          beschriftung="Direktkauf erlauben"
-          hinweis="Zeigt den Erwerben-Knopf. Ohne Preis bleibt er ohnehin aus."
-          an={werk?.direktkaufErlaubt ?? true}
-        />
-
-        <Schalter
           name="anfrageErlaubt"
-          beschriftung="Kaufanfrage erlauben"
-          hinweis="Zeigt den Weg über eine persönliche Nachricht."
+          beschriftung="Anfrage zu diesem Werk erlauben"
+          hinweis="Zeigt den Knopf, über den Interessenten eine Nachricht schreiben können."
           an={werk?.anfrageErlaubt ?? true}
         />
       </Gruppe>
