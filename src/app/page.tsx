@@ -98,7 +98,7 @@ export default async function Startseite() {
           <Einblenden>
             <blockquote className="mx-auto max-w-4xl text-center">
               <p className="text-gross leading-[1.25] text-balance italic">
-                „{texte.startseiteZitat}"
+                „{texte.startseiteZitat}“
               </p>
               <footer className="beschriftung mt-10 not-italic">Lusine</footer>
             </blockquote>

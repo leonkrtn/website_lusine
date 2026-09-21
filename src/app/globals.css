@@ -230,3 +230,34 @@ body {
     font-size: 11pt;
   }
 }
+
+/* --------------------------------------------------------------------------
+   Rechtliche Seiten
+
+   Sie muessen sauber lesbar sein, sollen aber optisch zuruecktreten.
+   -------------------------------------------------------------------------- */
+
+.rechtstext a {
+  border-bottom: 1px solid var(--color-linie);
+}
+
+.rechtstext a:hover {
+  border-color: var(--color-tinte);
+}
+
+.rechtstext ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.rechtstext li {
+  padding-left: 1.2em;
+  position: relative;
+}
+
+.rechtstext li::before {
+  content: "—";
+  position: absolute;
+  left: 0;
+  color: var(--color-tinte-still);
+}

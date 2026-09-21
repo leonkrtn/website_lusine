@@ -34,18 +34,27 @@ export function Werkkachel({
   return (
     <Einblenden verzoegerung={verzoegerung} als="article">
       <Link href={`/werke/${werk.slug}`} className="group block">
+        {/* Museale Haengung: alle Werke einer Zeile teilen sich dieselbe
+            Mittelachse, unabhaengig von Hoch- oder Querformat. Genau so
+            haengt man Bilder an eine Wand — und nur so stehen die Titel
+            darunter auf einer Linie, statt zu tanzen. */}
         <div
-          className="mx-auto"
-          style={werkBreiteStil(bild.breitePx, bild.hoehePx, maxHoeheVh, 34)}
+          className="flex items-center justify-center"
+          style={{ height: `${maxHoeheVh}vh` }}
         >
-          <Werkbild
-            schluessel={bild.schluessel}
-            alt={bild.altText || werk.titel}
-            breitePx={bild.breitePx}
-            hoehePx={bild.hoehePx}
-            sizes={sizes}
-            className="transition-opacity duration-700 group-hover:opacity-90"
-          />
+          <div
+            className="mx-auto"
+            style={werkBreiteStil(bild.breitePx, bild.hoehePx, maxHoeheVh, 34)}
+          >
+            <Werkbild
+              schluessel={bild.schluessel}
+              alt={bild.altText || werk.titel}
+              breitePx={bild.breitePx}
+              hoehePx={bild.hoehePx}
+              sizes={sizes}
+              className="transition-opacity duration-700 group-hover:opacity-90"
+            />
+          </div>
         </div>
 
         <div className="mt-6 text-center">

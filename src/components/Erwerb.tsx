@@ -94,12 +94,12 @@ export function Erwerb({ werk }: { werk: Werk }) {
       {/* --- Anfrage ------------------------------------------------------- */}
       {formularOffen && (
         <div className="mt-16 border-t border-linie pt-16">
-          <h3 className="beschriftung">Anfrage zu „{werk.titel}"</h3>
+          <h3 className="beschriftung">Anfrage zu „{werk.titel}“</h3>
           <Anfrageformular
             werkId={werk.id}
             werkTitel={werk.titel}
             werkSlug={werk.slug}
-            vorlage={`Guten Tag,\n\nich interessiere mich für „${werk.titel}".\n\n`}
+            vorlage={`Guten Tag,\n\nich interessiere mich für „${werk.titel}“.\n\n`}
           />
         </div>
       )}

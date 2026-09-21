@@ -50,7 +50,7 @@ export async function meldeAnfrageAnAtelier(daten: Anfragedaten): Promise<void> 
   if (!dienst || !ziel) return;
 
   const betreff = daten.werkTitel
-    ? `Anfrage zu „${daten.werkTitel}"`
+    ? `Anfrage zu „${daten.werkTitel}“`
     : "Neue Anfrage über die Website";
 
   const link = daten.werkSlug
@@ -117,7 +117,7 @@ export async function bestaetigeKauf(daten: Kaufdaten): Promise<void> {
     await dienst.emails.send({
       from: absender(),
       to: daten.kaeuferEmail,
-      subject: `Ihr Werk „${daten.werkTitel}"`,
+      subject: `Ihr Werk „${daten.werkTitel}“`,
       html: rahmen(`
 <p>Guten Tag${daten.kaeuferName ? ` ${sicher(daten.kaeuferName)}` : ""},</p>
 <p>Ihr Kauf von <em>${sicher(daten.werkTitel)}</em> ist bestätigt. Vielen Dank — es freut mich sehr, dass dieses Bild zu Ihnen kommt.</p>
@@ -148,7 +148,7 @@ export async function meldeKaufAnAtelier(daten: Kaufdaten): Promise<void> {
       to: ziel,
       subject: `Verkauft: ${daten.werkTitel}`,
       html: rahmen(`
-<h1 style="font-size:22px;font-weight:normal;margin:0 0 24px">„${sicher(daten.werkTitel)}" ist verkauft</h1>
+<h1 style="font-size:22px;font-weight:normal;margin:0 0 24px">„${sicher(daten.werkTitel)}“ ist verkauft</h1>
 <p>${sicher(daten.kaeuferName ?? "")}<br>${sicher(daten.kaeuferEmail ?? "")}</p>
 <p>Betrag: ${preisText(daten.betragCent, daten.waehrung)}</p>
 ${adresse}`),

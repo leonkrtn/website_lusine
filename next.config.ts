@@ -13,6 +13,11 @@ const nextConfig: NextConfig = {
     // Ein Gemälde soll auch im Zoom gestochen scharf sein.
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 2560, 3840],
     formats: ["image/avif", "image/webp"],
+    // Ab Next.js 16 muss jede verwendete Qualitaetsstufe hier
+    // freigegeben sein, sonst antwortet die Bildoptimierung mit 400.
+    // 88 ist die Stufe fuer Gemaelde: bei weichen Farbverlaeufen wird
+    // der Standardwert 75 sichtbar fleckig.
+    qualities: [75, 88],
     remotePatterns: bildHost
       ? [
           {

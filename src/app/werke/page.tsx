@@ -34,7 +34,7 @@ export default async function WerkeSeite() {
           Zurzeit sind keine Werke eingestellt.
         </p>
       ) : (
-        <div className="mt-stille grid grid-cols-1 items-center gap-y-stille sm:grid-cols-2 sm:gap-x-16 lg:gap-x-24">
+        <div className="mt-stille grid grid-cols-1 gap-y-atem sm:grid-cols-2 sm:gap-x-16 lg:gap-x-24">
           {werke.map((werk, nummer) => (
             <Werkkachel
               key={werk.id}

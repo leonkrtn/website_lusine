@@ -121,7 +121,7 @@ export default async function WerkSeite({ params }: Props) {
               href={`/serien/${werk.serie.slug}`}
               className="text-tinte-leise transition-colors duration-500 hover:text-tinte"
             >
-              aus der Serie „{werk.serie.titel}"
+              aus der Serie „{werk.serie.titel}“
             </Link>
           </p>
         )}
@@ -155,7 +155,7 @@ export default async function WerkSeite({ params }: Props) {
           <Einblenden>
             <blockquote className="mx-auto max-w-3xl text-center">
               <p className="text-gross leading-[1.25] text-balance italic">
-                „{werk.zitat}"
+                „{werk.zitat}“
               </p>
             </blockquote>
           </Einblenden>
@@ -223,12 +223,12 @@ export default async function WerkSeite({ params }: Props) {
             <Einblenden>
               <h2 className="beschriftung">
                 {werk.serie
-                  ? `Weitere Werke aus „${werk.serie.titel}"`
+                  ? `Weitere Werke aus „${werk.serie.titel}“`
                   : "Weitere Werke"}
               </h2>
             </Einblenden>
 
-            <div className="mt-atem grid grid-cols-1 items-center gap-y-atem sm:grid-cols-2 sm:gap-x-16">
+            <div className="mt-atem grid grid-cols-1 gap-y-atem sm:grid-cols-2 sm:gap-x-16">
               {verwandte.map((anderes, nummer) => (
                 <Werkkachel
                   key={anderes.id}
