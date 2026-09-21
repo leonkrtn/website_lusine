@@ -8,7 +8,11 @@ import { Werkbild } from "@/components/Werkbild";
 import { Signatur } from "@/components/Signatur";
 import { Werkkachel } from "@/components/Werkkachel";
 import { Erwerb } from "@/components/Erwerb";
-import { holeWerk, holeWerke, holeVerwandteWerke } from "@/lib/daten";
+import {
+  holeWerk,
+  holeWerkeFuerStatischePfade,
+  holeVerwandteWerke,
+} from "@/lib/daten";
 import { absaetze, detailbilder, hauptbild, werkBreiteStil } from "@/lib/darstellung";
 import { bildQuelle, masseText } from "@/lib/bilder";
 import { STATUS_BESCHRIFTUNG } from "@/lib/typen";
@@ -17,8 +21,8 @@ type Props = { params: Promise<{ slug: string }> };
 
 /** Alle Werke vorab erzeugen — es sind wenige, und sie aendern sich selten. */
 export async function generateStaticParams() {
-  const werke = await holeWerke();
-  return werke.map((werk) => ({ slug: werk.slug }));
+  const slugs = await holeWerkeFuerStatischePfade();
+  return slugs.map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

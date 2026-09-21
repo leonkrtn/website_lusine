@@ -1,6 +1,25 @@
 import { cookies } from "next/headers";
 import { createServerClient } from "@supabase/ssr";
-import type { SupabaseClient } from "@supabase/supabase-js";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+
+/**
+ * Client fuer oeffentliche, nicht benutzerbezogene Lesezugriffe.
+ *
+ * Anders als `supabaseServer()` liest dieser Client keine Request-Cookies.
+ * Er kann daher auch beim Produktionsbau verwendet werden, etwa in
+ * `generateStaticParams`. Die Leserechte fuer diese Daten sind in der
+ * Datenbank explizit fuer die `anon`-Rolle freigegeben.
+ */
+export function supabaseOeffentlich(): SupabaseClient | null {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const schluessel = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (!url || !schluessel) return null;
+
+  return createClient(url, schluessel, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+}
 
 /**
  * Supabase-Client fuer Server Components, Server Actions und Route
