@@ -1,6 +1,7 @@
 import { Kopfzeile } from "@/components/Kopfzeile";
 import { Fusszeile } from "@/components/Fusszeile";
 import { Seitenwechsel } from "@/components/Seitenwechsel";
+import { Schwelle } from "@/components/Schwelle";
 
 /**
  * Rahmen der oeffentlichen Seite.
@@ -26,6 +27,7 @@ export default function SeitenLayout({
         <Seitenwechsel>{children}</Seitenwechsel>
       </main>
       <Fusszeile />
+      <Schwelle />
     </>
   );
 }

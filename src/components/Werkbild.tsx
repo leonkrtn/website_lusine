@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { bildQuelle, istLokalesBild } from "@/lib/bilder";
+import type { PinAngaben } from "@/lib/darstellung";
 
 type Props = {
   schluessel: string;
@@ -11,7 +12,25 @@ type Props = {
   /** Nur fuer das erste Bild der Startseite setzen. */
   vorrang?: boolean;
   className?: string;
+  /**
+   * Was Pinterest mitnimmt, wenn jemand dieses Bild merkt. Ein Objekt
+   * lenkt den Pin auf das Bild mit Schild (siehe `lib/sozialbild.tsx`),
+   * `false` schließt das Bild vom Merken aus — für alles, was zwar ein
+   * Werk zeigt, aber nicht das Werk ist, etwa den Größenvergleich.
+   */
+  pin?: PinAngaben | false;
 };
+
+
+function pinAttribute(pin: PinAngaben | false | undefined) {
+  if (pin === undefined) return {};
+  if (pin === false) return { "data-pin-nopin": "true" };
+  return {
+    "data-pin-media": pin.bild,
+    "data-pin-description": pin.beschreibung,
+    "data-pin-url": pin.adresse,
+  };
+}
 
 /**
  * Ein Gemaelde auf der Seite.
@@ -34,8 +53,11 @@ export function Werkbild({
   sizes,
   vorrang = false,
   className = "",
+  pin,
 }: Props) {
   if (!schluessel) return null;
+
+  const pinAngaben = pinAttribute(pin);
 
   if (istLokalesBild(schluessel)) {
     return (
@@ -47,6 +69,7 @@ export function Werkbild({
         sizes={sizes}
         priority={vorrang}
         quality={88}
+        {...pinAngaben}
         className={`werkbild h-auto w-full ${className}`}
       />
     );
@@ -68,6 +91,7 @@ export function Werkbild({
       fetchPriority={vorrang ? "high" : "auto"}
       decoding="async"
       style={seitenverhaeltnis ? { aspectRatio: seitenverhaeltnis } : undefined}
+      {...pinAngaben}
       className={`werkbild h-auto w-full ${className}`}
     />
   );

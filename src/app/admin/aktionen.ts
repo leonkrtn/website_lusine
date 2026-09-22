@@ -42,7 +42,14 @@ function erneuereOeffentlich(werkSlug?: string, serieSlug?: string): void {
   revalidatePath("/");
   revalidatePath("/werke");
   revalidatePath("/serien");
-  if (werkSlug) revalidatePath(`/werke/${werkSlug}`);
+  if (werkSlug) {
+    revalidatePath(`/werke/${werkSlug}`);
+    /* Die Bilder unter der Werkseite — Linkvorschau, Pinterest,
+       Instagram — hängen an denselben Daten. Ein Muster mit "layout"
+       erfasst sie mit; bei einem Katalog dieser Größe kostet es
+       nichts, dabei alle Werkseiten zu erneuern. */
+    revalidatePath("/werke/[slug]", "layout");
+  }
   if (serieSlug) revalidatePath(`/serien/${serieSlug}`);
   revalidatePath("/admin/werke");
   revalidatePath("/sitemap.xml");

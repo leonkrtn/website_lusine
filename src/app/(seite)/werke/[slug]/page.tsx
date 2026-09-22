@@ -1,12 +1,10 @@
 import type { CSSProperties } from "react";
-import { ViewTransition } from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Einblenden } from "@/components/Einblenden";
-import { WerkMitZoom } from "@/components/WerkMitZoom";
 import { Werkbild } from "@/components/Werkbild";
-import { Saalschild } from "@/components/Saalschild";
+import { Werkanfang } from "@/components/Werkanfang";
 import { Signatur } from "@/components/Signatur";
 import { Werkkachel } from "@/components/Werkkachel";
 import { Erwerb } from "@/components/Erwerb";
@@ -16,8 +14,8 @@ import {
   holeWerkeFuerStatischePfade,
   holeVerwandteWerke,
 } from "@/lib/daten";
-import { absaetze, detailbilder, hauptbild, werkBreiteStil } from "@/lib/darstellung";
-import { bildQuelle, masseText } from "@/lib/bilder";
+import { absaetze, detailbilder, hauptbild, pinFuer } from "@/lib/darstellung";
+import { masseText } from "@/lib/bilder";
 import { STATUS_BESCHRIFTUNG } from "@/lib/typen";
 
 type Props = { params: Promise<{ slug: string }> };
@@ -34,18 +32,23 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   if (!werk) return { title: "Werk nicht gefunden" };
 
-  const bild = hauptbild(werk.bilder);
   const beschreibung =
     absaetze(werk.geschichte)[0]?.slice(0, 180) ??
     `${werk.titel} — ${werk.technik}`;
 
+  /* Das Vorschaubild kommt aus `opengraph-image.tsx` daneben. Die
+     kanonische Adresse fasst zusammen, was Instagram, Pinterest und
+     Messenger an Anhängseln an einen Link hängen — gezählt wird
+     dann eine Seite, nicht zwanzig. */
   return {
     title: werk.titel,
     description: beschreibung,
+    alternates: { canonical: `/werke/${werk.slug}` },
     openGraph: {
+      type: "article",
       title: `${werk.titel} — LUART`,
       description: beschreibung,
-      images: bild ? [{ url: bildQuelle(bild.schluessel) }] : undefined,
+      url: `/werke/${werk.slug}`,
     },
   };
 }
@@ -96,49 +99,26 @@ export default async function WerkSeite({ params }: Props) {
     >
       {/* --- 1. Das Werk und sein Schild -----------------------------------
           Wie an einer Wand: das Gemälde, daneben das Saalschild mit
-          Titel, Angaben und Preis.
-
-          Genau eine Bewegung beim Ankommen — wer aus dem Katalog
-          kommt, sieht sein Werk an diesen Platz wandern. Nichts
-          blendet darunter, nichts schneidet gleichzeitig hinein. */}
+          Titel, Angaben und Preis. Wer aus der Galerie kommt, sieht
+          das Werk hierher wandern; wer von draußen kommt, beginnt am
+          Pinselstrich. Siehe `Werkanfang.tsx`. */}
       {bild && (
-        <section className="werkanfang mx-auto max-w-[110rem] px-4 sm:px-10 lg:px-16">
-          <div className="werkreihe werkreihe--mitte">
-            <div
-              className="werkflaeche"
-              /* Der Abzug deckt Kopfzeile, Verlauf und den Rand
-                 darunter ab — siehe `.werkanfang` in globals.css.
-                 Ohne ihn stünde das Werk unter der Falz. */
-              style={werkBreiteStil(bild.breitePx, bild.hoehePx, 100, 64, 88, 10)}
-            >
-              <ViewTransition name={`werk-${werk.id}`} share="wanderung" default="none">
-                <div>
-                  <WerkMitZoom
-                    schluessel={bild.schluessel}
-                    alt={bild.altText || werk.titel}
-                    breitePx={bild.breitePx}
-                    hoehePx={bild.hoehePx}
-                    sizes="(max-width: 640px) 92vw, (max-width: 1024px) 78vw, 64rem"
-                    vorrang
-                  />
-                </div>
-              </ViewTransition>
-            </div>
-
-            <Saalschild werk={werk} als="h1" verlinkt={false}>
-              {werk.serie && (
-                <p className="mt-6 text-klein">
-                  <Link
-                    href={`/serien/${werk.serie.slug}`}
-                    className="text-tinte-leise transition-colors duration-500 hover:text-tinte"
-                  >
-                    aus der Serie „{werk.serie.titel}“
-                  </Link>
-                </p>
-              )}
-            </Saalschild>
-          </div>
-        </section>
+        <Werkanfang
+          werk={werk}
+          bild={bild}
+          pin={pinFuer(werk)}
+        >
+          {werk.serie && (
+            <p className="mt-6 text-klein">
+              <Link
+                href={`/serien/${werk.serie.slug}`}
+                className="text-tinte-leise transition-colors duration-500 hover:text-tinte"
+              >
+                aus der Serie „{werk.serie.titel}“
+              </Link>
+            </p>
+          )}
+        </Werkanfang>
       )}
 
       {/* --- 2. Die Signatur ----------------------------------------------

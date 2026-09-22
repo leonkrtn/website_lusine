@@ -49,3 +49,26 @@ Für die kursive Datei dasselbe mit `EBGaramond-Italic[wght].ttf`.
 Beide Dateien zusammen wiegen rund 250 kB und ersetzen die sechs
 statischen Schnitte, die vorher geladen wurden — unterm Strich also
 nicht mehr, sondern weniger.
+
+## Die Bildsatz-Schnitte
+
+`EBGaramond-Bildsatz.ttf` und `EBGaramond-Bildsatz-Kursiv.ttf` werden
+nicht an Browser ausgeliefert. Sie setzen die Bilder, mit denen ein
+Werk die Seite verlässt — Linkvorschau, Pinterest, Instagram (siehe
+`src/lib/sozialbild.tsx`). Die Bibliothek dahinter liest weder woff2
+noch variable Schriften; darum hier statische Schnitte bei Gewicht
+400, gezogen aus den beiden woff2-Dateien oben:
+
+```bash
+python3 - <<'PY'
+from fontTools.ttLib import TTFont
+from fontTools.varLib import instancer
+for quelle, ziel in [
+    ("EBGaramond-Variabel.woff2", "EBGaramond-Bildsatz.ttf"),
+    ("EBGaramond-Variabel-Kursiv.woff2", "EBGaramond-Bildsatz-Kursiv.ttf"),
+]:
+    schrift = TTFont(quelle)
+    schrift.flavor = None
+    instancer.instantiateVariableFont(schrift, {"wght": 400}).save(ziel)
+PY
+```

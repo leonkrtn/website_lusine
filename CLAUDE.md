@@ -209,6 +209,29 @@ Weiteres:
   neuen Platz. Der alte `seitenwechsel`-Übergang läuft darum nur noch,
   wo der Browser keine View Transitions kann — beides zugleich ergab
   zwei Bewegungen auf demselben Bild.
+- **Von draußen kommt man am Pinselstrich an.** Wer eine Werkseite
+  als erste Seite eines Besuchs öffnet — über eine Instagram-Story,
+  einen Pin, eine Nachricht —, sieht sie mit dem Auftakt der
+  Startseite beginnen: bildschirmfüllend nah, dann zurücktretend.
+  Wer aus der Galerie kommt, sieht das Werk wie bisher an seinen
+  Platz wandern. Unterschieden wird in `src/lib/ankunft.ts`: der
+  Server rendert immer die Ankunft, `Schwelle.tsx` im Layout legt
+  nach der ersten Seite den Schalter um, `Werkanfang.tsx` liest ihn.
+  Kein Referrer, kein Abfrageparameter — die Seiten bleiben statisch.
+- **Bilder für draußen** entstehen in `src/lib/sozialbild.tsx`:
+  Linkvorschau (`opengraph-image.tsx` neben der Werkseite) und unter
+  `/werke/<slug>/bild/pinterest`, `…/instagram`, `…/instagram-nah`.
+  Dieselbe Regel wie drinnen: Werk auf Reinweiß, daneben höchstens
+  das Schild. Anders als auf der Seite trägt das Schild dort den
+  Namen, weil draußen viele Hände hängen (vgl. `Saalschild.tsx`).
+  Das Originalfoto bleibt unangetastet; gesetzt werden nur JPEG und
+  PNG, ein WebP-Foto fällt aus. Im Admin stehen die Bilder samt
+  Bildunterschrift und Link unter jedem Werk (`Weitergabe.tsx`).
+- **Pinterest** merkt von der Seite nie das nackte Foto: jedes Werkbild
+  trägt `data-pin-media` auf das Pinterest-Format (`pinFuer()` in
+  `darstellung.ts`). Signaturen und der Größenvergleich tragen
+  `data-pin-nopin`. Wer ein neues Bild einbaut, das ein Werk zeigt,
+  aber nicht das Werk ist, schließt es genauso aus.
 - Jedes Werk kann eine **Leitfarbe** tragen (Hexwert, von Hand im Admin).
   Sie färbt nie eine Fläche, nur die Auswahlmarkierung und die Linie über
   dem Datenblatt — der Grund bleibt überall reinweiß.

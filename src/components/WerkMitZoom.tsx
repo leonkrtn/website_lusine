@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Werkbild } from "@/components/Werkbild";
+import type { PinAngaben } from "@/lib/darstellung";
 import { Zoomansicht } from "@/components/Zoomansicht";
 
 type Props = {
@@ -11,6 +12,7 @@ type Props = {
   hoehePx: number;
   sizes: string;
   vorrang?: boolean;
+  pin?: PinAngaben;
 };
 
 /**
@@ -26,6 +28,7 @@ export function WerkMitZoom({
   hoehePx,
   sizes,
   vorrang = false,
+  pin,
 }: Props) {
   const [offen, setOffen] = useState(false);
 
@@ -44,6 +47,7 @@ export function WerkMitZoom({
           hoehePx={hoehePx}
           sizes={sizes}
           vorrang={vorrang}
+          pin={pin}
         />
       </button>
 

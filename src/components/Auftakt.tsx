@@ -1,14 +1,33 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, ViewTransition, type ReactNode } from "react";
 import { Saalschild } from "@/components/Saalschild";
 import { WerkMitZoom } from "@/components/WerkMitZoom";
-import { werkBreiteStil } from "@/lib/darstellung";
+import { werkBreiteStil, type PinAngaben } from "@/lib/darstellung";
 import type { Werk, WerkBild } from "@/lib/typen";
 
 type Props = {
   werk: Werk;
   bild: WerkBild;
+  /**
+   * Wie breit das Werk am Ende höchstens steht. Die Startseite hängt
+   * es breiter als die Werkseite, auf der das Schild mehr Platz
+   * braucht.
+   */
+  breiteRem?: number;
+  /** Auf der Werkseite ist der Titel die Überschrift der Seite. */
+  als?: "h1" | "h2";
+  /** Ob der Titel zum Werk führt — auf der Werkseite selbst nicht. */
+  verlinkt?: boolean;
+  /**
+   * Der Name, unter dem das Werk beim Seitenwechsel wandert. Nur auf
+   * der Werkseite: wer von dort zurück in die Galerie geht, soll das
+   * Werk mitnehmen wie aus jeder anderen Werkseite.
+   */
+  wanderung?: string;
+  pin?: PinAngaben;
+  /** Wird ins Schild unter die Angaben gehängt. */
+  children?: ReactNode;
 };
 
 /**
@@ -26,7 +45,6 @@ const NAEHE = 2.2;
  * in globals.css; wer dort den Abstand ändert, zieht ihn hier nach.
  */
 const HOEHE_ABZUG_REM = 10;
-const BREITE_REM = 74;
 
 /**
  * Der Auftakt der Startseite: vom Pinselstrich zum ganzen Werk.
@@ -57,7 +75,16 @@ const BREITE_REM = 74;
  * **Ohne Scroll-Zeitachse oder bei reduzierter Bewegung** steht das
  * Werk einfach am Seitenanfang, wie jedes andere, mit seinem Schild.
  */
-export function Auftakt({ werk, bild }: Props) {
+export function Auftakt({
+  werk,
+  bild,
+  breiteRem = 74,
+  als = "h2",
+  verlinkt = true,
+  wanderung,
+  pin,
+  children,
+}: Props) {
   const abschnitt = useRef<HTMLElement>(null);
   const buehne = useRef<HTMLDivElement>(null);
   const flaeche = useRef<HTMLDivElement>(null);
@@ -103,6 +130,21 @@ export function Auftakt({ werk, bild }: Props) {
     return () => beobachter.disconnect();
   }, []);
 
+  const werkbild = (
+    <WerkMitZoom
+      schluessel={bild.schluessel}
+      alt={bild.altText || werk.titel}
+      breitePx={bild.breitePx}
+      hoehePx={bild.hoehePx}
+      /* Groß angefordert, weil das Bild am Anfang um ein Vielfaches
+         vergrößert steht. Mit der üblichen Größe wäre der
+         Pinselstrich, um den es geht, ein Brei. */
+      sizes="(max-width: 640px) 300vw, 200vw"
+      vorrang
+      pin={pin}
+    />
+  );
+
   return (
     <section
       ref={abschnitt}
@@ -118,32 +160,32 @@ export function Auftakt({ werk, bild }: Props) {
               bild.breitePx,
               bild.hoehePx,
               100,
-              BREITE_REM,
+              breiteRem,
               88,
               HOEHE_ABZUG_REM,
             )}
           >
             <div className="auftakt-bild">
-              <WerkMitZoom
-                schluessel={bild.schluessel}
-                alt={bild.altText || werk.titel}
-                breitePx={bild.breitePx}
-                hoehePx={bild.hoehePx}
-                /* Groß angefordert, weil das Bild am Anfang um ein
-                   Vielfaches vergrößert steht. Mit der üblichen Größe
-                   wäre der Pinselstrich, um den es geht, ein Brei. */
-                sizes="(max-width: 640px) 300vw, 200vw"
-                vorrang
-              />
+              {wanderung ? (
+                <ViewTransition name={wanderung} share="wanderung" default="none">
+                  <div>{werkbild}</div>
+                </ViewTransition>
+              ) : (
+                werkbild
+              )}
             </div>
           </div>
 
           <Saalschild
             werk={werk}
             titelId={`werk-${werk.id}`}
+            als={als}
+            verlinkt={verlinkt}
             className="auftakt-schild"
             erscheint={false}
-          />
+          >
+            {children}
+          </Saalschild>
         </div>
       </div>
 
