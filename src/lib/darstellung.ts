@@ -64,59 +64,6 @@ export function absaetze(text: string): string[] {
 }
 
 // ---------------------------------------------------------------------------
-//  Der wahre Maßstab
-// ---------------------------------------------------------------------------
-
-/**
- * Die Breite eines Werks im **echten Größenverhältnis** zu den anderen.
- *
- * Im gewohnten Raster steht jedes Werk gleich groß — eine Studie von
- * 30 × 40 cm wirkt dort wie eine Leinwand von 180 × 200 cm. Bei Malerei
- * ist die Größe aber Inhalt: sie entscheidet, ob man vor einem Bild
- * steht oder es in die Hand nimmt.
- *
- * Die Rechnung nimmt das höchste Werk der Auswahl als Maß. Es bekommt
- * die volle Höhe der Zeile, alle anderen ihren Anteil davon. Die Breite
- * folgt aus dem Seitenverhältnis der Aufnahme, nicht aus den
- * Zentimetern — so bleibt das Bild unverzerrt, auch wenn die Maße im
- * Datenblatt einmal grob gerundet sind.
- *
- * Fehlen die Zentimeter, gibt es kein Verhältnis: dann steht das Werk
- * wie zuvor.
- */
-export function wahreBreiteStil(
-  breitePx: number,
-  hoehePx: number,
-  hoeheCm: number | null,
-  hoechsteCm: number,
-  zeilenHoeheVh: number,
-  maxBreiteRem: number,
-  seitenrandVw = 88,
-): { width: string } {
-  if (!hoeheCm || hoechsteCm <= 0) {
-    return werkBreiteStil(breitePx, hoehePx, zeilenHoeheVh, maxBreiteRem, seitenrandVw);
-  }
-
-  const anteil = Math.min(hoeheCm / hoechsteCm, 1);
-  const hoeheVh = (zeilenHoeheVh * anteil).toFixed(3);
-
-  if (!breitePx || !hoehePx) {
-    return { width: `min(${seitenrandVw}vw, calc(${hoeheVh}vh * 0.8))` };
-  }
-
-  const verhaeltnis = (breitePx / hoehePx).toFixed(4);
-
-  return {
-    width: `min(${seitenrandVw}vw, ${maxBreiteRem}rem, calc(${hoeheVh}vh * ${verhaeltnis}))`,
-  };
-}
-
-/** Die größte Werkhöhe einer Auswahl, in Zentimetern. */
-export function hoechsteHoeheCm(werke: { hoeheCm: number | null }[]): number {
-  return werke.reduce((groesste, werk) => Math.max(groesste, werk.hoeheCm ?? 0), 0);
-}
-
-// ---------------------------------------------------------------------------
 //  Die Hängung
 // ---------------------------------------------------------------------------
 
