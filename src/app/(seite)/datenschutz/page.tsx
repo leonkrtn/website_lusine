@@ -85,15 +85,7 @@ export default function DatenschutzSeite() {
         </p>
       </Abschnitt>
 
-      <Abschnitt ueberschrift="6. E-Mail-Versand">
-        <p>
-          Die Eingangsbestätigung zu Ihrer Anfrage wird über Resend, Inc.
-          versendet. Dabei werden Ihre E-Mail-Adresse und der Inhalt der
-          Nachricht verarbeitet.
-        </p>
-      </Abschnitt>
-
-      <Abschnitt ueberschrift="7. Ihre Rechte">
+      <Abschnitt ueberschrift="6. Ihre Rechte">
         <p>Sie haben jederzeit das Recht auf</p>
         <ul>
           <li>Auskunft über die zu Ihnen gespeicherten Daten (Art. 15 DSGVO),</li>

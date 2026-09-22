@@ -46,8 +46,8 @@ export function Anfrageformular({ werkId, werkTitel, werkSlug, vorlage }: Props)
       <div role="status" className="max-w-xl">
         <p className="text-lead">Vielen Dank — Ihre Nachricht ist angekommen.</p>
         <p className="mt-4 text-tinte-leise">
-          Lusine meldet sich persönlich bei Ihnen, in der Regel innerhalb von
-          zwei Tagen.
+          Lusine liest Ihre Nachricht und meldet sich persönlich bei Ihnen, in
+          der Regel innerhalb von zwei Tagen.
         </p>
       </div>
     );

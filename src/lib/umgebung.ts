@@ -2,7 +2,7 @@
  * Zentrale Stelle fuer alle Umgebungsvariablen.
  *
  * Die Seite muss in jedem Ausbauzustand lauffaehig sein: ohne Supabase,
- * ohne Cloudflare, ohne E-Mail-Dienst. Jede Pruefung hier beantwortet die Frage
+ * ohne Bildspeicher. Jede Pruefung hier beantwortet die Frage
  * "ist dieser Baustein schon angeschlossen?" — der Rest des Codes
  * entscheidet daran, ob er echte Daten nutzt oder den Demo-Modus.
  */
@@ -115,11 +115,6 @@ export function supabaseDienstschluesselVorhanden(): boolean {
  */
 export function speicherKonfiguriert(): boolean {
   return supabaseKonfiguriert();
-}
-
-/** Koennen E-Mails verschickt werden? */
-export function resendKonfiguriert(): boolean {
-  return Boolean(process.env.RESEND_API_KEY && process.env.EMAIL_ATELIER);
 }
 
 /**

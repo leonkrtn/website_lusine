@@ -2,7 +2,6 @@
 
 import { z } from "zod";
 import { supabaseDienst } from "@/lib/supabase/dienst";
-import { bestaetigeAnfrage, meldeAnfrageAnAtelier } from "@/lib/mail";
 import { demoModus } from "@/lib/umgebung";
 import type { AnfrageZustand } from "@/lib/formularzustand";
 
@@ -97,24 +96,10 @@ export async function sendeAnfrage(
     };
   }
 
-  // Die E-Mails laufen bewusst nach dem Speichern und ohne Abbruch:
-  // eine Anfrage, die in der Datenbank steht, ist angekommen — auch
-  // wenn der Mailversand gerade klemmt.
-  await Promise.all([
-    meldeAnfrageAnAtelier({
-      name: daten.name,
-      email: daten.email,
-      nachricht: daten.nachricht,
-      werkTitel: daten.werkTitel ?? null,
-      werkSlug: daten.werkSlug ?? null,
-    }),
-    bestaetigeAnfrage({
-      name: daten.name,
-      email: daten.email,
-      nachricht: daten.nachricht,
-      werkTitel: daten.werkTitel ?? null,
-    }),
-  ]);
+  // Hier verschickte frueher ein E-Mail-Dienst eine Benachrichtigung an
+  // das Atelier und eine Eingangsbestaetigung an die anfragende Person.
+  // Der Dienst ist vorerst nicht angebunden — die Anfrage steht damit
+  // ausschliesslich im Admin-Panel. Siehe CLAUDE.md, "Offene Punkte".
 
   return { erfolg: true, fehler: null, felderfehler: {} };
 }

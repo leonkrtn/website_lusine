@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { holeAnfragen, holeWerke } from "@/lib/daten";
-import { demoModus, resendKonfiguriert } from "@/lib/umgebung";
+import { demoModus } from "@/lib/umgebung";
 import { STATUS_BESCHRIFTUNG } from "@/lib/typen";
 
 /**
@@ -19,13 +19,22 @@ export default async function AdminUebersicht() {
 
   const einrichtung = [
     { name: "Datenbank und Bildspeicher (Supabase)", fertig: !demoModus() },
-    { name: "E-Mail (Resend)", fertig: resendKonfiguriert() },
   ];
   const offeneEinrichtung = einrichtung.filter((eintrag) => !eintrag.fertig);
 
   return (
     <div>
       <h1 className="text-titel leading-tight">Übersicht</h1>
+
+      {/* --- Der wichtigste Hinweis ----------------------------------------
+          Es gibt keinen E-Mail-Versand. Eine Kaufanfrage, die niemand
+          liest, ist ein verlorener Verkauf — darum steht das hier oben
+          und nicht als Fussnote. */}
+      <p className="mt-8 max-w-xl bg-[#fdf4d8] px-4 py-3 text-klein">
+        <strong className="font-medium">Keine Benachrichtigung per E-Mail.</strong>{" "}
+        Neue Anfragen erscheinen ausschließlich hier. Bitte regelmäßig
+        hereinschauen — am besten täglich.
+      </p>
 
       {/* --- Was zu tun ist ------------------------------------------------ */}
       {offeneAnfragen.length > 0 && (
