@@ -1,20 +1,33 @@
 import { cookies } from "next/headers";
 import { createServerClient } from "@supabase/ssr";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { supabaseAdresse, supabaseAnonSchluessel } from "@/lib/umgebung";
 
 /**
  * Client fuer oeffentliche, nicht benutzerbezogene Lesezugriffe.
  *
  * Anders als `supabaseServer()` liest dieser Client keine Request-Cookies.
- * Er kann daher auch beim Produktionsbau verwendet werden, etwa in
- * `generateStaticParams`. Die Leserechte fuer diese Daten sind in der
- * Datenbank explizit fuer die `anon`-Rolle freigegeben.
+ * Das ist hier kein Verzicht, sondern der Punkt: die Galerie zeigt allen
+ * Besuchern dasselbe. Wer sie ueber den Cookie-Client liest, macht jede
+ * Seite von einem Request abhaengig — Next.js kann sie dann nicht mehr
+ * beim Bauen vorrendern, und jeder Aufruf kostet eine Datenbankabfrage.
+ *
+ * Darum lesen alle oeffentlichen Seiten hierueber, und der Cookie-Client
+ * bleibt dem Admin-Bereich vorbehalten, wo die Anmeldung zaehlt.
+ *
+ * Die Leserechte dafuer sind in der Datenbank ausdruecklich fuer die
+ * `anon`-Rolle freigegeben (siehe supabase/01_schema.sql).
  */
-export function supabaseOeffentlich(): SupabaseClient | null {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const schluessel = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+export function supabaseOeffentlich(): SupabaseClient {
+  const url = supabaseAdresse();
+  const schluessel = supabaseAnonSchluessel();
 
-  if (!url || !schluessel) return null;
+  if (!url || !schluessel) {
+    throw new Error(
+      "Supabase ist nicht brauchbar eingerichtet: NEXT_PUBLIC_SUPABASE_URL " +
+        "oder NEXT_PUBLIC_SUPABASE_ANON_KEY fehlt oder ist keine gültige Adresse.",
+    );
+  }
 
   return createClient(url, schluessel, {
     auth: { persistSession: false, autoRefreshToken: false },
@@ -30,12 +43,23 @@ export function supabaseOeffentlich(): SupabaseClient | null {
  * Funktion asynchron.
  */
 export async function supabaseServer(): Promise<SupabaseClient> {
+  const url = supabaseAdresse();
+  const schluessel = supabaseAnonSchluessel();
+
+  // Sollte nie eintreten: jeder Aufrufer prueft vorher `demoModus()`.
+  // Die Meldung nennt trotzdem die Ursache, weil die von Supabase
+  // ("Invalid supabaseUrl") nicht erkennen laesst, dass eine
+  // Umgebungsvariable gemeint ist.
+  if (!url || !schluessel) {
+    throw new Error(
+      "Supabase ist nicht brauchbar eingerichtet: NEXT_PUBLIC_SUPABASE_URL " +
+        "oder NEXT_PUBLIC_SUPABASE_ANON_KEY fehlt oder ist keine gültige Adresse.",
+    );
+  }
+
   const keksdose = await cookies();
 
-  return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
+  return createServerClient(url, schluessel, {
       cookies: {
         getAll() {
           return keksdose.getAll();
@@ -51,9 +75,8 @@ export async function supabaseServer(): Promise<SupabaseClient> {
             // dann die Proxy-Schicht (siehe proxy.ts).
           }
         },
-      },
     },
-  );
+  });
 }
 
 /**

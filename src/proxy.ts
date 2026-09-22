@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
+import { supabaseAdresse, supabaseAnonSchluessel } from "@/lib/umgebung";
 
 /**
  * Zugriffsschutz fuer den Admin-Bereich.
@@ -18,8 +19,8 @@ import { createServerClient } from "@supabase/ssr";
  * laesst.
  */
 export async function proxy(anfrage: NextRequest) {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const schluessel = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const url = supabaseAdresse();
+  const schluessel = supabaseAnonSchluessel();
 
   if (!url || !schluessel) return NextResponse.next();
 

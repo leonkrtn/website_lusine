@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { Anmeldeformular } from "@/components/admin/Anmeldeformular";
 import { demoModus } from "@/lib/umgebung";
 
@@ -30,7 +31,15 @@ export default function AnmeldeSeite() {
           </a>
         </div>
       ) : (
-        <Anmeldeformular />
+        /* Das Formular liest den Parameter `weiter` aus der Adresse, um
+           nach der Anmeldung dorthin zurueckzufuehren, wo man hinwollte.
+           Ein solcher Zugriff braucht eine Suspense-Grenze, sonst laesst
+           sich die Seite nicht vorrendern und der Produktionsbau bricht
+           ab. Die Grenze haelt die Seitenhuelle statisch; nur das
+           Formular wartet. */
+        <Suspense fallback={<p className="mt-12 text-klein text-tinte-leise">Einen Moment …</p>}>
+          <Anmeldeformular />
+        </Suspense>
       )}
     </div>
   );

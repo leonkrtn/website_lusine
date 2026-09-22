@@ -1,3 +1,4 @@
+import { unstable_rethrow } from "next/navigation";
 import { supabaseOeffentlich, supabaseServer } from "@/lib/supabase/server";
 import { demoModus } from "@/lib/umgebung";
 import { SERIEN_SEED } from "@/data/serien";
@@ -101,6 +102,82 @@ function zuWerk(zeile: Zeile): Werk {
 const WERK_FELDER = "*, werk_bilder(*)";
 
 // ---------------------------------------------------------------------------
+//  Schutz gegen eine Datenbank, die gerade nicht antwortet
+// ---------------------------------------------------------------------------
+
+let ausfallGemeldet = false;
+
+/**
+ * Meldet einen Datenbankausfall — einmal je Lauf.
+ *
+ * Bei einem Bau mit vielen Seiten stuende dieselbe Meldung sonst
+ * hundertfach im Protokoll und die eigentliche Ursache waere darin nicht
+ * mehr zu finden.
+ */
+function meldeAusfall(beschreibung: string, ursache: unknown): void {
+  if (ausfallGemeldet) return;
+  ausfallGemeldet = true;
+
+  const text =
+    ursache instanceof Error
+      ? ursache.message
+      : typeof ursache === "object" && ursache !== null && "message" in ursache
+        ? String((ursache as { message: unknown }).message)
+        : String(ursache);
+
+  console.warn(
+    `[Daten] Die Datenbank hat nicht geantwortet (${beschreibung}). ` +
+      `Betroffene Seiten bleiben vorerst leer. Ursache: ${text}`,
+  );
+}
+
+/**
+ * Wertet ein Supabase-Ergebnis aus und meldet einen Fehlschlag.
+ *
+ * supabase-js wirft bei einem Netzwerkfehler nicht, sondern liefert ihn
+ * als `error` zurueck. Ohne diese Stelle bliebe ein Ausfall daher voellig
+ * stumm: die Seite waere leer, das Protokoll sauber, und niemand wuesste
+ * warum.
+ */
+function fehlgeschlagen(beschreibung: string, fehler: unknown): true {
+  if (fehler) meldeAusfall(beschreibung, fehler);
+  return true;
+}
+
+/**
+ * Fuehrt eine Abfrage aus und faengt alles ab, was dabei schiefgehen kann.
+ *
+ * Eine Datenbank ist nicht immer da. Supabase pausiert Projekte der
+ * kostenlosen Stufe nach laengerer Ruhe, ein Netzwerk kann haengen, ein
+ * Schluessel kann abgelaufen sein. Ohne diesen Schutz reisst so ein
+ * Aussetzer den gesamten Produktionsbau mit — denn `generateStaticParams`
+ * laeuft beim Bauen, und eine Ausnahme dort bricht ihn ab.
+ *
+ * Hier gilt stattdessen: im Zweifel nichts liefern. Eine Seite, die
+ * voruebergehend leer ist, laesst sich neu bauen; ein Bau, der nie
+ * durchlaeuft, nicht.
+ */
+async function frage<T>(
+  beschreibung: string,
+  standard: T,
+  abfrage: () => Promise<T>,
+): Promise<T> {
+  try {
+    return await abfrage();
+  } catch (fehler) {
+    // Next.js wirft selbst Ausnahmen, um zu steuern: notFound(),
+    // redirect() und der Hinweis, dass eine Seite dynamisch gerendert
+    // werden muss. Wer die abfaengt, nimmt dem Rahmenwerk das Ruder aus
+    // der Hand — eine Seite wuerde dann still mit leerem Inhalt statisch
+    // gebaut, statt zur Laufzeit ihre Daten zu holen.
+    unstable_rethrow(fehler);
+
+    meldeAusfall(beschreibung, fehler);
+    return standard;
+  }
+}
+
+// ---------------------------------------------------------------------------
 //  Serien
 // ---------------------------------------------------------------------------
 
@@ -109,14 +186,19 @@ export async function holeSerien(): Promise<Serie[]> {
     return [...SERIEN_SEED].sort((a, b) => a.sortierung - b.sortierung);
   }
 
-  const client = await supabaseServer();
-  const { data, error } = await client
-    .from("serien")
-    .select("*")
-    .order("sortierung", { ascending: true });
+  return frage("Serien", [], async () => {
+    const client = supabaseOeffentlich();
+    const { data, error } = await client
+      .from("serien")
+      .select("*")
+      .order("sortierung", { ascending: true });
 
-  if (error || !data) return [];
-  return data.map(zuSerie);
+    if (error || !data) {
+      fehlgeschlagen("Serien", error);
+      return [];
+    }
+    return data.map(zuSerie);
+  });
 }
 
 /**
@@ -129,16 +211,16 @@ export async function holeSerien(): Promise<Serie[]> {
 export async function holeSerienFuerStatischePfade(): Promise<string[]> {
   if (demoModus()) return SERIEN_SEED.map((serie) => serie.slug);
 
-  const client = supabaseOeffentlich();
-  if (!client) return [];
+  return frage("Serien-Adressen", [], async () => {
+    const client = supabaseOeffentlich();
+    const { data, error } = await client
+      .from("serien")
+      .select("slug")
+      .order("sortierung", { ascending: true });
 
-  const { data, error } = await client
-    .from("serien")
-    .select("slug")
-    .order("sortierung", { ascending: true });
-
-  if (error || !data) return [];
-  return data.map((serie) => String(serie.slug));
+    if (error || !data) return [];
+    return data.map((serie) => String(serie.slug));
+  });
 }
 
 export async function holeSerie(slug: string): Promise<Serie | null> {
@@ -146,15 +228,20 @@ export async function holeSerie(slug: string): Promise<Serie | null> {
     return SERIEN_SEED.find((serie) => serie.slug === slug) ?? null;
   }
 
-  const client = await supabaseServer();
-  const { data, error } = await client
-    .from("serien")
-    .select("*")
-    .eq("slug", slug)
-    .maybeSingle();
+  return frage("Serie", null, async () => {
+    const client = supabaseOeffentlich();
+    const { data, error } = await client
+      .from("serien")
+      .select("*")
+      .eq("slug", slug)
+      .maybeSingle();
 
-  if (error || !data) return null;
-  return zuSerie(data);
+    if (error || !data) {
+      fehlgeschlagen("Serie", error);
+      return null;
+    }
+    return zuSerie(data);
+  });
 }
 
 // ---------------------------------------------------------------------------
@@ -166,30 +253,35 @@ export async function holeWerke(): Promise<Werk[]> {
     return [...WERKE_SEED].sort((a, b) => b.sortierung - a.sortierung);
   }
 
-  const client = await supabaseServer();
-  const { data, error } = await client
-    .from("werke")
-    .select(WERK_FELDER)
-    .order("sortierung", { ascending: false });
+  return frage("Werke", [], async () => {
+    const client = supabaseOeffentlich();
+    const { data, error } = await client
+      .from("werke")
+      .select(WERK_FELDER)
+      .order("sortierung", { ascending: false });
 
-  if (error || !data) return [];
-  return data.map(zuWerk);
+    if (error || !data) return [];
+    return data.map(zuWerk);
+  });
 }
 
 /** Siehe `holeSerienFuerStatischePfade` fuer den Grund des separaten Clients. */
 export async function holeWerkeFuerStatischePfade(): Promise<string[]> {
   if (demoModus()) return WERKE_SEED.map((werk) => werk.slug);
 
-  const client = supabaseOeffentlich();
-  if (!client) return [];
+  return frage("Werk-Adressen", [], async () => {
+    const client = supabaseOeffentlich();
+    const { data, error } = await client
+      .from("werke")
+      .select("slug")
+      .order("sortierung", { ascending: false });
 
-  const { data, error } = await client
-    .from("werke")
-    .select("slug")
-    .order("sortierung", { ascending: false });
-
-  if (error || !data) return [];
-  return data.map((werk) => String(werk.slug));
+    if (error || !data) {
+      fehlgeschlagen("Werk-Adressen", error);
+      return [];
+    }
+    return data.map((werk) => String(werk.slug));
+  });
 }
 
 export async function holeWerk(slug: string): Promise<WerkMitSerie | null> {
@@ -200,18 +292,20 @@ export async function holeWerk(slug: string): Promise<WerkMitSerie | null> {
     return { ...werk, serie: serie ?? null };
   }
 
-  const client = await supabaseServer();
-  const { data, error } = await client
-    .from("werke")
-    .select(`${WERK_FELDER}, serien(*)`)
-    .eq("slug", slug)
-    .maybeSingle();
+  return frage("Werk", null, async () => {
+    const client = supabaseOeffentlich();
+    const { data, error } = await client
+      .from("werke")
+      .select(`${WERK_FELDER}, serien(*)`)
+      .eq("slug", slug)
+      .maybeSingle();
 
-  if (error || !data) return null;
+    if (error || !data) return null;
 
-  const zeile = data as Zeile;
-  const serieZeile = zeile.serien as Zeile | null;
-  return { ...zuWerk(zeile), serie: serieZeile ? zuSerie(serieZeile) : null };
+    const zeile = data as Zeile;
+    const serieZeile = zeile.serien as Zeile | null;
+    return { ...zuWerk(zeile), serie: serieZeile ? zuSerie(serieZeile) : null };
+  });
 }
 
 /** Ein einzelnes Werk nach seiner Kennung — fuer das Admin-Panel. */
@@ -220,15 +314,20 @@ export async function holeWerkNachId(id: string): Promise<Werk | null> {
     return WERKE_SEED.find((werk) => werk.id === id) ?? null;
   }
 
-  const client = await supabaseServer();
-  const { data, error } = await client
-    .from("werke")
-    .select(WERK_FELDER)
-    .eq("id", id)
-    .maybeSingle();
+  return frage("Werk", null, async () => {
+    const client = await supabaseServer();
+    const { data, error } = await client
+      .from("werke")
+      .select(WERK_FELDER)
+      .eq("id", id)
+      .maybeSingle();
 
-  if (error || !data) return null;
-  return zuWerk(data);
+    if (error || !data) {
+      fehlgeschlagen("Werk", error);
+      return null;
+    }
+    return zuWerk(data);
+  });
 }
 
 /**
@@ -243,16 +342,18 @@ export async function holeStartseitenWerke(anzahl = 5): Promise<Werk[]> {
       .slice(0, anzahl);
   }
 
-  const client = await supabaseServer();
-  const { data, error } = await client
-    .from("werke")
-    .select(WERK_FELDER)
-    .eq("auf_startseite", true)
-    .order("startseite_sortierung", { ascending: true })
-    .limit(anzahl);
+  return frage("Startseiten-Werke", [], async () => {
+    const client = supabaseOeffentlich();
+    const { data, error } = await client
+      .from("werke")
+      .select(WERK_FELDER)
+      .eq("auf_startseite", true)
+      .order("startseite_sortierung", { ascending: true })
+      .limit(anzahl);
 
-  if (error || !data) return [];
-  return data.map(zuWerk);
+    if (error || !data) return [];
+    return data.map(zuWerk);
+  });
 }
 
 export async function holeWerkeDerSerie(serieId: string): Promise<Werk[]> {
@@ -262,15 +363,20 @@ export async function holeWerkeDerSerie(serieId: string): Promise<Werk[]> {
     );
   }
 
-  const client = await supabaseServer();
-  const { data, error } = await client
-    .from("werke")
-    .select(WERK_FELDER)
-    .eq("serie_id", serieId)
-    .order("sortierung", { ascending: false });
+  return frage("Werke einer Serie", [], async () => {
+    const client = supabaseOeffentlich();
+    const { data, error } = await client
+      .from("werke")
+      .select(WERK_FELDER)
+      .eq("serie_id", serieId)
+      .order("sortierung", { ascending: false });
 
-  if (error || !data) return [];
-  return data.map(zuWerk);
+    if (error || !data) {
+      fehlgeschlagen("Werke einer Serie", error);
+      return [];
+    }
+    return data.map(zuWerk);
+  });
 }
 
 /**
@@ -304,21 +410,23 @@ export async function holeVerwandteWerke(
 export async function holeTexte(): Promise<SeitenTexte> {
   if (demoModus()) return TEXTE_STANDARD;
 
-  const client = await supabaseServer();
-  const { data, error } = await client.from("seiten_texte").select("*");
+  return frage("Texte", TEXTE_STANDARD, async () => {
+    const client = supabaseOeffentlich();
+    const { data, error } = await client.from("seiten_texte").select("*");
 
-  if (error || !data) return TEXTE_STANDARD;
+    if (error || !data) return TEXTE_STANDARD;
 
-  // Fehlende Schluessel fallen auf den Standardtext zurueck, damit die
-  // Seite nie mit leeren Abschnitten erscheint.
-  const texte: SeitenTexte = { ...TEXTE_STANDARD };
-  for (const zeile of data as Zeile[]) {
-    const schluessel = String(zeile.schluessel) as keyof SeitenTexte;
-    if (schluessel in texte && typeof zeile.wert === "string" && zeile.wert) {
-      (texte as Record<string, unknown>)[schluessel] = zeile.wert;
+    // Fehlende Schluessel fallen auf den Standardtext zurueck, damit die
+    // Seite nie mit leeren Abschnitten erscheint.
+    const texte: SeitenTexte = { ...TEXTE_STANDARD };
+    for (const zeile of data as Zeile[]) {
+      const schluessel = String(zeile.schluessel) as keyof SeitenTexte;
+      if (schluessel in texte && typeof zeile.wert === "string" && zeile.wert) {
+        (texte as Record<string, unknown>)[schluessel] = zeile.wert;
+      }
     }
-  }
-  return texte;
+    return texte;
+  });
 }
 
 // ---------------------------------------------------------------------------
@@ -344,12 +452,17 @@ function zuAnfrage(zeile: Zeile): Anfrage {
 export async function holeAnfragen(): Promise<Anfrage[]> {
   if (demoModus()) return [];
 
-  const client = await supabaseServer();
-  const { data, error } = await client
-    .from("anfragen")
-    .select("*")
-    .order("erstellt_am", { ascending: false });
+  return frage("Anfragen", [], async () => {
+    const client = await supabaseServer();
+    const { data, error } = await client
+      .from("anfragen")
+      .select("*")
+      .order("erstellt_am", { ascending: false });
 
-  if (error || !data) return [];
-  return (data as Zeile[]).map(zuAnfrage);
+    if (error || !data) {
+      fehlgeschlagen("Anfragen", error);
+      return [];
+    }
+    return (data as Zeile[]).map(zuAnfrage);
+  });
 }
