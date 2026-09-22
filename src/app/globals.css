@@ -748,29 +748,15 @@ body {
   background-size: 100% 1px;
 }
 
-/* 12. Die Ansichten des Katalogs: Wand, Maßstab, Verzeichnis.
+/* 12. Die Ansichten des Katalogs: Wand und Liste.
 
-   Alle drei stehen im HTML; umgeschaltet wird allein ueber ein
+   Beide stehen im HTML; umgeschaltet wird allein ueber ein
    data-Attribut am Behaelter. Dadurch bleibt die Seite vollstaendig
    vorgerendert, und die Umschaltung kostet keinen Nachladevorgang
    und kein Neuzeichnen der Bilder. */
 .katalog[data-ansicht="verzeichnis"] .katalog-wand,
 .katalog:not([data-ansicht="verzeichnis"]) .katalog-verzeichnis {
   display: none;
-}
-
-/* Jede Kachel traegt beide Breiten als eigene Variablen. Welche gilt,
-   entscheidet der Behaelter — nicht das style-Attribut, denn eine
-   Inline-Breite waere von hier aus nicht mehr zu ueberschreiben.
-
-   Die Zeilenhoehe bleibt in beiden Ansichten gleich, damit die Werke
-   weiter auf einer Mittelachse haengen. So haengt man eine Wand. */
-.kachel-flaeche {
-  width: var(--breite-wand);
-}
-
-.katalog[data-ansicht="massstab"] .kachel-flaeche {
-  width: var(--breite-wahr);
 }
 
 .katalog-wahl {
@@ -814,6 +800,57 @@ body {
   .verzeichnis-zeile {
     grid-template-columns: 3.5rem minmax(14rem, 1.6fr) 10rem 1fr 8rem;
   }
+}
+
+/* 14. Der Größenvergleich mit einem Blatt DIN A4.
+
+   Werk und Blatt stehen auf einer Grundlinie. Das Blatt ist weiß wie
+   die Seite; es zeigt sich nur durch eine Haarlinie. Das Werk bekommt
+   keine — es steht wie überall ohne Kante. */
+.groessenvergleich summary {
+  display: inline-block;
+  cursor: pointer;
+  list-style: none;
+  color: var(--color-tinte-leise);
+  border-bottom: 1px solid currentColor;
+  padding-bottom: 0.2em;
+  transition: color 500ms var(--ease-ruhig);
+}
+
+.groessenvergleich summary::-webkit-details-marker {
+  display: none;
+}
+
+.groessenvergleich summary::after {
+  content: " +";
+}
+
+.groessenvergleich[open] summary::after {
+  content: " –";
+}
+
+@media (hover: hover) {
+  .groessenvergleich summary:hover {
+    color: var(--color-tinte);
+  }
+}
+
+.groessenvergleich-bord {
+  display: flex;
+  align-items: flex-end;
+}
+
+.groessenvergleich-bord > * {
+  min-width: 0;
+}
+
+.groessenvergleich-blatt {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--color-tinte-still);
+  color: var(--color-tinte-still);
+  overflow: hidden;
 }
 
 /* Wer ruhige Darstellung eingestellt hat, bekommt sie auch.

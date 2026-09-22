@@ -160,11 +160,14 @@ Weiteres:
 
 - `src/app/(seite)/` — die öffentliche Galerie, `src/app/admin/` — die
   Verwaltung. Die Trennung als Route Group gibt beiden ein eigenes Layout.
-- Der Katalog unter `/werke` kennt drei Ansichten: **Wand** (alle gleich
-  groß), **Maßstab** (im wahren Größenverhältnis, gerechnet aus
-  `hoeheCm`) und **Verzeichnis** (als Liste). Alle drei stehen fertig im
-  HTML, `Katalog.tsx` legt nur ein `data-Attribut` um. Ohne JavaScript
-  bleibt die Wand stehen.
+- Der Katalog unter `/werke` kennt zwei Ansichten: **Wand** (alle gleich
+  groß) und **Liste** (das Verzeichnis, ohne Bilder). Beide stehen
+  fertig im HTML, `Katalog.tsx` legt nur ein `data-Attribut` um. Ohne
+  JavaScript bleibt die Wand stehen.
+- Wie groß ein Werk wirklich ist, zeigt die Werkseite: unter dem
+  Datenblatt lässt sich ein Vergleich mit einem Blatt DIN A4 aufklappen
+  (`Groessenvergleich.tsx`), gerechnet aus `breiteCm` und `hoeheCm`.
+  Das Blatt steht neben dem Werk, nie dahinter.
 - **Neben einem Werk steht nur sein Saalschild.** Kein anderer Text
   darf waagerecht daneben stehen — kein Auftaktsatz, keine
   Serieneinleitung, kein Fließtext. Wer einen Satz neben ein Gemälde

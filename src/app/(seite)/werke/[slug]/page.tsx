@@ -10,6 +10,7 @@ import { Saalschild } from "@/components/Saalschild";
 import { Signatur } from "@/components/Signatur";
 import { Werkkachel } from "@/components/Werkkachel";
 import { Erwerb } from "@/components/Erwerb";
+import { Groessenvergleich } from "@/components/Groessenvergleich";
 import {
   holeWerk,
   holeWerkeFuerStatischePfade,
@@ -230,6 +231,17 @@ export default async function WerkSeite({ params }: Props) {
                 </div>
               ))}
             </dl>
+
+            {bild && (
+              <Groessenvergleich
+                breiteCm={werk.breiteCm}
+                hoeheCm={werk.hoeheCm}
+                schluessel={bild.schluessel}
+                alt={bild.altText || werk.titel}
+                breitePx={bild.breitePx}
+                hoehePx={bild.hoehePx}
+              />
+            )}
           </Einblenden>
 
           <Einblenden verzoegerung={120}>

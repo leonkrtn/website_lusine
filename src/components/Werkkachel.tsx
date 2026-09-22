@@ -1,14 +1,10 @@
-import { ViewTransition, type CSSProperties } from "react";
+import { ViewTransition } from "react";
 import Link from "next/link";
 import { Werkbild } from "@/components/Werkbild";
 import { Saalschild } from "@/components/Saalschild";
 import { Signatur } from "@/components/Signatur";
 import { Einblenden } from "@/components/Einblenden";
-import {
-  hauptbild,
-  wahreBreiteStil,
-  werkBreiteStil,
-} from "@/lib/darstellung";
+import { hauptbild, werkBreiteStil } from "@/lib/darstellung";
 import { type Werk } from "@/lib/typen";
 
 type Props = {
@@ -17,13 +13,6 @@ type Props = {
   /** Maximale Bildhoehe in Prozent der Fensterhoehe. */
   maxHoeheVh?: number;
   sizes?: string;
-  /**
-   * Die groesste Werkhoehe der Auswahl in Zentimetern. Ist sie
-   * gesetzt, traegt die Kachel zusaetzlich ihre Breite im wahren
-   * Groessenverhaeltnis — welche der beiden gilt, entscheidet allein
-   * das data-Attribut am Katalog, siehe globals.css.
-   */
-  hoechsteCm?: number;
 };
 
 /**
@@ -48,22 +37,11 @@ export function Werkkachel({
   verzoegerung = 0,
   maxHoeheVh = 62,
   sizes = "(max-width: 768px) 88vw, 40vw",
-  hoechsteCm = 0,
 }: Props) {
   const bild = hauptbild(werk.bilder);
   if (!bild) return null;
 
-  const wand = werkBreiteStil(bild.breitePx, bild.hoehePx, maxHoeheVh, 34);
-  const wahr = hoechsteCm
-    ? wahreBreiteStil(
-        bild.breitePx,
-        bild.hoehePx,
-        werk.hoeheCm,
-        hoechsteCm,
-        maxHoeheVh,
-        34,
-      )
-    : wand;
+  const breite = werkBreiteStil(bild.breitePx, bild.hoehePx, maxHoeheVh, 34);
 
   return (
     <Einblenden verzoegerung={verzoegerung} als="article">
@@ -91,15 +69,7 @@ export function Werkkachel({
             className="block"
             tabIndex={-1}
           >
-            <div
-              className="werkflaeche kachel-flaeche"
-              style={
-                {
-                  "--breite-wand": wand.width,
-                  "--breite-wahr": wahr.width,
-                } as CSSProperties
-              }
-            >
+            <div className="werkflaeche" style={breite}>
               <ViewTransition name={`werk-${werk.id}`} share="wanderung" default="none">
                 <Werkbild
                   schluessel={bild.schluessel}
