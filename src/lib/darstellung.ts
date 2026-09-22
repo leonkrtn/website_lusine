@@ -161,9 +161,13 @@ export function haengung(nummer: number): Haengung {
   return HAENGUNG[nummer % HAENGUNG.length];
 }
 
-/** Die Tailwind-Klasse, die ein Werk an seine Achse rückt. */
+/**
+ * Die Klasse, die Werk und Saalschild als Reihe an ihre Achse rückt.
+ *
+ * Das Schild hängt immer auf der Seite, die das Werk frei lässt: hängt
+ * das Werk links, steht es rechts davon und umgekehrt. So bleibt der
+ * Rand der Seite frei und die Reihe kippt nicht aus dem Satzspiegel.
+ */
 export function haengungKlasse(achse: Haengung["achse"]): string {
-  if (achse === "links") return "lg:mr-auto lg:ml-0 lg:text-left";
-  if (achse === "rechts") return "lg:mr-0 lg:ml-auto lg:text-right";
-  return "";
+  return `werkreihe werkreihe--${achse}`;
 }

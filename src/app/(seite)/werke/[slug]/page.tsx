@@ -6,6 +6,7 @@ import { notFound } from "next/navigation";
 import { Einblenden } from "@/components/Einblenden";
 import { WerkMitZoom } from "@/components/WerkMitZoom";
 import { Werkbild } from "@/components/Werkbild";
+import { Saalschild } from "@/components/Saalschild";
 import { Signatur } from "@/components/Signatur";
 import { Werkkachel } from "@/components/Werkkachel";
 import { Erwerb } from "@/components/Erwerb";
@@ -92,62 +93,61 @@ export default async function WerkSeite({ params }: Props) {
       }
       data-leitfarbe={werk.leitfarbe ? "ja" : undefined}
     >
-      {/* --- 1. Das Werk, groß und allein ---------------------------------
-          Genau eine Bewegung beim Ankommen: wer aus dem Katalog kommt,
-          sieht sein Werk an diesen Platz wandern. Sonst steht es
-          einfach da. Nichts blendet darunter, nichts schneidet
-          gleichzeitig hinein — beides gab es hier einmal, und zu
-          dritt ergab das kein Ankommen, sondern ein Zucken. */}
+      {/* --- 1. Das Werk und sein Schild -----------------------------------
+          Wie an einer Wand: das Gemälde, daneben das Saalschild mit
+          Titel, Angaben und Preis.
+
+          Genau eine Bewegung beim Ankommen — wer aus dem Katalog
+          kommt, sieht sein Werk an diesen Platz wandern. Nichts
+          blendet darunter, nichts schneidet gleichzeitig hinein. */}
       {bild && (
-        <section className="flex justify-center px-4 pt-8">
-          <div
-            className="werkflaeche w-full"
-            style={werkBreiteStil(bild.breitePx, bild.hoehePx, 86, 64)}
-          >
-            <ViewTransition name={`werk-${werk.id}`} share="wanderung" default="none">
-              <div>
-                <WerkMitZoom
-                  schluessel={bild.schluessel}
-                  alt={bild.altText || werk.titel}
-                  breitePx={bild.breitePx}
-                  hoehePx={bild.hoehePx}
-                  sizes="(max-width: 640px) 92vw, (max-width: 1024px) 78vw, 64rem"
-                  vorrang
-                />
-              </div>
-            </ViewTransition>
+        <section className="mx-auto max-w-[110rem] px-4 pt-2 sm:px-10 lg:px-16">
+          <div className="werkreihe werkreihe--mitte">
+            <div
+              className="werkflaeche"
+              style={werkBreiteStil(bild.breitePx, bild.hoehePx, 100, 64, 88, 6)}
+            >
+              <ViewTransition name={`werk-${werk.id}`} share="wanderung" default="none">
+                <div>
+                  <WerkMitZoom
+                    schluessel={bild.schluessel}
+                    alt={bild.altText || werk.titel}
+                    breitePx={bild.breitePx}
+                    hoehePx={bild.hoehePx}
+                    sizes="(max-width: 640px) 92vw, (max-width: 1024px) 78vw, 64rem"
+                    vorrang
+                  />
+                </div>
+              </ViewTransition>
+            </div>
+
+            <Saalschild werk={werk} als="h1" verlinkt={false}>
+              {werk.serie && (
+                <p className="mt-6 text-klein">
+                  <Link
+                    href={`/serien/${werk.serie.slug}`}
+                    className="text-tinte-leise transition-colors duration-500 hover:text-tinte"
+                  >
+                    aus der Serie „{werk.serie.titel}“
+                  </Link>
+                </p>
+              )}
+            </Saalschild>
           </div>
         </section>
       )}
 
-      {/* --- 2. Signatur und Titel ----------------------------------------
-          Die Signatur steht dort, wo bei einem gerahmten Bild das
-          Schildchen haengt — nur dass sie zu diesem einen Werk gehoert
-          und zu keinem anderen. */}
-      <Einblenden als="header" className="mt-16 px-4 text-center">
+      {/* --- 2. Die Signatur ----------------------------------------------
+          Sie beglaubigt dieses eine Werk und kein anderes. Nach dem
+          Schild, nicht davor: erst steht da, was es ist, dann von
+          wessen Hand. */}
+      <Einblenden als="header" className="mt-atem px-4 text-center">
         <Signatur
           schluessel={werk.signaturSchluessel}
           werkTitel={werk.titel}
           breite={220}
           className="mx-auto"
         />
-
-        <h1 className="mt-8 text-titel leading-tight text-balance">{werk.titel}</h1>
-
-        <p className="beschriftung mt-4">
-          {[werk.jahr, werk.technik].filter(Boolean).join(" · ")}
-        </p>
-
-        {werk.serie && (
-          <p className="mt-6 text-klein">
-            <Link
-              href={`/serien/${werk.serie.slug}`}
-              className="text-tinte-leise transition-colors duration-500 hover:text-tinte"
-            >
-              aus der Serie „{werk.serie.titel}“
-            </Link>
-          </p>
-        )}
       </Einblenden>
 
       {/* --- 3. Die Geschichte --------------------------------------------

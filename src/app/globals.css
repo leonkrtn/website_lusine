@@ -361,46 +361,141 @@ body {
     padding-bottom: 6vh;
   }
 
+  /* Werk und Schild bilden hier eine Reihe in der zweiten Spalte,
+     rechtsbündig. Von links nach rechts liest die Seite damit: Satz,
+     Werk, Schild — drei Dinge, keine zwei Stapel. */
   .auftakt-bild {
     grid-column: 2;
     grid-row: 1;
     justify-self: end;
   }
+}
 
-  .auftakt-schild {
-    grid-column: 2;
-    grid-row: 2;
+/* 4c. Das Saalschild und die Reihe, in der es neben dem Werk hängt.
+
+   In einer Ausstellung steht der Titel nicht unter dem Bild, sondern
+   auf einem Schild daneben an der Wand: schmale Spalte, linksbündig,
+   Flattersatz, auf halber Höhe des Werks eher unten. Genau das hier.
+
+   Linksbündig bleibt es auch dann, wenn es links vom Werk hängt. Ein
+   Saalschild ist immer linksbündig — Flattersatz ist bei so schmalen
+   Spalten die einzige Art, gleichmäßige Wortabstände zu behalten.
+
+   Werk und Schild bilden **eine** Reihe. Das Werk behält dadurch seine
+   Mittelachse, und das Schild hängt an seiner Unterkante, nicht am
+   unteren Rand irgendeines Kastens. */
+.werkreihe {
+  display: flex;
+  align-items: flex-end;
+  gap: 2.5rem;
+  max-width: 100%;
+  min-width: 0;
+}
+
+/* Wird der Platz knapp, gibt das Werk nach, nicht das Schild: eine
+   Zeile Text, die auf zwei umbricht, ist unleserlich, ein Gemälde
+   zwanzig Punkte schmaler fällt niemandem auf. Ohne `min-width: 0`
+   schrumpft ein Flex-Element gar nicht erst unter seine
+   Wunschbreite — es liefe stattdessen aus der Seite heraus. */
+.werkreihe > * {
+  min-width: 0;
+}
+
+@media (min-width: 64rem) {
+  .werkreihe {
+    gap: 3.5rem;
   }
 }
 
-/* 4c. Das Schildchen, das über die Kante des Werks reicht.
-
-   Diese Seite kann etwas, das keine Seite mit gerahmten Bildern kann:
-   Bildgrund und Seitengrund sind **derselbe** Weisston. Eine Schrift,
-   die über den Rand eines Werks hinausläuft, verrät darum keine
-   Kante — sie liegt einfach davor. Zwei Ebenen, ohne dass irgendwo
-   ein Rechteck sichtbar wird.
-
-   Genau deshalb steht hier nichts *hinter* einem Werk. Was dahinter
-   läge, würde an dessen Rand hervorschauen und den Umriss zeichnen.
-   Davor ist erlaubt, dahinter nie.
-
-   `--schild-hoch` sagt, wie weit das Schildchen hochrutscht. Trägt
-   ein Werk Farbe bis an die Unterkante, steht die Schrift darauf
-   statt auf Weiß — dann gehört dieser Wert auf 0. Eine Zeile. */
-.werkschild {
-  --schild-hoch: 2.25rem;
-  position: relative;
-  z-index: 1;
-  margin-top: calc(var(--schild-hoch) * -1);
+/* Das Werk hängt links, das Schild rechts davon. */
+.werkreihe--links {
+  justify-content: flex-start;
 }
 
-@media (max-width: 40rem) {
-  /* Auf dem Handy steht das Werk fast randlos; die Überlappung
-     würde dort zur Enge statt zur Ebene. */
-  .werkschild {
-    --schild-hoch: 0rem;
-    margin-top: 2.5rem;
+/* Das Werk hängt rechts, das Schild links davon — dorthin, wo Platz
+   ist. Die Reihenfolge im HTML bleibt Werk, dann Schild: so liest ein
+   Vorlesegerät erst das Bild und dann seine Beschriftung. */
+.werkreihe--rechts {
+  flex-direction: row-reverse;
+  justify-content: flex-start;
+}
+
+.werkreihe--mitte {
+  justify-content: center;
+}
+
+.saalschild {
+  flex: none;
+  width: var(--schild-breite, 13rem);
+  max-width: 100%;
+  text-align: left;
+  /* Das Schild hängt nicht bündig mit der Unterkante, sondern ein
+     Stück darüber — so hängt es an einer Wand. */
+  margin-bottom: 6vh;
+}
+
+.saalschild-titel {
+  font-size: var(--text-basis);
+  font-style: italic;
+  line-height: 1.35;
+  text-wrap: pretty;
+}
+
+.saalschild-jahr {
+  font-style: normal;
+  color: var(--color-tinte-leise);
+}
+
+/* Jede Angabe auf ihrer eigenen Zeile, ohne Aufzählungszeichen: ein
+   Schild zählt nicht auf, es nennt. */
+.saalschild-angaben {
+  margin-top: 0.9rem;
+  font-size: var(--text-klein);
+  line-height: 1.6;
+  color: var(--color-tinte-leise);
+}
+
+.saalschild-angaben > span {
+  display: block;
+}
+
+.saalschild-preis {
+  margin-top: 0.9rem;
+  font-size: var(--text-klein);
+  font-variant-numeric: oldstyle-nums proportional-nums;
+}
+
+/* In der Übersicht teilen sich zwei Werke eine Zeile; dort ist das
+   Schild schmaler und rückt näher, damit der Platz beim Gemälde
+   bleibt und nicht beim Text. Zehn Zeichen weniger Zeilenbreite
+   merkt niemand, ein um ein Viertel kleineres Bild schon. */
+.werkreihe--eng {
+  --schild-breite: 10rem;
+  gap: 2rem;
+}
+
+@media (min-width: 64rem) {
+  .werkreihe--eng {
+    gap: 2.25rem;
+  }
+}
+
+/* Auf schmalen Bildschirmen ist neben dem Werk kein Platz. Dann steht
+   das Schild darunter — linksbündig wie zuvor, auf Bildbreite. */
+@media (max-width: 48rem) {
+  .werkreihe {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1.75rem;
+  }
+
+  .werkreihe--rechts {
+    flex-direction: column;
+  }
+
+  .saalschild {
+    width: auto;
+    margin-bottom: 0;
   }
 }
 
