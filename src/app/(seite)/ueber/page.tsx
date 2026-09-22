@@ -2,16 +2,20 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Einblenden } from "@/components/Einblenden";
 import { Parallax } from "@/components/Parallax";
+import { Strukturdaten } from "@/components/Strukturdaten";
 import { Werkbild } from "@/components/Werkbild";
 import { holeTexte } from "@/lib/daten";
 import { absaetze } from "@/lib/darstellung";
 import { demoModus } from "@/lib/umgebung";
+import { seitenangaben } from "@/lib/metadaten";
+import { profilseite } from "@/lib/strukturdaten";
 
-export const metadata: Metadata = {
-  title: "Über Lusine",
-  description:
+export const metadata: Metadata = seitenangaben({
+  titel: "Über Lusine",
+  beschreibung:
     "Lusine arbeitet in Öl und Acryl auf Leinwand. Über ihre Arbeitsweise und die Geschichten hinter den Bildern.",
-};
+  pfad: "/ueber",
+});
 
 export default async function UeberSeite() {
   const texte = await holeTexte();
@@ -21,6 +25,7 @@ export default async function UeberSeite() {
 
   return (
     <div className="seitenanfang mx-auto max-w-[110rem] px-4 sm:px-10 lg:px-16">
+      <Strukturdaten daten={profilseite()} />
       <div className="grid grid-cols-1 gap-16 md:grid-cols-[1fr_1.1fr] md:gap-24 lg:gap-32">
         <Einblenden>
           {portraet && (

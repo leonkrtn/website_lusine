@@ -1,4 +1,4 @@
-import { supabaseAdresse } from "@/lib/umgebung";
+import { seitenUrl, supabaseAdresse } from "@/lib/umgebung";
 
 /**
  * Wo ein Bild herkommt.
@@ -40,6 +40,19 @@ export function bildQuelle(schluessel: string): string {
   if (istLokalesBild(schluessel)) return schluessel;
 
   return speicherUrl(schluessel);
+}
+
+/**
+ * Die vollstaendige Adresse eines Bildes, samt Domain.
+ *
+ * Fuer alles, was die Seite verlaesst: Sitemap, Strukturdaten,
+ * Linkvorschau. Dort versteht niemand einen Pfad wie "/werke/x.jpg".
+ */
+export function bildAdresseVoll(schluessel: string): string {
+  const quelle = bildQuelle(schluessel);
+  if (!quelle || /^https?:\/\//.test(quelle)) return quelle;
+
+  return `${seitenUrl()}${quelle}`;
 }
 
 /**

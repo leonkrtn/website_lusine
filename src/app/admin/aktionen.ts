@@ -51,6 +51,10 @@ function erneuereOeffentlich(werkSlug?: string, serieSlug?: string): void {
     revalidatePath("/werke/[slug]", "layout");
   }
   if (serieSlug) revalidatePath(`/serien/${serieSlug}`);
+  /* Die Linkvorschau einer Serie zeigt eines ihrer Werke, die
+     allgemeine eines der Startseite. */
+  revalidatePath("/serien/[slug]", "layout");
+  revalidatePath("/vorschaubild");
   revalidatePath("/admin/werke");
   revalidatePath("/sitemap.xml");
 }

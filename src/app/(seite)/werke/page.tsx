@@ -4,12 +4,14 @@ import { Katalog } from "@/components/Katalog";
 import { Werkkachel } from "@/components/Werkkachel";
 import { Werkverzeichnis } from "@/components/Werkverzeichnis";
 import { holeWerke } from "@/lib/daten";
+import { seitenangaben } from "@/lib/metadaten";
 
-export const metadata: Metadata = {
-  title: "Werke",
-  description:
+export const metadata: Metadata = seitenangaben({
+  titel: "Werke",
+  beschreibung:
     "Alle Originale von Lusine — Öl und Acryl auf Leinwand, jedes Werk ein Unikat.",
-};
+  pfad: "/werke",
+});
 
 /**
  * Der Katalog, in zwei Ansichten.

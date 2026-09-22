@@ -2,12 +2,14 @@ import type { Metadata } from "next";
 import { Einblenden } from "@/components/Einblenden";
 import { Anfrageformular } from "@/components/Anfrageformular";
 import { holeTexte } from "@/lib/daten";
+import { seitenangaben } from "@/lib/metadaten";
 
-export const metadata: Metadata = {
-  title: "Kontakt",
-  description:
+export const metadata: Metadata = seitenangaben({
+  titel: "Kontakt",
+  beschreibung:
     "Fragen zu einem Werk, zu Technik, Format oder Versand? Schreiben Sie Lusine direkt.",
-};
+  pfad: "/kontakt",
+});
 
 export default async function KontaktSeite() {
   const texte = await holeTexte();

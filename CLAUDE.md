@@ -236,6 +236,17 @@ Weiteres:
   `darstellung.ts`). Signaturen und der Größenvergleich tragen
   `data-pin-nopin`. Wer ein neues Bild einbaut, das ein Werk zeigt,
   aber nicht das Werk ist, schließt es genauso aus.
+- **Für Suchmaschinen** gehen die Metadaten jeder öffentlichen Seite
+  über `seitenangaben()` in `src/lib/metadaten.ts`: Titel,
+  Beschreibung, kanonische Adresse, Linkvorschau. Next.js ersetzt
+  `openGraph` pro Seite ganz, statt es zusammenzuführen — wer dort
+  selbst etwas setzt, verliert Seitenname, Sprache und Vorschaubild.
+  Liegt neben einer Seite ein eigenes `opengraph-image.tsx`, braucht
+  sie `eigenesBild: true`, sonst verdrängt das allgemeine Bild
+  (`/vorschaubild`) das eigene. Strukturdaten (schema.org) stehen in
+  `src/lib/strukturdaten.ts`: Seite und Künstlerin im Rahmen, jedes
+  Werk als `VisualArtwork`. Die Sitemap führt je Werk seine Bilder
+  und, sobald Supabase angeschlossen ist, das Änderungsdatum.
 - Öffentliche Seiten lesen über `supabaseOeffentlich()` **ohne Cookies**,
   damit Next.js sie vorrendern kann. Der Cookie-Client bleibt dem
   Admin-Bereich vorbehalten.

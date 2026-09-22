@@ -9,12 +9,14 @@ import {
   hauptbild,
   werkBreiteStil,
 } from "@/lib/darstellung";
+import { seitenangaben } from "@/lib/metadaten";
 
-export const metadata: Metadata = {
-  title: "Serien",
-  description:
+export const metadata: Metadata = seitenangaben({
+  titel: "Serien",
+  beschreibung:
     "Die Werkgruppen von Lusine — jede mit eigener Entstehungsgeschichte.",
-};
+  pfad: "/serien",
+});
 
 /**
  * Die Serienuebersicht.

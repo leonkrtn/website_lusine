@@ -257,3 +257,17 @@ export async function sozialbild(werk: Werk, format: Format): Promise<ImageRespo
     optionen,
   );
 }
+
+/**
+ * Die Linkvorschau für eine Seite, die mehrere Werke zeigt: das erste
+ * Werk, das sich setzen lässt. Ein Werk, dessen Foto als WebP vorliegt,
+ * fällt aus (siehe oben) — dann eben das nächste.
+ */
+export async function vorschauAusWerken(werke: Werk[]): Promise<Response> {
+  for (const werk of werke) {
+    const bild = await sozialbild(werk, "vorschau");
+    if (bild) return bild;
+  }
+
+  return new Response("Kein Werk, das sich zeigen ließe.", { status: 404 });
+}

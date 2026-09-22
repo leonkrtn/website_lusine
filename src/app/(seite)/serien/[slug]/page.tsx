@@ -8,6 +8,7 @@ import {
   holeSerienFuerStatischePfade,
   holeWerkeDerSerie,
 } from "@/lib/daten";
+import { seitenangaben } from "@/lib/metadaten";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -22,10 +23,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   if (!serie) return { title: "Serie nicht gefunden" };
 
-  return {
-    title: serie.titel,
-    description: serie.einleitung.slice(0, 180),
-  };
+  return seitenangaben({
+    titel: serie.titel,
+    beschreibung: serie.einleitung.slice(0, 180),
+    pfad: `/serien/${serie.slug}`,
+    eigenesBild: true,
+  });
 }
 
 /** Eine Serie: Einleitungstext, dann ihre Werke im ruhigen Raster. */

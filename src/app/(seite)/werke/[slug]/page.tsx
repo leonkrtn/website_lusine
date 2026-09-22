@@ -8,6 +8,7 @@ import { Signatur } from "@/components/Signatur";
 import { Werkkachel } from "@/components/Werkkachel";
 import { Erwerb } from "@/components/Erwerb";
 import { Groessenvergleich } from "@/components/Groessenvergleich";
+import { Strukturdaten } from "@/components/Strukturdaten";
 import {
   holeWerk,
   holeWerkeFuerStatischePfade,
@@ -15,6 +16,8 @@ import {
 } from "@/lib/daten";
 import { absaetze, detailbilder, hauptbild, pinFuer } from "@/lib/darstellung";
 import { masseText } from "@/lib/bilder";
+import { seitenangaben } from "@/lib/metadaten";
+import { werkangaben } from "@/lib/strukturdaten";
 import { STATUS_BESCHRIFTUNG } from "@/lib/typen";
 
 type Props = { params: Promise<{ slug: string }> };
@@ -35,21 +38,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     absaetze(werk.geschichte)[0]?.slice(0, 180) ??
     `${werk.titel} — ${werk.technik}`;
 
-  /* Das Vorschaubild kommt aus `opengraph-image.tsx` daneben. Die
-     kanonische Adresse fasst zusammen, was Instagram, Pinterest und
-     Messenger an Anhängseln an einen Link hängen — gezählt wird
-     dann eine Seite, nicht zwanzig. */
-  return {
-    title: werk.titel,
-    description: beschreibung,
-    alternates: { canonical: `/werke/${werk.slug}` },
-    openGraph: {
-      type: "article",
-      title: `${werk.titel} — LUART`,
-      description: beschreibung,
-      url: `/werke/${werk.slug}`,
-    },
-  };
+  /* Das Vorschaubild kommt aus `opengraph-image.tsx` daneben. */
+  return seitenangaben({
+    titel: werk.titel,
+    beschreibung,
+    pfad: `/werke/${werk.slug}`,
+    art: "article",
+    eigenesBild: true,
+  });
 }
 
 /**
@@ -87,6 +83,8 @@ export default async function WerkSeite({ params }: Props) {
 
   return (
     <article>
+      <Strukturdaten daten={werkangaben(werk)} />
+
       {/* --- 1. Das Werk und sein Schild -----------------------------------
           Wie an einer Wand: das Gemälde, daneben das Saalschild mit
           Titel, Angaben und Preis. Wer aus der Galerie kommt, sieht
