@@ -19,6 +19,7 @@ import {
 import { absaetze, detailbilder, hauptbild, werkBreiteStil } from "@/lib/darstellung";
 import { bildQuelle, masseText } from "@/lib/bilder";
 import { STATUS_BESCHRIFTUNG } from "@/lib/typen";
+import { WERKSEITE_SIZES } from "@/lib/werkseitenbild";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -118,7 +119,7 @@ export default async function WerkSeite({ params }: Props) {
                     alt={bild.altText || werk.titel}
                     breitePx={bild.breitePx}
                     hoehePx={bild.hoehePx}
-                    sizes="(max-width: 640px) 92vw, (max-width: 1024px) 78vw, 64rem"
+                    sizes={WERKSEITE_SIZES}
                     vorrang
                   />
                 </div>

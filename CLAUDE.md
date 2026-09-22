@@ -213,6 +213,12 @@ Weiteres:
   steht, trägt es den Namen `werk-<id>`. Die Kopfzeile hat im
   Übergang eine eigene Ebene über dem Werk (`kopfzeile`), sonst führe
   ein Werk, das knapp unter ihr stand, über sie hinweg.
+  Verweise auf eine Werkseite laufen über `WerkVerweis.tsx`: er lädt
+  das Bild der Werkseite vor, sobald Zeiger oder Finger ihn berühren,
+  und wechselt erst, wenn es bereit ist (höchstens eine Sekunde).
+  Sonst endete die Wanderung auf einem noch leeren Bild, und das Werk
+  war kurz weg. Die `sizes` der Werkseite stehen darum an einer Stelle
+  (`WERKSEITE_SIZES` in `src/lib/werkseitenbild.ts`).
 - **Kein `scroll-behavior: smooth`.** Es machte das Scrollen, das Next
   beim Seitenwechsel und beim Zurück selbst auslöst, zu einer
   sichtbaren Fahrt — von der Startseite aus über zweitausend Punkte,
