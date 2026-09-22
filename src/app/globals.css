@@ -46,6 +46,15 @@
   --text-gross: clamp(2.25rem, 1.6rem + 3vw, 4.5rem);
   --text-riesig: clamp(3rem, 1.8rem + 6vw, 8rem);
 
+  /* Der Erzaehltext steht eine Stufe unter dem Lead. Er wird am
+     Stueck gelesen, nicht ueberflogen — dafuer ist ein ruhigeres
+     Mass angenehmer als ein grosses. */
+  --text-erzaehlung: clamp(1.125rem, 1rem + 0.6vw, 1.5625rem);
+
+  /* Das Zitat ist gross gesetzt, aber kleiner als eine Ueberschrift:
+     es begleitet die Werke, es fuehrt sie nicht an. */
+  --text-zitat: clamp(1.9375rem, 1.4rem + 2.6vw, 3.875rem);
+
   /* --- Rhythmus ----------------------------------------------------------
      Der Weissraum ist Inhalt. Diese Stufen sind absichtlich gross. */
   --spacing-atem: 4rem;
@@ -118,7 +127,7 @@ body {
 /* Erzaehltext. Begrenzte Zeilenlaenge ist hier kein Detail, sondern
    Voraussetzung dafuer, dass lange Texte gelesen werden. */
 .erzaehlung {
-  font-size: var(--text-lead);
+  font-size: var(--text-erzaehlung);
   line-height: 1.85;
   max-width: 34rem;
   letter-spacing: 0.003em;
@@ -131,6 +140,16 @@ body {
 /* Der erste Absatz einer Geschichte bekommt etwas mehr Gewicht. */
 .erzaehlung > p:first-child {
   font-size: 1.06em;
+}
+
+/* Das Zitat. Ein Satz als Wandtext zwischen zwei Saelen — gross
+   genug, um den Schritt zu verlangsamen, klein genug, um nicht mit
+   den Werken zu konkurrieren. */
+.zitat {
+  font-size: var(--text-zitat);
+  line-height: 1.3;
+  font-style: italic;
+  letter-spacing: 0.004em;
 }
 
 /* --------------------------------------------------------------------------
@@ -178,6 +197,107 @@ body {
   will-change: transform;
 }
 
+/* 4. Einblenden aus der Tiefe. Eine Abwandlung von (1) fuer die
+   Werke der Startseite: sie heben sich nicht nur, sie treten auch
+   einen Schritt naeher. Reiner Massstab, kein Schatten und keine
+   Kante — die Verbotsliste bleibt unberuehrt. */
+.einblenden[data-bewegung="tiefe"] {
+  transform: translateY(40px) scale(0.972);
+}
+
+.einblenden[data-bewegung="tiefe"][data-sichtbar="true"] {
+  transform: none;
+}
+
+/* 5. Wortweises Erscheinen. Ein Satz baut sich auf, statt einfach da
+   zu sein. Nur fuer kurze, gesetzte Saetze — nie fuer Fliesstext. */
+.wortweise > span {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(0.4em);
+  transition:
+    opacity var(--dauer-blende) var(--ease-ruhig),
+    transform var(--dauer-blende) var(--ease-ruhig);
+  transition-delay: calc(var(--wort, 0) * var(--wort-takt, 55ms));
+}
+
+.wortweise[data-sichtbar="true"] > span {
+  opacity: 1;
+  transform: none;
+}
+
+/* 6. Ein Werk, das unter dem Zeiger einen Schritt herantritt.
+   Sehr wenig — gerade genug, dass die Flaeche antwortet. */
+.heranruecken img {
+  transition: transform 1100ms var(--ease-ruhig);
+}
+
+@media (hover: hover) {
+  .heranruecken:hover img {
+    transform: scale(1.015);
+  }
+
+  /* Der Titel gehoert zum Bild: wer das Werk anfasst, sieht auch,
+     dass sein Name ein Weg ist. */
+  .werkblock:has(.heranruecken:hover) .unterstrich {
+    background-size: 100% 1px;
+  }
+}
+
+.heranruecken:has(:focus-visible) img {
+  transform: scale(1.015);
+}
+
+/* 7. Die Unterlinie, die unter einem Titel aufzieht, statt einfach
+   dazusein. Als Hintergrundbild gesetzt, damit sie sich animieren
+   laesst, ohne das Layout zu verschieben. */
+.unterstrich {
+  background-image: linear-gradient(var(--color-tinte), var(--color-tinte));
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  background-size: 0% 1px;
+  transition: background-size 700ms var(--ease-ruhig);
+  padding-bottom: 0.12em;
+}
+
+.unterstrich:hover,
+.unterstrich:focus-visible {
+  background-size: 100% 1px;
+}
+
+/* 8. Der Hinweis, dass es weitergeht: eine Haarlinie, die einmal
+   nach unten laeuft und wieder verschwindet. */
+@keyframes strich-abwaerts {
+  0% {
+    transform: scaleY(0);
+    transform-origin: top;
+    opacity: 0;
+  }
+  25% {
+    transform: scaleY(1);
+    transform-origin: top;
+    opacity: 1;
+  }
+  60% {
+    transform: scaleY(1);
+    transform-origin: bottom;
+    opacity: 1;
+  }
+  85%,
+  100% {
+    transform: scaleY(0);
+    transform-origin: bottom;
+    opacity: 0;
+  }
+}
+
+.scrollhinweis {
+  width: 1px;
+  height: 4.5rem;
+  background-color: var(--color-linie);
+  animation: strich-abwaerts 4s var(--ease-ruhig) infinite;
+}
+
 /* Wer ruhige Darstellung eingestellt hat, bekommt sie auch.
    Der Inhalt bleibt vollstaendig sichtbar und bedienbar. */
 @media (prefers-reduced-motion: reduce) {
@@ -197,6 +317,24 @@ body {
 
   .parallax {
     transform: none !important;
+  }
+
+  .wortweise > span {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .heranruecken img {
+    transform: none !important;
+  }
+
+  /* Die Linie bleibt stehen, statt zu laufen — der Hinweis ist
+     damit immer noch einer, nur eben ein ruhiger. */
+  .scrollhinweis {
+    animation: none;
+    transform: none;
+    opacity: 1;
   }
 
   *,
