@@ -11,6 +11,10 @@ import type { Werk } from "@/lib/typen";
  * Die `palette` wird nicht angezeigt. Sie steuert das Skript
  * `scripts/gemaelde-erzeugen.mjs`, das die abstrakten Platzhalter-Bilder
  * erzeugt, damit Bild und Text zusammenpassen.
+ *
+ * Die `leitfarbe` ist jeweils der erste Ton derselben Palette. Im
+ * Betrieb setzt Lusine sie von Hand im Admin; hier waere jede andere
+ * Wahl willkuerlich.
  */
 
 export type WerkSeed = Werk & { palette: string[] };
@@ -69,6 +73,7 @@ export const WERKE_SEED: WerkSeed[] = [
     waehrung: "eur",
     status: "verfuegbar",
     anfrageErlaubt: true,
+    leitfarbe: "#c9a227",
     signaturSchluessel: "/signaturen/das-zimmer-am-nachmittag.png",
     aufStartseite: true,
     startseiteSortierung: 1,
@@ -97,6 +102,7 @@ export const WERKE_SEED: WerkSeed[] = [
     waehrung: "eur",
     status: "verfuegbar",
     anfrageErlaubt: true,
+    leitfarbe: "#5c7a63",
     signaturSchluessel: "/signaturen/gewitterluft.png",
     aufStartseite: true,
     startseiteSortierung: 2,
@@ -125,6 +131,7 @@ export const WERKE_SEED: WerkSeed[] = [
     waehrung: "eur",
     status: "verkauft",
     anfrageErlaubt: false,
+    leitfarbe: "#8c8279",
     signaturSchluessel: "/signaturen/brief-den-ich-nicht-abgeschickt-habe.png",
     aufStartseite: true,
     startseiteSortierung: 3,
@@ -157,6 +164,7 @@ export const WERKE_SEED: WerkSeed[] = [
     waehrung: "eur",
     status: "verfuegbar",
     anfrageErlaubt: true,
+    leitfarbe: "#7b8ba3",
     signaturSchluessel: "/signaturen/morgens-halb-sechs.png",
     aufStartseite: true,
     startseiteSortierung: 4,
@@ -185,6 +193,7 @@ export const WERKE_SEED: WerkSeed[] = [
     waehrung: "eur",
     status: "reserviert",
     anfrageErlaubt: true,
+    leitfarbe: "#d97a3c",
     signaturSchluessel: "/signaturen/der-letzte-warme-tag.png",
     aufStartseite: true,
     startseiteSortierung: 5,
@@ -213,6 +222,7 @@ export const WERKE_SEED: WerkSeed[] = [
     waehrung: "eur",
     status: "verfuegbar",
     anfrageErlaubt: true,
+    leitfarbe: "#6b6256",
     signaturSchluessel: "/signaturen/niemand-hat-etwas-gesagt.png",
     aufStartseite: false,
     startseiteSortierung: 0,
@@ -241,6 +251,7 @@ export const WERKE_SEED: WerkSeed[] = [
     waehrung: "eur",
     status: "verfuegbar",
     anfrageErlaubt: true,
+    leitfarbe: "#9db3b8",
     signaturSchluessel: "/signaturen/zwischen-zwei-atemzuegen.png",
     aufStartseite: false,
     startseiteSortierung: 0,
@@ -269,6 +280,7 @@ export const WERKE_SEED: WerkSeed[] = [
     waehrung: "eur",
     status: "verfuegbar",
     anfrageErlaubt: true,
+    leitfarbe: "#4a5a6b",
     signaturSchluessel: "/signaturen/es-hat-nicht-geregnet.png",
     aufStartseite: false,
     startseiteSortierung: 0,
@@ -297,6 +309,7 @@ export const WERKE_SEED: WerkSeed[] = [
     waehrung: "eur",
     status: "verfuegbar",
     anfrageErlaubt: true,
+    leitfarbe: "#7d4a52",
     signaturSchluessel: "/signaturen/die-farbe-ihres-mantels.png",
     aufStartseite: false,
     startseiteSortierung: 0,
@@ -325,6 +338,7 @@ export const WERKE_SEED: WerkSeed[] = [
     waehrung: "eur",
     status: "verfuegbar",
     anfrageErlaubt: true,
+    leitfarbe: "#b8c5cc",
     signaturSchluessel: "/signaturen/offenes-fenster-februar.png",
     aufStartseite: false,
     startseiteSortierung: 0,
@@ -353,6 +367,7 @@ export const WERKE_SEED: WerkSeed[] = [
     waehrung: "eur",
     status: "verfuegbar",
     anfrageErlaubt: true,
+    leitfarbe: "#a99a5e",
     signaturSchluessel: "/signaturen/was-vom-sommer-uebrig-ist.png",
     aufStartseite: false,
     startseiteSortierung: 0,
@@ -381,6 +396,7 @@ export const WERKE_SEED: WerkSeed[] = [
     waehrung: "eur",
     status: "verfuegbar",
     anfrageErlaubt: true,
+    leitfarbe: "#8a3d3d",
     signaturSchluessel: "/signaturen/kurz-bevor-es-kippt.png",
     aufStartseite: false,
     startseiteSortierung: 0,

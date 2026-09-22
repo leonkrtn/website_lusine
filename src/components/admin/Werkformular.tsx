@@ -5,6 +5,7 @@ import { useFormStatus } from "react-dom";
 import Link from "next/link";
 import {
   Auswahl,
+  Farbfeld,
   Feld,
   Gruppe,
   Meldung,
@@ -166,6 +167,13 @@ export function Werkformular({ werk, serien, gesperrt = false }: Props) {
           hinweis="Nur ausfüllen, wenn es kein Unikat ist. Zum Beispiel: Auflage 3 von 12."
           standardwert={werk?.editionInfo}
           gesperrt={gesperrt}
+        />
+
+        <Farbfeld
+          name="leitfarbe"
+          beschriftung="Leitfarbe"
+          hinweis="Der eine Ton, der das Werk trägt. Er färbt keine Fläche — nur die Linie über dem Datenblatt und die Auswahlmarkierung auf dieser einen Werkseite. Leer lassen, wenn das Werk keinen hat."
+          standardwert={werk?.leitfarbe}
         />
       </Gruppe>
 

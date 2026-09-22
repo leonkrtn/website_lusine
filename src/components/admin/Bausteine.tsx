@@ -55,6 +55,62 @@ export function Feld({
   );
 }
 
+/**
+ * Ein Farbwaehler mit dem Hexwert daneben.
+ *
+ * Beides sichtbar, weil beides gebraucht wird: das Feld zum Suchen,
+ * der Hexwert zum Uebertragen aus einem Farbmessgeraet oder aus der
+ * Bildbearbeitung. Die zwei Eingaben halten sich gegenseitig auf
+ * Stand; abgeschickt wird allein der Text.
+ */
+export function Farbfeld({
+  name,
+  beschriftung,
+  hinweis,
+  standardwert,
+}: {
+  name: string;
+  beschriftung: string;
+  hinweis?: string;
+  standardwert?: string | null;
+}) {
+  const wert = standardwert ?? "";
+
+  return (
+    <div>
+      <label htmlFor={name} className="beschriftung">
+        {beschriftung}
+      </label>
+
+      <div className="mt-2 flex items-end gap-4">
+        <input
+          type="color"
+          aria-label={`${beschriftung} auswählen`}
+          defaultValue={wert || "#ffffff"}
+          onChange={(ereignis) => {
+            const feld = document.getElementById(name) as HTMLInputElement | null;
+            if (feld) feld.value = ereignis.target.value;
+          }}
+          className="h-10 w-14 shrink-0 cursor-pointer border border-linie bg-papier p-1"
+        />
+        <input
+          id={name}
+          name={name}
+          type="text"
+          inputMode="text"
+          spellCheck={false}
+          placeholder="#5c7a63"
+          defaultValue={wert}
+          pattern="^(#[0-9a-fA-F]{6})?$"
+          className={`${EINGABE} mt-0 font-mono`}
+        />
+      </div>
+
+      {hinweis && <p className="mt-2 text-fluestern text-tinte-still">{hinweis}</p>}
+    </div>
+  );
+}
+
 export function Textfeld({
   name,
   beschriftung,

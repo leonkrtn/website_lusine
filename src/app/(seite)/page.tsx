@@ -4,7 +4,12 @@ import { Parallax } from "@/components/Parallax";
 import { Wortweise } from "@/components/Wortweise";
 import { WerkMitZoom } from "@/components/WerkMitZoom";
 import { holeStartseitenWerke, holeTexte } from "@/lib/daten";
-import { hauptbild, werkBreiteStil } from "@/lib/darstellung";
+import {
+  haengung,
+  haengungKlasse,
+  hauptbild,
+  werkBreiteStil,
+} from "@/lib/darstellung";
 import { STATUS_BESCHRIFTUNG } from "@/lib/typen";
 
 /**
@@ -13,6 +18,13 @@ import { STATUS_BESCHRIFTUNG } from "@/lib/typen";
  * Fuenf Werke, jedes fuer sich, jedes fast bildschirmfuellend. Wer
  * scrollt, sieht immer nur ein Bild — das ist die Uebersetzung eines
  * gut gehaengten Galerieraums in eine Website.
+ *
+ * Gehaengt wird wie an einer Wand, nicht wie in einer Liste: das
+ * erste Werk gross und mittig als Auftakt, die folgenden im Wechsel
+ * abseits und in wechselnder Groesse. Die Folge steht fest in
+ * `haengung()`. Ab der grossen Breite wird sie sichtbar; darunter
+ * steht jedes Werk mittig, weil eine Wand auf einem Handy keine
+ * zweite Achse hat.
  */
 
 export default async function Startseite() {
@@ -41,54 +53,75 @@ export default async function Startseite() {
         if (!bild) return null;
 
         const istErstes = nummer === 0;
+        const platz = haengung(nummer);
+        const ruecken = haengungKlasse(platz.achse);
 
         return (
           <section
             key={werk.id}
-            className="werkblock mb-stille flex flex-col items-center px-4"
+            className="werkblock mb-stille px-4 sm:px-10 lg:px-16"
             aria-labelledby={`werk-${werk.id}`}
           >
-            <Einblenden
-              className="w-full"
-              schwelle={0.05}
-              bewegung={istErstes ? "weich" : "tiefe"}
-            >
-              <Parallax staerke={istErstes ? 0 : 0.07}>
-                <div
-                  className="heranruecken mx-auto"
-                  style={werkBreiteStil(bild.breitePx, bild.hoehePx, 82, 60)}
-                >
-                  <WerkMitZoom
-                    schluessel={bild.schluessel}
-                    alt={bild.altText || werk.titel}
-                    breitePx={bild.breitePx}
-                    hoehePx={bild.hoehePx}
-                    sizes="(max-width: 640px) 88vw, (max-width: 1024px) 76vw, 60rem"
-                    vorrang={istErstes}
-                  />
-                </div>
-              </Parallax>
-            </Einblenden>
+            <div className="mx-auto max-w-[110rem]">
+              <Einblenden
+                className="w-full"
+                schwelle={0.05}
+                bewegung={istErstes ? "weich" : "tiefe"}
+              >
+                <Parallax staerke={istErstes ? 0 : 0.07}>
+                  <div
+                    className={`werkflaeche heranruecken mx-auto ${ruecken}`}
+                    style={werkBreiteStil(
+                      bild.breitePx,
+                      bild.hoehePx,
+                      82 * platz.groesse,
+                      60 * platz.groesse,
+                    )}
+                  >
+                    <WerkMitZoom
+                      schluessel={bild.schluessel}
+                      alt={bild.altText || werk.titel}
+                      breitePx={bild.breitePx}
+                      hoehePx={bild.hoehePx}
+                      sizes="(max-width: 640px) 88vw, (max-width: 1024px) 76vw, 60rem"
+                      vorrang={istErstes}
+                    />
+                  </div>
+                </Parallax>
+              </Einblenden>
 
-            <Einblenden verzoegerung={140} className="mt-10 text-center">
-              <h2 id={`werk-${werk.id}`} className="text-titel leading-tight">
-                <Link href={`/werke/${werk.slug}`} className="unterstrich">
-                  {werk.titel}
-                </Link>
-              </h2>
+              {/* Die Beschriftung folgt dem Werk an seine Achse — ein
+                  Schildchen haengt neben dem Bild, nicht in der Mitte
+                  der Wand. */}
+              <Einblenden
+                verzoegerung={140}
+                className={`werkflaeche mx-auto mt-10 text-center ${ruecken}`}
+                style={werkBreiteStil(
+                  bild.breitePx,
+                  bild.hoehePx,
+                  82 * platz.groesse,
+                  60 * platz.groesse,
+                )}
+              >
+                <h2 id={`werk-${werk.id}`} className="text-titel leading-tight">
+                  <Link href={`/werke/${werk.slug}`} className="unterstrich">
+                    {werk.titel}
+                  </Link>
+                </h2>
 
-              <p className="beschriftung mt-4">
-                {[
-                  werk.jahr,
-                  werk.technik,
-                  werk.status !== "verfuegbar"
-                    ? STATUS_BESCHRIFTUNG[werk.status]
-                    : null,
-                ]
-                  .filter(Boolean)
-                  .join(" · ")}
-              </p>
-            </Einblenden>
+                <p className="beschriftung mt-4">
+                  {[
+                    werk.jahr,
+                    werk.technik,
+                    werk.status !== "verfuegbar"
+                      ? STATUS_BESCHRIFTUNG[werk.status]
+                      : null,
+                  ]
+                    .filter(Boolean)
+                    .join(" · ")}
+                </p>
+              </Einblenden>
+            </div>
           </section>
         );
       })}

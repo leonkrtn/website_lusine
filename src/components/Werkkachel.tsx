@@ -1,8 +1,13 @@
+import { ViewTransition, type CSSProperties } from "react";
 import Link from "next/link";
 import { Werkbild } from "@/components/Werkbild";
 import { Signatur } from "@/components/Signatur";
 import { Einblenden } from "@/components/Einblenden";
-import { hauptbild, werkBreiteStil } from "@/lib/darstellung";
+import {
+  hauptbild,
+  wahreBreiteStil,
+  werkBreiteStil,
+} from "@/lib/darstellung";
 import { STATUS_BESCHRIFTUNG, type Werk } from "@/lib/typen";
 
 type Props = {
@@ -11,6 +16,13 @@ type Props = {
   /** Maximale Bildhoehe in Prozent der Fensterhoehe. */
   maxHoeheVh?: number;
   sizes?: string;
+  /**
+   * Die groesste Werkhoehe der Auswahl in Zentimetern. Ist sie
+   * gesetzt, traegt die Kachel zusaetzlich ihre Breite im wahren
+   * Groessenverhaeltnis — welche der beiden gilt, entscheidet allein
+   * das data-Attribut am Katalog, siehe globals.css.
+   */
+  hoechsteCm?: number;
 };
 
 /**
@@ -21,15 +33,36 @@ type Props = {
  * nicht stoert. Auf Geraeten ohne Zeigegeraet bleibt sie aus: ein
  * Effekt, der sich auf dem Handy nie ausloesen laesst, wuerde dort nur
  * unerklaerlichen Leerraum hinterlassen.
+ *
+ * Beim Klick bleibt das Bild stehen und wandert an seinen Platz auf
+ * der Werkseite, waehrend alles andere wechselt. Dafuer traegt es
+ * denselben `ViewTransition`-Namen wie das grosse Bild dort. Auf
+ * reinweissem Grund ohne Rahmen sieht das nicht nach Seitenwechsel
+ * aus, sondern nach einer Kamerafahrt — man verliert das Werk nie aus
+ * dem Blick. Wo der Browser das nicht kann, wechselt die Seite wie
+ * bisher.
  */
 export function Werkkachel({
   werk,
   verzoegerung = 0,
   maxHoeheVh = 62,
   sizes = "(max-width: 768px) 88vw, 40vw",
+  hoechsteCm = 0,
 }: Props) {
   const bild = hauptbild(werk.bilder);
   if (!bild) return null;
+
+  const wand = werkBreiteStil(bild.breitePx, bild.hoehePx, maxHoeheVh, 34);
+  const wahr = hoechsteCm
+    ? wahreBreiteStil(
+        bild.breitePx,
+        bild.hoehePx,
+        werk.hoeheCm,
+        hoechsteCm,
+        maxHoeheVh,
+        34,
+      )
+    : wand;
 
   return (
     <Einblenden verzoegerung={verzoegerung} als="article">
@@ -43,17 +76,24 @@ export function Werkkachel({
           style={{ height: `${maxHoeheVh}vh` }}
         >
           <div
-            className="mx-auto"
-            style={werkBreiteStil(bild.breitePx, bild.hoehePx, maxHoeheVh, 34)}
+            className="werkflaeche kachel-flaeche mx-auto"
+            style={
+              {
+                "--breite-wand": wand.width,
+                "--breite-wahr": wahr.width,
+              } as CSSProperties
+            }
           >
-            <Werkbild
-              schluessel={bild.schluessel}
-              alt={bild.altText || werk.titel}
-              breitePx={bild.breitePx}
-              hoehePx={bild.hoehePx}
-              sizes={sizes}
-              className="transition-opacity duration-700 group-hover:opacity-90"
-            />
+            <ViewTransition name={`werk-${werk.id}`} share="wanderung" default="none">
+              <Werkbild
+                schluessel={bild.schluessel}
+                alt={bild.altText || werk.titel}
+                breitePx={bild.breitePx}
+                hoehePx={bild.hoehePx}
+                sizes={sizes}
+                className="transition-opacity duration-700 group-hover:opacity-90"
+              />
+            </ViewTransition>
           </div>
         </div>
 
