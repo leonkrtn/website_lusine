@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Auftakt } from "@/components/Auftakt";
 import { Einblenden } from "@/components/Einblenden";
 import { Saalschild } from "@/components/Saalschild";
 import { Wortweise } from "@/components/Wortweise";
@@ -30,6 +31,11 @@ const BREITE_REM = 74;
  * scrollt, sieht immer nur ein Bild — das ist die Übersetzung eines
  * gut gehängten Galerieraums in eine Website.
  *
+ * **Der Auftakt.** Das erste Werk steht vor allem anderen, und es
+ * beginnt nicht als Bild, sondern als seine Oberfläche: so nah, dass
+ * man den Pinselstrich sieht. Wer scrollt, tritt zurück, bis das Werk
+ * ganz dasteht. Siehe `Auftakt.tsx`.
+ *
  * **Neben einem Werk steht nur sein Saalschild.** Der Auftaktsatz
  * gehört zu keinem Gemälde, sondern zur ganzen Auswahl — er steht
  * darum für sich, wie der Saaltext am Eingang einer Ausstellung, und
@@ -53,12 +59,24 @@ export default async function Startseite() {
     holeTexte(),
   ]);
 
+  const [erstes, ...weitere] = werke;
+  const erstesBild = erstes ? hauptbild(erstes.bilder) : null;
+
   return (
     <div>
+      {/* --- Der Auftakt ---------------------------------------------------
+          Vom Pinselstrich zum ganzen Werk. */}
+      {erstes && erstesBild && <Auftakt werk={erstes} bild={erstesBild} />}
+
       {/* --- Der Saaltext --------------------------------------------------
           Für sich allein, nichts daneben. Er spricht von der ganzen
-          Auswahl, nicht von einem Werk. */}
-      <section className="seitenanfang mx-auto max-w-[110rem] px-4 pb-atem sm:px-10 lg:px-16">
+          Auswahl, nicht von einem Werk. Er steht nach dem Auftakt, mit
+          Abstand zu beiden Seiten — nicht in einer Reihe mit einem Bild. */}
+      <section
+        className={`mx-auto max-w-[110rem] px-4 pb-atem sm:px-10 lg:px-16 ${
+          erstesBild ? "pt-stille" : "seitenanfang"
+        }`}
+      >
         <Wortweise
           text={texte.startseiteAuftakt}
           takt={45}
@@ -67,12 +85,14 @@ export default async function Startseite() {
       </section>
 
       {/* --- Die Werke ------------------------------------------------------ */}
-      {werke.map((werk, nummer) => {
+      {weitere.map((werk, index) => {
         const bild = hauptbild(werk.bilder);
         if (!bild) return null;
 
-        const istErstes = nummer === 0;
-        const platz = haengung(nummer);
+        /* Die Hängung zählt weiter, als stünde der Auftakt noch in
+           der Reihe — sonst verschöbe sich die ganze Wand um einen
+           Platz. */
+        const platz = haengung(index + 1);
         const flaeche = werkBreiteStil(
           bild.breitePx,
           bild.hoehePx,
@@ -85,20 +105,12 @@ export default async function Startseite() {
         return (
           <section
             key={werk.id}
-            className={`werkblock px-4 sm:px-10 lg:px-16 ${
-              istErstes ? "" : "mt-stille"
-            }`}
+            className="werkblock mt-stille px-4 sm:px-10 lg:px-16"
             aria-labelledby={`werk-${werk.id}`}
           >
             <div className={`mx-auto max-w-[110rem] ${haengungKlasse(platz.achse)}`}>
               <div
                 className="auftritt werkflaeche heranruecken"
-                /* Das erste Werk steht beim Laden schon im Bild. Es
-                   erscheint darum nicht, es ist da — sonst begänne die
-                   Seite auf halber Strecke einer Bewegung, die niemand
-                   ausgelöst hat. Wandern tut es trotzdem, sonst fiele
-                   es aus der Tiefenstaffelung heraus. */
-                data-erscheint={istErstes ? "nein" : undefined}
                 style={{ ...flaeche, "--tiefe": 0.3 } as React.CSSProperties}
               >
                 <WerkMitZoom
@@ -107,7 +119,6 @@ export default async function Startseite() {
                   breitePx={bild.breitePx}
                   hoehePx={bild.hoehePx}
                   sizes="(max-width: 640px) 88vw, (max-width: 1024px) 82vw, 74rem"
-                  vorrang={istErstes}
                 />
               </div>
 
@@ -118,7 +129,6 @@ export default async function Startseite() {
                 werk={werk}
                 titelId={`werk-${werk.id}`}
                 className="auftritt"
-                erscheint={!istErstes}
                 style={{ "--tiefe": 1.1 } as React.CSSProperties}
               />
             </div>

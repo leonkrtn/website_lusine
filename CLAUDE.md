@@ -184,6 +184,14 @@ Weiteres:
   hängt; so wird ein Saalschild gesetzt. Werk und Schild bilden eine
   `.werkreihe` — wird der Platz eng, gibt das Werk nach, nicht das
   Schild. Unter 48 rem rutscht es unter das Werk.
+- **Die Startseite beginnt mit dem Pinselstrich** (`Auftakt.tsx`): das
+  erste Werk steht zuerst bildschirmfüllend vergrößert da und tritt beim
+  Scrollen auf sein Maß zurück, während die Bühne stehen bleibt. Wie
+  stark vergrößert wird, misst die Komponente aus Werkformat und
+  Fenster (`--auftakt-naehe`). Die Bühne rechnet die Höhe der Kopfzeile
+  selbst mit (`--kopf-hoehe` in `globals.css`) — wer die Kopfzeile
+  ändert, zieht den Wert nach. Ohne Scroll-Zeitachse oder bei
+  reduzierter Bewegung steht das Werk einfach am Seitenanfang.
 - Die Startseite hängt die Werke abwechselnd links, mittig und rechts.
   Die Folge steht fest in `haengung()` in `src/lib/darstellung.ts` — eine
   Wand, die sich bei jedem Aufruf neu ordnet, wäre keine Hängung.
