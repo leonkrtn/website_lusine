@@ -209,6 +209,15 @@ Weiteres:
   neuen Platz. Der alte `seitenwechsel`-Übergang läuft darum nur noch,
   wo der Browser keine View Transitions kann — beides zugleich ergab
   zwei Bewegungen auf demselben Bild.
+  Das gilt von Katalog **und** Startseite aus: überall, wo ein Werk
+  steht, trägt es den Namen `werk-<id>`. Die Kopfzeile hat im
+  Übergang eine eigene Ebene über dem Werk (`kopfzeile`), sonst führe
+  ein Werk, das knapp unter ihr stand, über sie hinweg.
+- **Kein `scroll-behavior: smooth`.** Es machte das Scrollen, das Next
+  beim Seitenwechsel und beim Zurück selbst auslöst, zu einer
+  sichtbaren Fahrt — von der Startseite aus über zweitausend Punkte,
+  mitten in der Wanderung. Bewegen soll sich nur, was der Finger
+  bewegt.
 - Jedes Werk kann eine **Leitfarbe** tragen (Hexwert, von Hand im Admin).
   Sie färbt nie eine Fläche, nur die Auswahlmarkierung und die Linie über
   dem Datenblatt — der Grund bleibt überall reinweiß.
