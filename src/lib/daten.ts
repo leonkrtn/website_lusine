@@ -35,6 +35,10 @@ function zuZahl(wert: unknown): number | null {
   return Number.isFinite(zahl) ? zahl : null;
 }
 
+function zuZeitpunkt(wert: unknown): string | undefined {
+  return typeof wert === "string" && wert ? wert : undefined;
+}
+
 function zuSerie(zeile: Zeile): Serie {
   return {
     id: String(zeile.id),
@@ -43,6 +47,7 @@ function zuSerie(zeile: Zeile): Serie {
     jahr: zuZahl(zeile.jahr),
     einleitung: String(zeile.einleitung ?? ""),
     sortierung: zuZahl(zeile.sortierung) ?? 0,
+    aktualisiertAm: zuZeitpunkt(zeile.aktualisiert_am),
   };
 }
 
@@ -95,6 +100,7 @@ function zuWerk(zeile: Zeile): Werk {
     startseiteSortierung: zuZahl(zeile.startseite_sortierung) ?? 0,
     sortierung: zuZahl(zeile.sortierung) ?? 0,
     bilder: rohbilder.map(zuBild).sort((a, b) => a.sortierung - b.sortierung),
+    aktualisiertAm: zuZeitpunkt(zeile.aktualisiert_am),
   };
 }
 

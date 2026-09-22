@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
+import { OPEN_GRAPH_GRUND } from "@/lib/metadaten";
 import { seitenUrl } from "@/lib/umgebung";
 import "./globals.css";
 
@@ -43,11 +44,16 @@ export const metadata: Metadata = {
   },
   description:
     "Originale Malerei von Lusine. Jedes Werk ein Unikat, jedes mit seiner eigenen Geschichte.",
+  // Seiten ohne eigene Angaben (Impressum und die übrigen Rechtstexte)
+  // bekommen hier wenigstens das allgemeine Vorschaubild.
   openGraph: {
+    ...OPEN_GRAPH_GRUND,
     type: "website",
-    locale: "de_DE",
-    siteName: "LUART",
+    images: ["/vorschaubild"],
   },
+  // Ohne diese Angabe zeigen X und manche Messenger das Vorschaubild
+  // nur als kleines Quadrat.
+  twitter: { card: "summary_large_image" },
   robots: { index: true, follow: true },
 };
 

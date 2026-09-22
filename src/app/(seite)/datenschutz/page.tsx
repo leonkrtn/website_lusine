@@ -3,6 +3,7 @@ import { Abschnitt, Auszufuellen, Rechtstext } from "@/components/Rechtstext";
 
 export const metadata: Metadata = {
   title: "Datenschutzerklärung",
+  alternates: { canonical: "/datenschutz" },
   robots: { index: true, follow: false },
 };
 

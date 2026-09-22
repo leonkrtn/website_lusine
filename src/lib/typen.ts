@@ -36,6 +36,8 @@ export type Serie = {
   jahr: number | null;
   einleitung: string;
   sortierung: number;
+  /** Letzte Aenderung, fuer die Sitemap. Im Demo-Modus leer. */
+  aktualisiertAm?: string;
 };
 
 /**
@@ -90,6 +92,9 @@ export type Werk = {
   sortierung: number;
 
   bilder: WerkBild[];
+
+  /** Letzte Aenderung, fuer die Sitemap. Im Demo-Modus leer. */
+  aktualisiertAm?: string;
 };
 
 /** Ein Werk mit aufgeloester Serie — was die Detailseite braucht. */

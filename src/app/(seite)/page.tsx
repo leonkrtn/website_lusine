@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { ViewTransition } from "react";
 import Link from "next/link";
 import { Einblenden } from "@/components/Einblenden";
@@ -13,6 +14,13 @@ import {
   pinFuer,
   werkBreiteStil,
 } from "@/lib/darstellung";
+import { seitenangaben } from "@/lib/metadaten";
+
+export const metadata: Metadata = seitenangaben({
+  beschreibung:
+    "Originale Malerei von Lusine. Jedes Werk ein Unikat, jedes mit seiner eigenen Geschichte.",
+  pfad: "/",
+});
 
 /**
  * Wie hoch und wie breit ein Werk auf der Startseite höchstens steht.

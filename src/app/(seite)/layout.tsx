@@ -1,6 +1,8 @@
 import { Kopfzeile } from "@/components/Kopfzeile";
 import { Fusszeile } from "@/components/Fusszeile";
 import { Seitenwechsel } from "@/components/Seitenwechsel";
+import { Strukturdaten } from "@/components/Strukturdaten";
+import { seiteUndKuenstlerin } from "@/lib/strukturdaten";
 
 /**
  * Rahmen der oeffentlichen Seite.
@@ -26,6 +28,7 @@ export default function SeitenLayout({
         <Seitenwechsel>{children}</Seitenwechsel>
       </main>
       <Fusszeile />
+      <Strukturdaten daten={seiteUndKuenstlerin()} />
     </>
   );
 }
