@@ -234,20 +234,30 @@ body {
   transform: none;
 }
 
-/* 2. Weicher Seitenuebergang. */
-@keyframes seite-herein {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
+/* 2. Weicher Seitenuebergang — nur als Rueckfallebene.
 
-.seitenwechsel {
-  animation: seite-herein var(--dauer-seite) var(--ease-ruhig) both;
+   Wo der Browser View Transitions kann, blendet er die Seite selbst
+   (siehe ::view-transition-old/new(root) weiter unten). Beides
+   zugleich war ein Fehler: waehrend ein Werk per Wanderung an seinen
+   Platz zog, schob dieser Uebergang die ganze Seite darunter um acht
+   Punkte nach oben und blendete sie auf. Zwei Bewegungen auf
+   demselben Bild, mit verschiedenen Uhren — das Werk schien von oben
+   hereinzurutschen und zu haken.
+
+   Ein Werk bewegt sich beim Seitenwechsel auf genau eine Weise. */
+@supports not (view-transition-name: none) {
+  @keyframes seite-herein {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  .seitenwechsel {
+    animation: seite-herein var(--dauer-seite) var(--ease-ruhig) both;
+  }
 }
 
 /* 3. Parallax. Der Versatz wird per CSS-Variable von JavaScript gesetzt,
@@ -257,16 +267,141 @@ body {
   will-change: transform;
 }
 
-/* 4. Einblenden aus der Tiefe. Eine Abwandlung von (1) fuer die
-   Werke der Startseite: sie heben sich nicht nur, sie treten auch
-   einen Schritt naeher. Reiner Massstab, kein Schatten und keine
-   Kante — die Verbotsliste bleibt unberuehrt. */
-.einblenden[data-bewegung="tiefe"] {
-  transform: translateY(40px) scale(0.972);
+/* 4. Der Auftritt eines Werks — eine Bewegung, an den Finger gebunden.
+
+   Vorher waren es zwei: ein Einblenden auf eigener Uhr, ausgeloest ab
+   einer Schwelle, und darunter ein Parallax, der gleichzeitig am
+   selben Bild zog. Zwei Bewegungen mit verschiedenen Uhren auf
+   demselben Gegenstand ergeben keine Bewegung, sondern ein Zucken:
+   das Werk ruckte herein, blieb kurz stehen und wanderte dann weiter.
+   Und weil das Einblenden an einer Schwelle haengt, passierte es
+   immer ein Stueck neben dem, was die Hand gerade tat.
+
+   Jetzt ist es eine einzige Kurve an einer einzigen Zeitachse, und
+   die Zeitachse ist das Scrollen selbst. Nichts laeuft von allein,
+   nichts wartet auf eine Schwelle. Man dreht am Rad, und das Werk
+   folgt — darum ist immer klar, was passiert: man tut es ja selbst.
+
+   Kein Versatz nach oben oder unten beim Erscheinen. Ein Gemaelde
+   rutscht nicht ins Bild, es tritt hervor: es kommt aus dem Papier,
+   waechst die letzten Prozent auf sein Mass und steht. Erst danach
+   geht es in das ruhige Wandern ueber, das frueher der Parallax war —
+   dieselbe Kurve, ohne Naht.
+
+   `--tiefe` sagt, auf welcher Ebene etwas liegt. Was naeher am
+   Betrachter liegt, wandert weiter; das Werk selbst liegt am
+   tiefsten und bewegt sich am wenigsten. Daher kommt der Raum. */
+.auftritt {
+  --tiefe: 1;
 }
 
-.einblenden[data-bewegung="tiefe"][data-sichtbar="true"] {
-  transform: none;
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .auftritt {
+      animation: auftritt linear both;
+      animation-timeline: view();
+      animation-range: cover 0% cover 100%;
+      will-change: transform, opacity;
+    }
+
+    @keyframes auftritt {
+      0% {
+        opacity: 0;
+        transform: scale(0.94);
+        animation-timing-function: var(--ease-ruhig);
+      }
+      34% {
+        opacity: 1;
+        transform: none;
+        animation-timing-function: linear;
+      }
+      100% {
+        opacity: 1;
+        transform: translate3d(0, calc(var(--tiefe) * -7vh), 0);
+      }
+    }
+  }
+}
+
+/* 4b. Der Auftakt der Startseite.
+
+   Vorher stand hier ein Absatz allein auf einem Bildschirm, mit sehr
+   viel Luft darunter und einem Wegweiser nach unten. Viel Platz fuer
+   einen Satz, der dadurch nicht wichtiger wurde — er sah nur aus, als
+   haette man vergessen, etwas daneben zu stellen.
+
+   Jetzt teilen sich Satz und erstes Werk einen Bildschirm. Der Satz
+   steht links und unten, das Werk rechts und gross: keine zwei
+   Stationen hintereinander, sondern eine Komposition. Und weil beide
+   beim Scrollen verschieden schnell wandern, liegen sie sichtbar auf
+   verschiedenen Ebenen statt flach nebeneinander. */
+.auftakt-raster {
+  display: grid;
+  gap: 3.5rem;
+  align-items: center;
+}
+
+@media (min-width: 64rem) {
+  .auftakt-raster {
+    /* `minmax(0, 1fr)` statt `1fr`: sonst zieht die Spalte sich auf
+       die Wunschbreite des Werks auf, und knapp ueber der Schwelle
+       laeuft die Seite um wenige Punkte ueber. */
+    grid-template-columns: minmax(16rem, 22rem) minmax(0, 1fr);
+    gap: 0 4rem;
+  }
+
+  /* Zwei Zeilen: oben das Werk, darunter sein Schildchen. Der Satz
+     richtet sich am **Werk** aus, nicht an beidem zusammen — sonst
+     schoebe ihn die Beschriftung unter die Falz, und der erste Satz
+     der Seite waere der einzige, den man nicht sieht. */
+  .auftakt-satz {
+    grid-column: 1;
+    grid-row: 1;
+    align-self: end;
+    padding-bottom: 6vh;
+  }
+
+  .auftakt-bild {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: end;
+  }
+
+  .auftakt-schild {
+    grid-column: 2;
+    grid-row: 2;
+  }
+}
+
+/* 4c. Das Schildchen, das über die Kante des Werks reicht.
+
+   Diese Seite kann etwas, das keine Seite mit gerahmten Bildern kann:
+   Bildgrund und Seitengrund sind **derselbe** Weisston. Eine Schrift,
+   die über den Rand eines Werks hinausläuft, verrät darum keine
+   Kante — sie liegt einfach davor. Zwei Ebenen, ohne dass irgendwo
+   ein Rechteck sichtbar wird.
+
+   Genau deshalb steht hier nichts *hinter* einem Werk. Was dahinter
+   läge, würde an dessen Rand hervorschauen und den Umriss zeichnen.
+   Davor ist erlaubt, dahinter nie.
+
+   `--schild-hoch` sagt, wie weit das Schildchen hochrutscht. Trägt
+   ein Werk Farbe bis an die Unterkante, steht die Schrift darauf
+   statt auf Weiß — dann gehört dieser Wert auf 0. Eine Zeile. */
+.werkschild {
+  --schild-hoch: 2.25rem;
+  position: relative;
+  z-index: 1;
+  margin-top: calc(var(--schild-hoch) * -1);
+}
+
+@media (max-width: 40rem) {
+  /* Auf dem Handy steht das Werk fast randlos; die Überlappung
+     würde dort zur Enge statt zur Ebene. */
+  .werkschild {
+    --schild-hoch: 0rem;
+    margin-top: 2.5rem;
+  }
 }
 
 /* 5. Wortweises Erscheinen. Ein Satz baut sich auf, statt einfach da
@@ -325,39 +460,6 @@ body {
   background-size: 100% 1px;
 }
 
-/* 8. Der Hinweis, dass es weitergeht: eine Haarlinie, die einmal
-   nach unten laeuft und wieder verschwindet. */
-@keyframes strich-abwaerts {
-  0% {
-    transform: scaleY(0);
-    transform-origin: top;
-    opacity: 0;
-  }
-  25% {
-    transform: scaleY(1);
-    transform-origin: top;
-    opacity: 1;
-  }
-  60% {
-    transform: scaleY(1);
-    transform-origin: bottom;
-    opacity: 1;
-  }
-  85%,
-  100% {
-    transform: scaleY(0);
-    transform-origin: bottom;
-    opacity: 0;
-  }
-}
-
-.scrollhinweis {
-  width: 1px;
-  height: 4.5rem;
-  background-color: var(--color-linie);
-  animation: strich-abwaerts 4s var(--ease-ruhig) infinite;
-}
-
 /* 9. Die Wanderung. Ein Werk bleibt beim Seitenwechsel stehen und
    zieht an seinen neuen Platz, statt zu verschwinden und woanders
    wieder aufzutauchen. Den Namen vergibt React ueber
@@ -390,63 +492,45 @@ body {
   animation-timing-function: var(--ease-ruhig);
 }
 
-/* 10. Der Auftritt eines Werks: vom Pinselstrich zurueck zum Bild.
+/* 10. Die Nahaufnahmen: vom Pinselstrich zum Werk.
 
-   Der Abschnitt ist hoeher als das Fenster, damit es etwas zu
-   scrollen gibt. Das Bild steht darin fest, waehrend der Ausschnitt
-   aufgeht. Gesteuert wird das von der Scrollposition, nicht von
-   einer Uhr — wer nicht scrollt, sieht nichts passieren.
+   Der Gedanke stand vorher am Kopf der Werkseite und war dort falsch
+   aufgehoben. Wer aus dem Katalog kam, sah sein Werk gerade an seinen
+   Platz wandern — und im selben Moment schnitt der Ausschnitt es auf
+   ein Vielfaches zu. Zwei Aussagen ueber dasselbe Bild, gleichzeitig,
+   gegenlaeufig. Der Kopf der Werkseite zeigt jetzt nur das Werk.
 
-   Ohne Browserunterstuetzung greift nichts davon: dann ist
-   .werkauftritt ein gewoehnlicher Abschnitt und das Werk steht
-   vollstaendig da. Genau der richtige Ausfall. */
-.werkauftritt {
-  --auftritt-hoehe: 175vh;
-}
+   Hier unten stimmt der Gedanke: eine Nahaufnahme **ist** ein
+   Ausschnitt, ein Rechteck aus Farbe, und niemand erwartet etwas
+   anderes. Sie oeffnet sich beim Scrollen aus ihrer Mitte heraus.
+   Gebunden an das Scrollen, nicht an eine Uhr — und ohne dass sich
+   etwas anderes zugleich bewegt.
 
+   Der Ausschnitt schliesst lueckenlos bei inset(0) und laesst keine
+   Kante stehen. */
 @supports (animation-timeline: view()) {
   @media (prefers-reduced-motion: no-preference) {
-    .werkauftritt {
-      min-height: var(--auftritt-hoehe);
-      view-timeline-name: --auftritt;
-    }
-
-    .werkauftritt-halt {
-      position: sticky;
-      top: 4rem;
-      display: flex;
-      min-height: calc(100svh - 8rem);
-      align-items: center;
-      justify-content: center;
-
-      /* Das vergroesserte Bild ragt rechnerisch ueber das Fenster
-         hinaus, auch wenn der Ausschnitt nichts davon zeigt. Sichtbar
-         ist das nie — `overflow-x: hidden` am Koerper faengt es ab —,
-         aber die Seite meldet dann eine Breite, die sie nicht hat.
-         `clip` raeumt das an der Wurzel auf und macht, anders als
-         `hidden`, keinen Scrollbereich auf. */
+    /* Bewegt wird die Aufnahme, begrenzt wird ihr Platz: eine
+       Flaeche beschneidet nur ihre Kinder, niemals sich selbst.
+       Laege die Vergroesserung auf .naharbeit, ragte deren eigener
+       Rahmen ueber die Seite hinaus, und `clip` koennte nichts
+       dagegen tun. Darum traegt die Huelle die Grenze und das Bild
+       darin die Bewegung. */
+    .naharbeit {
       overflow: clip;
     }
 
-    .rueckzug {
-      animation: rueckzug linear both;
-      animation-timeline: --auftritt;
-      animation-range: contain 0% contain 52%;
+    .naharbeit img {
+      animation: naharbeit linear both;
+      animation-timeline: view();
+      animation-range: cover 5% cover 48%;
     }
 
-    /* clip-path statt overflow: der Ausschnitt schliesst am Ende
-       lueckenlos bei inset(0) und hinterlaesst keine Kante. Ein
-       Behaelter mit overflow:hidden wuerde eine Linie stehen lassen,
-       sobald ein Bildpunkt nicht ganz aufgeht. */
-    @keyframes rueckzug {
-      /* Ausschnitt und Massstab sind aufeinander abgestimmt: die
-         verbleibenden 40 Prozent der Flaeche, mit 2.4 vergroessert,
-         fuellen wieder fast den ganzen Platz. Man steht also von
-         Anfang an vor einer vollen Flaeche Farbe — sie zieht sich
-         zurueck, statt zu wachsen. */
+    @keyframes naharbeit {
       from {
-        clip-path: inset(30% 30% 30% 30%);
-        transform: scale(2.4);
+        clip-path: inset(22% 24% 22% 24%);
+        transform: scale(1.32);
+        animation-timing-function: var(--ease-ruhig);
       }
       to {
         clip-path: inset(0% 0% 0% 0%);
@@ -583,19 +667,14 @@ body {
     transform: none !important;
   }
 
-  /* Die Linie bleibt stehen, statt zu laufen — der Hinweis ist
-     damit immer noch einer, nur eben ein ruhiger. */
-  .scrollhinweis {
+  /* Auftritt und Nahaufnahme fallen ganz weg — beides steht sofort
+     vollstaendig da. Sie haengen ohnehin an einer
+     no-preference-Abfrage; das hier ist der Riegel davor. */
+  .auftritt,
+  .naharbeit,
+  .naharbeit img {
     animation: none;
-    transform: none;
     opacity: 1;
-  }
-
-  /* Der Auftritt eines Werks faellt ganz weg — das Bild steht sofort
-     vollstaendig da. Der Abschnitt bekommt gar nicht erst seine
-     ueberzaehlige Hoehe, damit darunter kein leerer Raum bleibt. */
-  .rueckzug {
-    animation: none;
     clip-path: none;
     transform: none;
   }

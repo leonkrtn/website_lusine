@@ -4,7 +4,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Einblenden } from "@/components/Einblenden";
-import { Parallax } from "@/components/Parallax";
 import { WerkMitZoom } from "@/components/WerkMitZoom";
 import { Werkbild } from "@/components/Werkbild";
 import { Signatur } from "@/components/Signatur";
@@ -93,40 +92,30 @@ export default async function WerkSeite({ params }: Props) {
       }
       data-leitfarbe={werk.leitfarbe ? "ja" : undefined}
     >
-      {/* --- 1. Der Auftritt ----------------------------------------------
-          Die Seite beginnt nicht mit dem ganzen Werk, sondern mitten
-          in der Farbe: ein Ausschnitt, der sich beim Scrollen
-          zurueckzieht, bis das Bild vollstaendig und ohne Kante auf
-          dem Papier steht. Bei einem Original ist die Oberflaeche der
-          Gegenstand des Kaufs — hier ist sie das Erste, was man
-          sieht, statt hinter einem Klick zu liegen.
-
-          Der Abschnitt ist hoeher als das Fenster, damit es ueberhaupt
-          etwas zu scrollen gibt; das Bild steht darin fest, bis der
-          Rueckzug vorbei ist. Wo der Browser scrollgesteuerte
-          Animationen nicht kann, steht schlicht das ganze Werk da —
-          alles Weitere haengt in globals.css an einer
-          @supports-Abfrage. */}
+      {/* --- 1. Das Werk, groß und allein ---------------------------------
+          Genau eine Bewegung beim Ankommen: wer aus dem Katalog kommt,
+          sieht sein Werk an diesen Platz wandern. Sonst steht es
+          einfach da. Nichts blendet darunter, nichts schneidet
+          gleichzeitig hinein — beides gab es hier einmal, und zu
+          dritt ergab das kein Ankommen, sondern ein Zucken. */}
       {bild && (
-        <section className="werkauftritt">
-          <div className="werkauftritt-halt px-4">
-            <div
-              className="werkflaeche w-full"
-              style={werkBreiteStil(bild.breitePx, bild.hoehePx, 80, 56)}
-            >
-              <ViewTransition name={`werk-${werk.id}`} share="wanderung" default="none">
-                <div className="rueckzug">
-                  <WerkMitZoom
-                    schluessel={bild.schluessel}
-                    alt={bild.altText || werk.titel}
-                    breitePx={bild.breitePx}
-                    hoehePx={bild.hoehePx}
-                    sizes="(max-width: 640px) 92vw, (max-width: 1024px) 78vw, 56rem"
-                    vorrang
-                  />
-                </div>
-              </ViewTransition>
-            </div>
+        <section className="flex justify-center px-4 pt-8">
+          <div
+            className="werkflaeche w-full"
+            style={werkBreiteStil(bild.breitePx, bild.hoehePx, 86, 64)}
+          >
+            <ViewTransition name={`werk-${werk.id}`} share="wanderung" default="none">
+              <div>
+                <WerkMitZoom
+                  schluessel={bild.schluessel}
+                  alt={bild.altText || werk.titel}
+                  breitePx={bild.breitePx}
+                  hoehePx={bild.hoehePx}
+                  sizes="(max-width: 640px) 92vw, (max-width: 1024px) 78vw, 64rem"
+                  vorrang
+                />
+              </div>
+            </ViewTransition>
           </div>
         </section>
       )}
@@ -201,18 +190,19 @@ export default async function WerkSeite({ params }: Props) {
       {details.length > 0 && (
         <section className="mt-stille px-4" aria-label="Detailaufnahmen">
           <div className="mx-auto grid max-w-5xl grid-cols-1 gap-16 sm:grid-cols-2">
-            {details.map((detail, nummer) => (
-              <Einblenden key={detail.id} verzoegerung={nummer * 120}>
-                <Parallax staerke={0.05}>
-                  <Werkbild
-                    schluessel={detail.schluessel}
-                    alt={detail.altText || `${werk.titel} — Detail`}
-                    breitePx={detail.breitePx}
-                    hoehePx={detail.hoehePx}
-                    sizes="(max-width: 640px) 92vw, 34rem"
-                  />
-                </Parallax>
-              </Einblenden>
+            {details.map((detail) => (
+              /* Der Ausschnitt oeffnet sich beim Scrollen aus der Mitte
+                 heraus — hier ist ein Rechteck aus Farbe die Sache
+                 selbst, nicht ein zugeschnittenes Werk. */
+              <div key={detail.id} className="naharbeit">
+                <Werkbild
+                  schluessel={detail.schluessel}
+                  alt={detail.altText || `${werk.titel} — Detail`}
+                  breitePx={detail.breitePx}
+                  hoehePx={detail.hoehePx}
+                  sizes="(max-width: 640px) 92vw, 34rem"
+                />
+              </div>
             ))}
           </div>
           <p className="beschriftung mt-10 text-center">

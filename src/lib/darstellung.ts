@@ -16,15 +16,27 @@ export function werkBreiteStil(
   maxHoeheVh: number,
   maxBreiteRem: number,
   seitenrandVw = 88,
+  /**
+   * Was von der Höhe abgeht, bevor gerechnet wird — in rem.
+   *
+   * Die Kopfzeile bleibt beim Scrollen stehen und liegt über dem
+   * Inhalt. Ein Werk mit `100vh` steht also nicht auf dem Bildschirm,
+   * sondern zu einem Teil darunter. Wer die volle Höhe ausnutzen
+   * will, muss sagen, wie viel davon schon vergeben ist.
+   */
+  hoeheAbzugRem = 0,
 ): { width: string } {
   if (!breitePx || !hoehePx) {
     return { width: `min(${seitenrandVw}vw, ${maxBreiteRem}rem)` };
   }
 
   const verhaeltnis = (breitePx / hoehePx).toFixed(4);
+  const hoehe = hoeheAbzugRem
+    ? `(${maxHoeheVh}vh - ${hoeheAbzugRem}rem)`
+    : `${maxHoeheVh}vh`;
 
   return {
-    width: `min(${seitenrandVw}vw, ${maxBreiteRem}rem, calc(${maxHoeheVh}vh * ${verhaeltnis}))`,
+    width: `min(${seitenrandVw}vw, ${maxBreiteRem}rem, calc(${hoehe} * ${verhaeltnis}))`,
   };
 }
 
@@ -128,14 +140,20 @@ export type Haengung = {
  * jedem Aufruf neu ordnet, ist keine Hängung, sondern ein Generator.
  * Das erste Werk hängt immer mittig und immer groß: es ist der
  * Auftakt, und ein Auftakt steht nicht abseits.
+ *
+ * Die Größen liegen eng beieinander (0,84 bis 1). Der Wechsel soll
+ * zu spüren sein, ohne dass ein Werk klein wird — ein Gemälde, das
+ * man auf dem Bildschirm nicht mehr lesen kann, ist kein Akzent,
+ * sondern eine verschenkte Wand. Die Achse trägt die Komposition,
+ * nicht der Größenunterschied.
  */
 const HAENGUNG: Haengung[] = [
   { achse: "mitte", groesse: 1 },
-  { achse: "links", groesse: 0.78 },
-  { achse: "rechts", groesse: 0.62 },
-  { achse: "mitte", groesse: 0.92 },
-  { achse: "links", groesse: 0.7 },
-  { achse: "rechts", groesse: 0.85 },
+  { achse: "links", groesse: 0.94 },
+  { achse: "rechts", groesse: 0.84 },
+  { achse: "mitte", groesse: 1 },
+  { achse: "links", groesse: 0.88 },
+  { achse: "rechts", groesse: 0.96 },
 ];
 
 export function haengung(nummer: number): Haengung {
