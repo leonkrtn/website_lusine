@@ -188,9 +188,10 @@ Weiteres:
   erste Werk steht zuerst bildschirmfüllend vergrößert da und tritt beim
   Scrollen auf sein Maß zurück, während die Bühne stehen bleibt. Wie
   stark vergrößert wird, misst die Komponente aus Werkformat und
-  Fenster (`--auftakt-naehe`). Die Bühne rechnet die Höhe der Kopfzeile
-  selbst mit (`--kopf-hoehe` in `globals.css`) — wer die Kopfzeile
-  ändert, zieht den Wert nach. Ohne Scroll-Zeitachse oder bei
+  Fenster (`--auftakt-naehe`). Der Abschnitt rückt um die Höhe der
+  Kopfzeile unter sie (`--kopf-hoehe`, von `Kopfzeile.tsx` gemessen),
+  damit der Zoom beim ersten gescrollten Punkt beginnt und nicht erst
+  nach einem Leerweg. Ohne Scroll-Zeitachse oder bei
   reduzierter Bewegung steht das Werk einfach am Seitenanfang.
 - Die Startseite hängt die Werke abwechselnd links, mittig und rechts.
   Die Folge steht fest in `haengung()` in `src/lib/darstellung.ts` — eine
