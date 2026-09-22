@@ -866,34 +866,6 @@ body {
   }
 }
 
-/* 11. Die Leitfarbe eines Werks.
-
-   Sie faerbt nie eine Flaeche. Zwei Stellen, mehr nicht: die
-   Auswahlmarkierung und die Linie ueber dem Datenblatt, die von der
-   Farbe in nichts auslaeuft. Auf Reinweiss bleibt der Grund damit
-   unberuehrt — die Verbotsliste gilt unveraendert. */
-[data-leitfarbe="ja"] ::selection {
-  background-color: color-mix(in srgb, var(--leitfarbe) 22%, var(--color-papier));
-  color: var(--color-tinte);
-}
-
-.leitlinie {
-  border-top: 1px solid var(--color-linie);
-}
-
-[data-leitfarbe="ja"] .leitlinie {
-  border-top-color: transparent;
-  background-image: linear-gradient(
-    to right,
-    color-mix(in srgb, var(--leitfarbe) 55%, var(--color-papier)),
-    var(--color-linie) 38%,
-    var(--color-linie)
-  );
-  background-repeat: no-repeat;
-  background-position: 0 0;
-  background-size: 100% 1px;
-}
-
 /* 12. Die Ansichten des Katalogs: Wand und Liste.
 
    Beide stehen im HTML; umgeschaltet wird allein ueber ein

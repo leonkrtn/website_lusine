@@ -72,11 +72,6 @@ const WerkSchema = z.object({
   hoeheCm: z.string().optional(),
   tiefeCm: z.string().optional(),
   editionInfo: z.string().optional(),
-  leitfarbe: z
-    .string()
-    .trim()
-    .regex(/^(#[0-9a-fA-F]{6})?$/, "Die Leitfarbe muss ein Hexwert sein, etwa #5c7a63.")
-    .optional(),
   preis: z.string().optional(),
   versand: z.string().optional(),
   status: z.enum(WERK_STATUS),
@@ -113,7 +108,6 @@ export async function speichereWerk(
     hoeheCm: formular.get("hoeheCm"),
     tiefeCm: formular.get("tiefeCm"),
     editionInfo: formular.get("editionInfo"),
-    leitfarbe: formular.get("leitfarbe"),
     preis: formular.get("preis"),
     versand: formular.get("versand"),
     status: formular.get("status"),
@@ -144,7 +138,6 @@ export async function speichereWerk(
     tiefe_cm: zahlOderNull(d.tiefeCm),
     ist_unikat: formular.get("istUnikat") === "ja",
     edition_info: d.editionInfo?.trim() || null,
-    leitfarbe: d.leitfarbe?.trim().toLowerCase() || null,
     preis_cent: zuCent(d.preis ?? ""),
     versand_cent: zuCent(d.versand ?? "") ?? 0,
     status: d.status,

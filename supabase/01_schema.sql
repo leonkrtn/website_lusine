@@ -102,11 +102,6 @@ create table if not exists werke (
   status        werk_status not null default 'verfuegbar',
   anfrage_erlaubt boolean not null default true,
 
-  -- Die eine Farbe, die dieses Werk traegt. Von Hand gepflegt, nicht
-  -- aus dem Bild gerechnet. Faerbt nie eine Flaeche, nur eine Linie
-  -- und die Auswahlmarkierung.
-  leitfarbe     text check (leitfarbe is null or leitfarbe ~ '^#[0-9a-fA-F]{6}$'),
-
   -- Individuelle Signatur dieses Werks, freigestelltes PNG im R2-Speicher.
   signatur_schluessel text,
 
@@ -118,19 +113,10 @@ create table if not exists werke (
   aktualisiert_am timestamptz not null default now()
 );
 
--- Nachtrag fuer Datenbanken, die vor der Leitfarbe angelegt wurden.
--- Das Skript soll sich jederzeit erneut ausfuehren lassen.
-alter table werke add column if not exists leitfarbe text;
-
-do $$
-begin
-  if not exists (
-    select 1 from pg_constraint where conname = 'werke_leitfarbe_hex'
-  ) then
-    alter table werke add constraint werke_leitfarbe_hex
-      check (leitfarbe is null or leitfarbe ~ '^#[0-9a-fA-F]{6}$');
-  end if;
-end $$;
+-- Die Leitfarbe gibt es nicht mehr. Aeltere Datenbanken tragen die
+-- Spalte noch; das Skript soll sich jederzeit erneut ausfuehren lassen.
+alter table werke drop constraint if exists werke_leitfarbe_hex;
+alter table werke drop column if exists leitfarbe;
 
 create index if not exists werke_sortierung_idx on werke (sortierung desc, erstellt_am desc);
 create index if not exists werke_serie_idx on werke (serie_id);

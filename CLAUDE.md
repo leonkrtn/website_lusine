@@ -250,9 +250,6 @@ Weiteres:
   `darstellung.ts`). Signaturen und der Größenvergleich tragen
   `data-pin-nopin`. Wer ein neues Bild einbaut, das ein Werk zeigt,
   aber nicht das Werk ist, schließt es genauso aus.
-- Jedes Werk kann eine **Leitfarbe** tragen (Hexwert, von Hand im Admin).
-  Sie färbt nie eine Fläche, nur die Auswahlmarkierung und die Linie über
-  dem Datenblatt — der Grund bleibt überall reinweiß.
 - Öffentliche Seiten lesen über `supabaseOeffentlich()` **ohne Cookies**,
   damit Next.js sie vorrendern kann. Der Cookie-Client bleibt dem
   Admin-Bereich vorbehalten.

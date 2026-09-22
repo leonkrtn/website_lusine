@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { abmelden } from "@/app/admin/aktionen";
+import { Zeichen } from "@/components/admin/Zeichen";
 
 const eintraege = [
   { pfad: "/admin", name: "Übersicht", genau: true },
@@ -44,9 +45,9 @@ export function AdminNavigation() {
           <Link
             href="/"
             target="_blank"
-            className="text-klein text-tinte-leise transition-colors duration-300 hover:text-tinte"
+            className="inline-flex items-center gap-1.5 text-klein text-tinte-leise transition-colors duration-300 hover:text-tinte"
           >
-            Seite ansehen ↗
+            Seite ansehen <Zeichen name="extern" />
           </Link>
         </li>
 
