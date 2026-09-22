@@ -1,5 +1,4 @@
-import { bildQuelle, istLokalesBild, signaturSatz } from "@/lib/bilder";
-import { SIGNATUR_BREITEN } from "@/lib/bildformate";
+import { bildQuelle } from "@/lib/bilder";
 
 type Props = {
   schluessel: string | null;
@@ -15,8 +14,8 @@ type Props = {
  *
  * Sie ist kein Logo, sondern die handschriftliche Beglaubigung dieses
  * einen Bildes — jedes Werk hat seine eigene. Darum steht sie frei auf
- * dem Papier, ohne Flaeche, ohne Rahmen, und behaelt ihre Transparenz
- * bis in die Auslieferung. Deshalb PNG und WebP statt JPEG.
+ * dem Papier, ohne Flaeche und ohne Rahmen. Ein PNG mit durchsichtigem
+ * Hintergrund ist hier das richtige Format.
  *
  * Fuer Vorlesegeraete ist sie Zierde und kein Inhalt: der Werktitel
  * steht ohnehin daneben, eine zweite Ansage waere nur Laerm. Deshalb
@@ -30,21 +29,15 @@ export function Signatur({
 }: Props) {
   if (!schluessel) return null;
 
-  const lokal = istLokalesBild(schluessel);
-  const quelle = lokal
-    ? schluessel
-    : bildQuelle(schluessel, SIGNATUR_BREITEN.at(-1), "png");
-
+  const quelle = bildQuelle(schluessel);
   if (!quelle) return null;
 
-  const bild = (
-    /* Signaturen sind kleine, transparente Grafiken; die Bildverarbeitung
-       von next/image bringt hier nichts und gefaehrdet die Transparenz. */
+  return (
+    /* Kleine, transparente Grafik — die Bildverarbeitung von next/image
+       braucht sie nicht und wuerde die Transparenz gefaehrden. */
     // eslint-disable-next-line @next/next/no-img-element
     <img
       src={quelle}
-      srcSet={lokal ? undefined : signaturSatz(schluessel, "png")}
-      sizes={lokal ? undefined : `${breite}px`}
       alt=""
       aria-hidden="true"
       data-werk={werkTitel}
@@ -53,18 +46,5 @@ export function Signatur({
       style={{ width: `${breite}px` }}
       className={`h-auto max-w-full select-none ${className}`}
     />
-  );
-
-  if (lokal) return bild;
-
-  return (
-    <picture>
-      <source
-        type="image/webp"
-        srcSet={signaturSatz(schluessel, "webp")}
-        sizes={`${breite}px`}
-      />
-      {bild}
-    </picture>
   );
 }

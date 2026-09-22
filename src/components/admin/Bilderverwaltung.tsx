@@ -4,104 +4,10 @@ import { useRouter } from "next/navigation";
 import { useState, type ChangeEvent, type DragEvent } from "react";
 import { Werkbild } from "@/components/Werkbild";
 import { Signatur } from "@/components/Signatur";
-import { entferneBild, entferneSignatur } from "@/app/admin/aktionen";
+import { entferneBild, entferneSignatur, speichereBild } from "@/app/admin/aktionen";
 import { supabaseBrowser } from "@/lib/supabase/browser";
 import { BEHAELTER, speicherSchluessel } from "@/lib/bilder";
 import type { Werk } from "@/lib/typen";
-
-type Befund = {
-  gemessen: { r: number; g: number; b: number };
-  abweichung: number;
-  istReinweiss: boolean;
-  istKorrigierbar: boolean;
-};
-
-/**
- * Misst den Bildhintergrund im Browser, bevor hochgeladen wird.
- *
- * Das ist der Kern des rahmenlosen Grundsatzes: ein Gemaelde, das auf
- * einem leicht grauen oder gelbstichigen Weiss fotografiert wurde,
- * bekommt auf reinweissem Grund eine sichtbare rechteckige Kante.
- *
- * Die Messung hier ersetzt nicht die auf dem Server — sie erlaubt nur,
- * das Problem zu zeigen und die Entscheidung einzuholen, bevor
- * Megabyte durch die Leitung gehen.
- */
-async function messeRand(datei: File): Promise<Befund | null> {
-  const bild = await new Promise<HTMLImageElement | null>((fertig) => {
-    const element = new Image();
-    const adresse = URL.createObjectURL(datei);
-    element.onload = () => {
-      URL.revokeObjectURL(adresse);
-      fertig(element);
-    };
-    element.onerror = () => {
-      URL.revokeObjectURL(adresse);
-      fertig(null);
-    };
-    element.src = adresse;
-  });
-
-  if (!bild) return null;
-
-  const breite = 160;
-  const hoehe = Math.max(1, Math.round((bild.naturalHeight / bild.naturalWidth) * breite));
-
-  const flaeche = document.createElement("canvas");
-  flaeche.width = breite;
-  flaeche.height = hoehe;
-
-  const stift = flaeche.getContext("2d", { willReadFrequently: true });
-  if (!stift) return null;
-
-  stift.drawImage(bild, 0, 0, breite, hoehe);
-
-  let punkte: number[][];
-  try {
-    const daten = stift.getImageData(0, 0, breite, hoehe).data;
-    const streifen = Math.max(2, Math.round(breite * 0.05));
-    punkte = [[], [], []];
-
-    const nimm = (x: number, y: number) => {
-      const index = (y * breite + x) * 4;
-      punkte[0].push(daten[index]);
-      punkte[1].push(daten[index + 1]);
-      punkte[2].push(daten[index + 2]);
-    };
-
-    for (let y = 0; y < hoehe; y += 1) {
-      for (let x = 0; x < streifen; x += 1) {
-        nimm(x, y);
-        nimm(breite - 1 - x, y);
-      }
-    }
-    for (let x = 0; x < breite; x += 1) {
-      for (let y = 0; y < streifen; y += 1) {
-        nimm(x, y);
-        nimm(x, hoehe - 1 - y);
-      }
-    }
-  } catch {
-    // Kann bei fremden Bildquellen fehlschlagen. Dann uebernimmt
-    // allein die Messung auf dem Server.
-    return null;
-  }
-
-  const median = (liste: number[]) => {
-    const sortiert = [...liste].sort((a, b) => a - b);
-    return sortiert[Math.floor(sortiert.length / 2)] ?? 255;
-  };
-
-  const gemessen = { r: median(punkte[0]), g: median(punkte[1]), b: median(punkte[2]) };
-  const abweichung = Math.max(255 - gemessen.r, 255 - gemessen.g, 255 - gemessen.b);
-
-  return {
-    gemessen,
-    abweichung,
-    istReinweiss: abweichung <= 2,
-    istKorrigierbar: abweichung > 2 && abweichung <= 24,
-  };
-}
 
 type Art = "haupt" | "detail" | "signatur";
 
@@ -156,7 +62,7 @@ function Ablage({
         disabled={istAktiv || gesperrt}
         className="sr-only"
       />
-      {istAktiv ? "Wird verarbeitet — das dauert einen Moment …" : beschriftung}
+      {istAktiv ? "Wird hochgeladen …" : beschriftung}
     </label>
   );
 }
@@ -174,6 +80,33 @@ export function Bilderverwaltung({
   const [hinweis, setHinweis] = useState<string | null>(null);
   const [ueberZiel, setUeberZiel] = useState<Art | null>(null);
 
+  /**
+   * Liest Breite und Hoehe aus der Datei, ohne sie anzutasten.
+   *
+   * Die Masse landen in der Datenbank, damit der Browser spaeter den
+   * Platz fuer das Bild reservieren kann. Ohne sie springt die Seite
+   * beim Laden — in einer Galerie besonders stoerend.
+   */
+  async function leseMasse(datei: File): Promise<{ breite: number; hoehe: number }> {
+    return new Promise((fertig) => {
+      const adresse = URL.createObjectURL(datei);
+      const bild = new Image();
+
+      bild.onload = () => {
+        URL.revokeObjectURL(adresse);
+        fertig({ breite: bild.naturalWidth, hoehe: bild.naturalHeight });
+      };
+      bild.onerror = () => {
+        URL.revokeObjectURL(adresse);
+        // Kein Grund abzubrechen: ohne Masse laedt das Bild trotzdem,
+        // die Seite kann nur den Platz nicht vorab reservieren.
+        fertig({ breite: 0, hoehe: 0 });
+      };
+
+      bild.src = adresse;
+    });
+  }
+
   async function verarbeite(datei: File, art: Art) {
     setFehler(null);
     setHinweis(null);
@@ -186,56 +119,26 @@ export function Bilderverwaltung({
     setLaeuft(art);
 
     try {
-      // --- Weissabgleich pruefen, bevor irgendetwas hochgeht -------------
-      let korrigieren = false;
+      const masse = await leseMasse(datei);
 
-      if (art !== "signatur") {
-        const befund = await messeRand(datei);
-
-        if (befund && !befund.istReinweiss) {
-          const { r, g, b } = befund.gemessen;
-
-          if (befund.istKorrigierbar) {
-            korrigieren = window.confirm(
-              `Der Bildhintergrund ist nicht reinweiß, sondern ${r}, ${g}, ${b}.\n\n` +
-                "Auf der Seite bekäme das Werk dadurch eine sichtbare rechteckige Kante.\n\n" +
-                "Soll der Hintergrund automatisch auf Reinweiß gezogen werden? " +
-                "Dabei verschieben sich auch die Bildfarben leicht — das gleicht " +
-                "einen Farbstich der Aufnahme mit aus.\n\n" +
-                "OK = korrigieren, Abbrechen = unverändert hochladen",
-            );
-          } else {
-            const weiter = window.confirm(
-              `Der Bildhintergrund weicht deutlich von Weiß ab (${r}, ${g}, ${b}).\n\n` +
-                "Das lässt sich nicht mehr sinnvoll korrigieren — das Werk bekäme " +
-                "auf der Seite eine sichtbare Kante.\n\n" +
-                "Empfehlung: das Werk auf reinweißem Grund neu fotografieren oder freistellen.\n\n" +
-                "Trotzdem hochladen?",
-            );
-            if (!weiter) {
-              setLaeuft(null);
-              return;
-            }
-          }
-        }
-      }
-
-      // --- Schritt 1: die Ausgangsdatei in den Speicher -----------------
-      // Unmittelbar aus dem Browser, unter der Anmeldung dieser Sitzung.
-      // Der Umweg ueber den eigenen Server entfaellt damit — er koennte
-      // ein Gemaeldefoto in voller Aufloesung ohnehin nicht annehmen,
-      // weil Serverless-Funktionen den Datenstrom eng begrenzen.
-      const praefix = speicherSchluessel(
+      // --- Die Datei in den Speicher ------------------------------------
+      // Unveraendert und unmittelbar aus dem Browser, unter der
+      // Anmeldung dieser Sitzung. Es wird nichts verkleinert und nichts
+      // umgerechnet: was hier hochgeht, wird spaeter genau so
+      // ausgeliefert.
+      const schluessel = speicherSchluessel(
         art === "signatur" ? "signaturen" : "werke",
         datei.name,
       );
-      const endung = datei.type === "image/png" ? "png" : "jpg";
-      const ablage = `${praefix}/original.${endung}`;
 
       const speicher = supabaseBrowser();
       const { error: hochladeFehler } = await speicher.storage
         .from(BEHAELTER)
-        .upload(ablage, datei, { contentType: datei.type, upsert: true });
+        .upload(schluessel, datei, {
+          contentType: datei.type,
+          upsert: true,
+          cacheControl: "31536000",
+        });
 
       if (hochladeFehler) {
         throw new Error(
@@ -243,29 +146,23 @@ export function Bilderverwaltung({
         );
       }
 
-      // --- Schritt 2: umrechnen und eintragen ---------------------------
-      const verarbeitung = await fetch("/api/admin/upload/verarbeiten", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          praefix,
-          ablage,
-          werkId: werk.id,
-          art,
-          altText:
-            art === "signatur" ? "" : `${werk.titel} — ${art === "haupt" ? "Gesamtansicht" : "Detailaufnahme"}`,
-          weissKorrigieren: korrigieren,
-        }),
-      });
-
-      const ergebnis = await verarbeitung.json();
-      if (!verarbeitung.ok) throw new Error(ergebnis.fehler ?? "Verarbeitung fehlgeschlagen.");
-
-      setHinweis(
-        korrigieren
-          ? "Hochgeladen und auf Reinweiß korrigiert."
-          : "Hochgeladen.",
+      // --- Beim Werk vermerken -------------------------------------------
+      const formular = new FormData();
+      formular.set("werkId", werk.id);
+      formular.set("schluessel", schluessel);
+      formular.set("art", art);
+      formular.set("breitePx", String(masse.breite));
+      formular.set("hoehePx", String(masse.hoehe));
+      formular.set(
+        "altText",
+        art === "signatur"
+          ? ""
+          : `${werk.titel} — ${art === "haupt" ? "Gesamtansicht" : "Detailaufnahme"}`,
       );
+
+      await speichereBild(formular);
+
+      setHinweis("Hochgeladen.");
       router.refresh();
     } catch (problem) {
       setFehler(problem instanceof Error ? problem.message : "Unbekannter Fehler.");
@@ -312,8 +209,10 @@ export function Bilderverwaltung({
       <section>
         <h3 className="beschriftung">Hauptbild</h3>
         <p className="mt-2 max-w-xl text-fluestern text-tinte-still">
-          Die Gesamtansicht des Werks. Am besten auf reinweißem Grund
-          aufgenommen, mit mindestens 3000 Punkten an der langen Kante.
+          Die Gesamtansicht des Werks. Auf reinweißem Grund aufnehmen —
+          nur dann steht das Werk auf der Seite ohne sichtbare Kante.
+          Die Datei wird unverändert übernommen und genau so ausgeliefert,
+          also bitte vorher auf eine sinnvolle Größe bringen.
         </p>
 
         <div className="mt-6 grid grid-cols-1 gap-8 sm:grid-cols-[14rem_1fr]">

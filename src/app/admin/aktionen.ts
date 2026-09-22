@@ -354,6 +354,88 @@ export async function setzeAnfragestatus(formular: FormData): Promise<void> {
 //  Bilder
 // ---------------------------------------------------------------------------
 
+/**
+ * Traegt ein hochgeladenes Bild beim Werk ein.
+ *
+ * Die Datei liegt zu diesem Zeitpunkt bereits im Speicher — der Browser
+ * hat sie unmittelbar dorthin geschickt. Hier wird nur noch vermerkt,
+ * dass sie zu diesem Werk gehoert.
+ *
+ * Die Masse kommen aus dem Browser, der sie vor dem Hochladen aus der
+ * Datei gelesen hat. Sie werden gebraucht, damit der Browser spaeter
+ * den Platz fuer das Bild reservieren kann und die Seite beim Laden
+ * nicht springt.
+ */
+export async function speichereBild(formular: FormData): Promise<void> {
+  await stelleSicherAngemeldet();
+
+  const werkId = String(formular.get("werkId") ?? "");
+  const schluessel = String(formular.get("schluessel") ?? "");
+  const artEingabe = String(formular.get("art") ?? "detail");
+  const breitePx = Number(formular.get("breitePx") ?? 0) || 0;
+  const hoehePx = Number(formular.get("hoehePx") ?? 0) || 0;
+  const altText = String(formular.get("altText") ?? "");
+
+  if (!werkId || !schluessel) return;
+
+  // Nur eigene Schluessel annehmen. Der Browser bestimmt den Pfad, also
+  // wird er hier gegen das erwartete Muster geprueft.
+  if (!/^(werke|signaturen)\/[a-z0-9-]+\.[a-z0-9]{2,5}$/.test(schluessel)) {
+    throw new Error("Ungültiger Schlüssel.");
+  }
+
+  const client = await supabaseServer();
+
+  // --- Signatur ----------------------------------------------------------
+  if (artEingabe === "signatur") {
+    await client
+      .from("werke")
+      .update({ signatur_schluessel: schluessel })
+      .eq("id", werkId);
+
+    erneuereOeffentlich();
+    revalidatePath(`/admin/werke/${werkId}`);
+    return;
+  }
+
+  const art = artEingabe === "haupt" ? "haupt" : "detail";
+
+  // Ein Werk hat genau ein Hauptbild. Wird ein neues bestimmt, werden
+  // die bisherigen zu Detailaufnahmen.
+  if (art === "haupt") {
+    await client
+      .from("werk_bilder")
+      .update({ art: "detail" })
+      .eq("werk_id", werkId)
+      .eq("art", "haupt");
+  }
+
+  const { data: vorhandene } = await client
+    .from("werk_bilder")
+    .select("sortierung")
+    .eq("werk_id", werkId)
+    .order("sortierung", { ascending: false })
+    .limit(1);
+
+  const naechsteSortierung =
+    art === "haupt" ? 0 : Number(vorhandene?.[0]?.sortierung ?? 0) + 1;
+
+  const { error } = await client.from("werk_bilder").insert({
+    werk_id: werkId,
+    schluessel,
+    art,
+    alt_text: altText,
+    breite_px: breitePx,
+    hoehe_px: hoehePx,
+    sortierung: naechsteSortierung,
+  });
+
+  if (error) throw new Error(error.message);
+
+  erneuereOeffentlich();
+  revalidatePath(`/admin/werke/${werkId}`);
+}
+
 export async function entferneBild(formular: FormData): Promise<void> {
   await stelleSicherAngemeldet();
 

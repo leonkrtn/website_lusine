@@ -43,6 +43,32 @@ Die Variablen hießen zuvor `RESEND_API_KEY`, `EMAIL_ABSENDER` und
 `EMAIL_ATELIER`. Der frühere Stand steht im Verlauf: `git log --all -S
 "resend" -- src/lib/mail.ts`.
 
+### Bilder werden unverändert ausgeliefert
+
+**Zustand:** Was hochgeladen wird, landet unverändert im Speicher und
+geht unverändert an jeden Besucher. Es gibt keine kleineren Fassungen
+fürs Handy, keine Umrechnung in sparsamere Formate und keine
+Weißkorrektur. So gewünscht — die Werke sollen nicht angetastet werden.
+
+**Was daran hängt:** Ein 4-MB-Foto ist auf dem Handy dasselbe 4-MB-Foto.
+Bei zwölf Werken im Katalog summiert sich das. Zwei Dinge sollte man
+darum im Auge behalten:
+
+- **Ladezeit** auf langsamen Verbindungen. Die Galerie lädt Bilder erst,
+  wenn sie in den Blick kommen (`loading="lazy"`), das federt einiges ab.
+- **Supabase-Kontingent.** Die kostenlose Stufe erlaubt 5 GB Datenverkehr
+  im Monat, geteilt mit der Datenbank. Bei unverkleinerten Bildern ist
+  das schneller erreicht als bei verkleinerten — grob gerechnet nach
+  einigen hundert Besuchern statt nach ein paar tausend.
+
+**Der Hebel, wenn es knapp wird:** Die Bilder vor dem Hochladen auf eine
+vernünftige Größe bringen (etwa 2000 Punkte an der langen Kante, als
+JPEG bei Qualität 85). Das kostet in der Darstellung praktisch nichts
+und senkt den Verbrauch um ein Vielfaches.
+
+Die frühere Verarbeitung steht im Verlauf:
+`git log --all -S "erzeugeVarianten" -- src/lib/varianten.ts`.
+
 ### Rechtstexte sind Gerüste
 
 Impressum, Datenschutz, Verkaufsbedingungen und Widerruf enthalten
@@ -65,19 +91,23 @@ Ein Gemälde steht **ohne sichtbare Kante** auf der Seite. Seitengrund und
 Bildgrund sind identisch reinweiß (`#FFFFFF`).
 
 Das ist keine Geschmacksfrage, sondern die tragende Gestaltungsregel.
-Drei Vorkehrungen sichern sie ab:
+
+Im Code sichern sie zwei Vorkehrungen ab:
 
 1. **Die Verbotsliste** am Ende von `src/app/globals.css` schließt für
    jede Fläche mit der Klasse `.werkbild` `border`, `border-radius` und
    `box-shadow` aus. Wer ein Bild einbaut, vergibt diese Klasse.
-2. **Die Weißmessung beim Hochladen** (`src/lib/varianten.ts` und
-   `src/components/admin/Bilderverwaltung.tsx`) misst die Randstreifen
-   eines Fotos und bietet eine Korrektur an, wenn der Hintergrund nicht
-   reinweiß ist. Ein leicht graues Foto bekäme sonst eine rechteckige
-   Kante.
-3. **`npm run browserpruefung`** misst am fertigen HTML nach, ob Bild,
+2. **`npm run browserpruefung`** misst am fertigen HTML nach, ob Bild,
    Seite und alle übergeordneten Flächen reinweiß sind. Lohnt sich
    besonders, nachdem echte Aufnahmen die Platzhalter ersetzt haben.
+
+**Die dritte Vorkehrung liegt außerhalb des Codes.** Es gab einmal eine
+Weißmessung beim Hochladen, die den Bildhintergrund maß und auf Wunsch
+korrigierte. Sie wurde auf Wunsch entfernt: Bilder werden unverändert
+übernommen (siehe unten). Damit entscheidet sich allein bei der
+**Aufnahme**, ob ein Werk ohne Kante auf der Seite steht. Ein Foto auf
+leicht grauem oder gelbstichigem Grund bekommt auf `#FFFFFF` eine
+sichtbare rechteckige Kante, und nichts im Programm fängt das noch ab.
 
 Daraus folgt außerdem: **kein Dark Mode.** Ein auf Weiß freigestelltes
 Werk bekäme auf dunklem Grund sofort eine Kante.

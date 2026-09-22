@@ -22,11 +22,13 @@ Regel 1 ist technisch abgesichert, nicht nur gestalterisch gemeint:
 
 - `src/app/globals.css` enthält am Ende eine **Verbotsliste**. Sie schließt
   für jede Bildfläche `border`, `border-radius` und `box-shadow` aus.
-- Beim Hochladen misst der Browser den Bildhintergrund. Weicht er von
-  Reinweiß ab, wird das gezeigt und eine Korrektur angeboten — ein leicht
-  graues oder gelbstichiges Foto bekäme auf der Seite sonst eine sichtbare
-  rechteckige Kante.
+- `npm run browserpruefung` misst am fertigen HTML nach, ob Bild, Seite und
+  alle übergeordneten Flächen wirklich reinweiß sind.
 - Es gibt **keinen Dark Mode**. Er widerspricht dem Prinzip direkt.
+
+Die wichtigste Vorkehrung liegt allerdings bei der **Aufnahme**: Bilder
+werden unverändert übernommen. Ein Foto auf leicht grauem Grund bekommt
+auf der Seite eine sichtbare Kante, und nichts im Programm fängt das ab.
 
 ---
 
@@ -124,7 +126,6 @@ src/
   components/         Anzeige- und Bewegungsbausteine
   lib/
     daten.ts          Die einzige Stelle, an der gelesen wird
-    varianten.ts      Bildverarbeitung und Weißabgleich
     speicher.ts       Ablage der Bilder
     bilder.ts         Bildadressen, Preise, Maße
   data/               Beispielwerke für den Demo-Modus
@@ -166,19 +167,20 @@ Fotos vorliegen, wird es nicht mehr gebraucht.
 
 ## Für echte Aufnahmen
 
-Die Zoomansicht lebt von hochauflösenden Bildern — sie ist bei einem
-Original das wichtigste Verkaufsargument.
+Die Dateien werden **unverändert** übernommen und genau so an die Besucher
+ausgeliefert. Daraus ergeben sich zwei Anforderungen, die vorher erfüllt
+sein müssen:
 
-- mindestens 3000 Punkte an der langen Kante
-- auf **reinweißem** Grund, gleichmäßig ausgeleuchtet
-- farbtreu, ohne Farbstich
-- zusätzlich zwei bis drei Nahaufnahmen der Oberfläche
+**Reinweißer Grund.** Auf `#FFFFFF` aufnehmen oder freistellen, gleichmäßig
+ausgeleuchtet, farbtreu. Ein leicht grauer oder gelbstichiger Hintergrund
+erzeugt auf der Seite eine sichtbare rechteckige Kante — das Gegenteil
+dessen, was diese Galerie ausmacht.
 
-Jedes Bild wird beim Hochladen in fünf Breiten und drei Formaten abgelegt;
-welche Fassung ein Besucher bekommt, entscheidet sein Browser anhand von
-Bildschirm und unterstützten Formaten.
+**Sinnvolle Dateigröße.** Etwa 2000 Punkte an der langen Kante, als JPEG
+bei Qualität 85, ergibt ein scharfes Bild bei vertretbarer Größe. Wer
+5-MB-Dateien hochlädt, schickt sie unverkleinert auch an jedes Handy.
 
-Weicht der Hintergrund von Reinweiß ab, meldet das der Upload und bietet
-eine Korrektur an. Die Korrektur verschiebt dabei auch die Bildfarben leicht — das
+Dazu zwei bis drei Nahaufnahmen der Oberfläche je Werk — bei einem
+Original ist die Pinselstruktur das wichtigste Verkaufsargument. Die Korrektur verschiebt dabei auch die Bildfarben leicht — das
 gleicht einen Farbstich der Aufnahme mit aus, ersetzt aber keine gute
 Aufnahme.

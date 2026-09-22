@@ -45,7 +45,7 @@ Gestaltungsprinzipien, die jede spätere Entscheidung überstimmen:
 | Serien | Eigene Ebene mit Einleitungstext |
 | Backend | Eigenes Admin-Panel unter `/admin`, gleiche Codebasis |
 | Daten | Supabase (Postgres + Auth) |
-| Bilder | Supabase Storage, Formatwahl im Browser über `picture` |
+| Bilder | Supabase Storage, unverändert abgelegt und ausgeliefert |
 | Hintergrund | Reinweiß `#FFFFFF` überall |
 | Typografie | Durchgängig Serif (Titel und Fließtext) |
 | Startseite | 5 im Admin wählbare Werke, je bildschirmfüllend |
@@ -134,24 +134,22 @@ Admin-Account sichtbar; geschrieben wird dort nur serverseitig.
 
 ---
 
-## 6. Bild-Pipeline
+## 6. Bilder
 
-1. **Upload** im Admin per Drag & Drop, unmittelbar aus dem Browser in
-   den Speicher — unter der Anmeldung der laufenden Sitzung. Der Umweg
-   über den eigenen Server entfällt; er könnte ein Foto in voller
-   Auflösung ohnehin nicht annehmen.
-2. **Weißabgleich-Prüfung** noch davor: der Browser misst die Randstreifen
-   und warnt, wenn der Bildhintergrund nicht reinweiß ist. Auf Wunsch
-   wird er dorthin gezogen. Das ist die technische Absicherung für den
-   rahmenlosen Effekt — und sie greift, bevor Megabyte durch die Leitung
-   gehen.
-3. **Umrechnung** auf dem Server: fünf Breiten in AVIF, WebP und JPEG,
-   dazu die unveränderte Ausgangsdatei als Archiv.
-4. **Auslieferung** direkt aus dem Speicher. Welche Fassung ein Besucher
-   bekommt, entscheidet sein Browser: `picture` wählt das beste Format,
-   das er versteht, `srcset` die Größe für seinen Bildschirm. Diese Wahl
-   fällt damit erst im Moment der Darstellung — genauer, als ein Server
-   sie treffen könnte, und ohne einen Dienst dazwischen.
+Bilder werden **unverändert** übernommen: die Datei geht aus dem Browser
+unmittelbar in den Speicher und von dort genau so an die Besucher. Keine
+Verkleinerung, keine Formatumrechnung, keine Weißkorrektur.
+
+Das ist eine bewusste Entscheidung — die Werke sollen nicht angetastet
+werden. Sie verlagert allerdings zwei Dinge auf die Aufnahme: der
+Hintergrund muss reinweiß sein, damit das Werk ohne Kante auf der Seite
+steht, und die Datei sollte vorher auf eine vernünftige Größe gebracht
+werden, weil sie unverkleinert auch auf dem Handy ankommt. Näheres in
+`CLAUDE.md`.
+
+Breite und Höhe liest der Browser vor dem Hochladen aus der Datei und
+legt sie beim Werk ab. Sie werden gebraucht, damit der Browser den Platz
+für ein Bild reservieren kann und die Seite beim Laden nicht springt.
 
 ## 7. Design-System
 
@@ -213,7 +211,7 @@ oben deutlich darauf hin. Siehe `CLAUDE.md`, „Offene Punkte".
 | **0** | Projektgerüst: Next.js, TypeScript, Tailwind, Linting, `.env.example`, README | Repo läuft lokal |
 | **1** | Design-System: Tokens, Typografie, Raster, Motion-Bausteine | Sichtbare Stilvorlage |
 | **2** | Supabase: Tabellen, RLS, Auth, Seed mit Platzhalterwerken | Daten stehen |
-| **3** | Bild-Pipeline: Upload, Weißprüfung, Umrechnung, Auslieferung | Bilder laufen |
+| **3** | Bilder: Upload und Auslieferung | Bilder laufen |
 | **4** | Öffentliches Frontend: Start, Katalog, Werk, Serien, Über, Kontakt | Website steht |
 | **5** | Admin-Panel: Werke, Serien, Bilder, Signaturen, Texte | Lusine kann pflegen |
 | **6** | Anfragen | Interessenten erreichen Lusine |
