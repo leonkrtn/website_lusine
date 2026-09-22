@@ -6,6 +6,7 @@ import { Signatur } from "@/components/Signatur";
 import { Einblenden } from "@/components/Einblenden";
 import { hauptbild, werkBreiteStil } from "@/lib/darstellung";
 import { werkseitenQuelle } from "@/lib/werkseitenbild";
+import { hauptbild, pinFuer, werkBreiteStil } from "@/lib/darstellung";
 import { type Werk } from "@/lib/typen";
 
 type Props = {
@@ -80,6 +81,7 @@ export function Werkkachel({
                   hoehePx={bild.hoehePx}
                   sizes={sizes}
                   className="transition-opacity duration-700 group-hover:opacity-90"
+                  pin={pinFuer(werk)}
                 />
               </ViewTransition>
             </div>
