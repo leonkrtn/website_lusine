@@ -6,6 +6,7 @@ import { Saalschild } from "@/components/Saalschild";
 import { WerkMitZoom } from "@/components/WerkMitZoom";
 import { kommtVonDraussen } from "@/lib/ankunft";
 import { werkBreiteStil, type PinAngaben } from "@/lib/darstellung";
+import { WERKSEITE_SIZES } from "@/lib/werkseitenbild";
 import type { Werk, WerkBild } from "@/lib/typen";
 
 type Props = {
@@ -78,7 +79,7 @@ export function Werkanfang({ werk, bild, pin, children }: Props) {
                 alt={bild.altText || werk.titel}
                 breitePx={bild.breitePx}
                 hoehePx={bild.hoehePx}
-                sizes="(max-width: 640px) 92vw, (max-width: 1024px) 78vw, 64rem"
+                sizes={WERKSEITE_SIZES}
                 vorrang
                 pin={pin}
               />

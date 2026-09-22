@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useRef, ViewTransition } from "react";
 import { useEffect, useRef, ViewTransition, type ReactNode } from "react";
 import { Saalschild } from "@/components/Saalschild";
 import { WerkMitZoom } from "@/components/WerkMitZoom";
@@ -21,14 +20,23 @@ type Props = {
   /** Ob der Titel zum Werk führt — auf der Werkseite selbst nicht. */
   verlinkt?: boolean;
   /**
-   * Der Name, unter dem das Werk beim Seitenwechsel wandert. Nur auf
-   * der Werkseite: wer von dort zurück in die Galerie geht, soll das
-   * Werk mitnehmen wie aus jeder anderen Werkseite.
+   * Der Name, unter dem das Werk beim Seitenwechsel wandert
+   * (`werk-<id>`). Auf der Startseite, damit ein Tipp auf den Titel
+   * das Werk zur Werkseite mitnimmt, und auf der Werkseite, damit es
+   * von dort zurück in die Galerie wandert. Er liegt im Inneren der
+   * Vergrößerung, nicht an ihr: so nimmt die Wanderung das Werk in
+   * der Größe mit, in der es gerade steht.
    */
   wanderung?: string;
   pin?: PinAngaben;
   /** Wird ins Schild unter die Angaben gehängt. */
   children?: ReactNode;
+  /**
+   * Das Schild in der Fassung der Startseite: nur Titel, Jahr und
+   * Serie (siehe `schlicht` in `Saalschild.tsx`). Auf der Werkseite
+   * bleibt es weg, dort trägt das Schild alle Angaben.
+   */
+  schlicht?: { serie: string | null };
 };
 
 /**
@@ -85,6 +93,7 @@ export function Auftakt({
   wanderung,
   pin,
   children,
+  schlicht,
 }: Props) {
   const abschnitt = useRef<HTMLElement>(null);
   const buehne = useRef<HTMLDivElement>(null);
@@ -167,25 +176,6 @@ export function Auftakt({
             )}
           >
             <div className="auftakt-bild">
-              {/* Der Name gehört ins Innere der Vergrößerung, nicht an
-                  sie: so nimmt die Wanderung zur Werkseite das Werk in
-                  der Größe mit, in der es gerade steht. */}
-              <ViewTransition name={`werk-${werk.id}`} share="wanderung" default="none">
-                <div>
-                  <WerkMitZoom
-                    schluessel={bild.schluessel}
-                    alt={bild.altText || werk.titel}
-                    breitePx={bild.breitePx}
-                    hoehePx={bild.hoehePx}
-                    /* Groß angefordert, weil das Bild am Anfang um ein
-                       Vielfaches vergrößert steht. Mit der üblichen
-                       Größe wäre der Pinselstrich, um den es geht, ein
-                       Brei. */
-                    sizes="(max-width: 640px) 300vw, 200vw"
-                    vorrang
-                  />
-                </div>
-              </ViewTransition>
               {wanderung ? (
                 <ViewTransition name={wanderung} share="wanderung" default="none">
                   <div>{werkbild}</div>
@@ -201,6 +191,7 @@ export function Auftakt({
             titelId={`werk-${werk.id}`}
             als={als}
             verlinkt={verlinkt}
+            schlicht={schlicht}
             className="auftakt-schild"
             erscheint={false}
           >
