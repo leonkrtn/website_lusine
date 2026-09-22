@@ -320,55 +320,50 @@ body {
         transform: translate3d(0, calc(var(--tiefe) * -7vh), 0);
       }
     }
+
+    /* Was beim Laden schon im Bild steht, erscheint nicht — es ist
+       bereits da. Sonst begänne die Seite auf halber Strecke einer
+       Bewegung, die niemand ausgelöst hat: ein halb durchsichtiges
+       Gemälde, das niemand angefasst hat.
+
+       Die Wanderung bleibt, sonst fiele das Werk aus der
+       Tiefenstaffelung heraus und läge plötzlich auf der Ebene der
+       Seite statt auf seiner eigenen. */
+    .auftritt[data-erscheint="nein"] {
+      animation-name: auftritt-wandern;
+    }
+
+    @keyframes auftritt-wandern {
+      0%,
+      34% {
+        transform: none;
+      }
+      100% {
+        transform: translate3d(0, calc(var(--tiefe) * -7vh), 0);
+      }
+    }
   }
 }
 
-/* 4b. Der Auftakt der Startseite.
+/* 4b. Der Saaltext.
 
-   Vorher stand hier ein Absatz allein auf einem Bildschirm, mit sehr
-   viel Luft darunter und einem Wegweiser nach unten. Viel Platz fuer
-   einen Satz, der dadurch nicht wichtiger wurde — er sah nur aus, als
-   haette man vergessen, etwas daneben zu stellen.
+   Der Satz am Kopf der Startseite gehört zu keinem einzelnen Werk,
+   sondern zur ganzen Auswahl. Darum steht er für sich, wie der
+   Saaltext am Eingang einer Ausstellung, und **nie** in einer Reihe
+   mit einem Gemälde: neben einem Werk steht nur dessen Saalschild.
+   Stünde anderer Text daneben, läse man ihn als Beschriftung — und
+   der Besucher hielte einen Satz über die Ausstellung für den Titel
+   des Bildes, vor dem er steht.
 
-   Jetzt teilen sich Satz und erstes Werk einen Bildschirm. Der Satz
-   steht links und unten, das Werk rechts und gross: keine zwei
-   Stationen hintereinander, sondern eine Komposition. Und weil beide
-   beim Scrollen verschieden schnell wandern, liegen sie sichtbar auf
-   verschiedenen Ebenen statt flach nebeneinander. */
-.auftakt-raster {
-  display: grid;
-  gap: 3.5rem;
-  align-items: center;
-}
-
-@media (min-width: 64rem) {
-  .auftakt-raster {
-    /* `minmax(0, 1fr)` statt `1fr`: sonst zieht die Spalte sich auf
-       die Wunschbreite des Werks auf, und knapp ueber der Schwelle
-       laeuft die Seite um wenige Punkte ueber. */
-    grid-template-columns: minmax(16rem, 22rem) minmax(0, 1fr);
-    gap: 0 4rem;
-  }
-
-  /* Zwei Zeilen: oben das Werk, darunter sein Schildchen. Der Satz
-     richtet sich am **Werk** aus, nicht an beidem zusammen — sonst
-     schoebe ihn die Beschriftung unter die Falz, und der erste Satz
-     der Seite waere der einzige, den man nicht sieht. */
-  .auftakt-satz {
-    grid-column: 1;
-    grid-row: 1;
-    align-self: end;
-    padding-bottom: 6vh;
-  }
-
-  /* Werk und Schild bilden hier eine Reihe in der zweiten Spalte,
-     rechtsbündig. Von links nach rechts liest die Seite damit: Satz,
-     Werk, Schild — drei Dinge, keine zwei Stapel. */
-  .auftakt-bild {
-    grid-column: 2;
-    grid-row: 1;
-    justify-self: end;
-  }
+   Eine Stufe größer als der Erzähltext und mit eigener Zeilenbreite:
+   ein Saaltext wird aus einigen Schritten Entfernung gelesen, ein
+   Erzähltext aus Lesenähe. */
+.saaltext {
+  font-size: var(--text-lead);
+  line-height: 1.7;
+  max-width: 38rem;
+  letter-spacing: 0.003em;
+  text-wrap: pretty;
 }
 
 /* 4c. Das Saalschild und die Reihe, in der es neben dem Werk hängt.

@@ -24,6 +24,11 @@ type Props = {
    * Schild breit, und dort fragt man danach.
    */
   knapp?: boolean;
+  /**
+   * Ob das Schild beim Scrollen erscheint. Beim ersten Werk nicht: es
+   * steht beim Laden schon im Bild und ist daher einfach da.
+   */
+  erscheint?: boolean;
   /** Zusätzliche Klassen für Ebene und Abstand. */
   className?: string;
   style?: React.CSSProperties;
@@ -56,6 +61,7 @@ export function Saalschild({
   als: Ueberschrift = "h2",
   verlinkt = true,
   knapp = false,
+  erscheint = true,
   className = "",
   style,
   children,
@@ -70,7 +76,11 @@ export function Saalschild({
   ].filter(Boolean);
 
   return (
-    <div className={`saalschild ${className}`} style={style}>
+    <div
+      className={`saalschild ${className}`}
+      style={style}
+      data-erscheint={erscheint ? undefined : "nein"}
+    >
       <Ueberschrift id={titelId} className="saalschild-titel">
         {verlinkt ? (
           <Link href={`/werke/${werk.slug}`} className="unterstrich">

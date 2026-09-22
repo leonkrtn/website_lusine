@@ -157,6 +157,14 @@ Weiteres:
   `hoeheCm`) und **Verzeichnis** (als Liste). Alle drei stehen fertig im
   HTML, `Katalog.tsx` legt nur ein `data-Attribut` um. Ohne JavaScript
   bleibt die Wand stehen.
+- **Neben einem Werk steht nur sein Saalschild.** Kein anderer Text
+  darf waagerecht daneben stehen — kein Auftaktsatz, keine
+  Serieneinleitung, kein Fließtext. Wer einen Satz neben ein Gemälde
+  setzt, macht ihn zur Beschriftung dieses Gemäldes, ganz gleich
+  wovon er handelt: der Besucher läse einen Text über die Ausstellung
+  als Titel des Bildes, vor dem er steht. Solche Texte stehen für
+  sich, wie der Saaltext am Eingang (`.saaltext`), oder über dem
+  Werk — nie in einer Reihe damit.
 - **Neben jedem Werk hängt ein Saalschild** (`Saalschild.tsx`): Titel
   kursiv, Jahr, Technik, Träger, Maße, Ausführung, dann der Preis —
   in dieser Reihenfolge, weil sie der Frage folgt, die jemand vor

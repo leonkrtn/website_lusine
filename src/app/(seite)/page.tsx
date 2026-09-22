@@ -15,9 +15,9 @@ import {
  * Wie hoch und wie breit ein Werk auf der Startseite höchstens steht.
  *
  * Die volle Fensterhöhe, abzüglich dessen, was die stehende Kopfzeile
- * und der Rand darüber schon belegen. Ohne diesen Abzug stünde das
- * erste Werk mit seinem unteren Rand unter der Falz — bei einem
- * Gemälde ist das kein Detail, sondern ein halbes Bild.
+ * und der Rand darüber schon belegen. Ohne diesen Abzug stünde ein
+ * Werk mit seinem unteren Rand unter der Falz — bei einem Gemälde ist
+ * das kein Detail, sondern ein halbes Bild.
  */
 const HOEHE_VH = 100;
 const HOEHE_ABZUG_REM = 6;
@@ -30,20 +30,22 @@ const BREITE_REM = 74;
  * scrollt, sieht immer nur ein Bild — das ist die Übersetzung eines
  * gut gehängten Galerieraums in eine Website.
  *
+ * **Neben einem Werk steht nur sein Saalschild.** Der Auftaktsatz
+ * gehört zu keinem Gemälde, sondern zur ganzen Auswahl — er steht
+ * darum für sich, wie der Saaltext am Eingang einer Ausstellung, und
+ * nicht in einer Reihe mit einem Bild. Stünde er daneben, läse man
+ * ihn als Beschriftung, und das wäre schlicht falsch.
+ *
  * **Die Hängung.** Gehängt wird wie an einer Wand, nicht wie in einer
  * Liste: das erste Werk groß und mittig als Auftakt, die folgenden im
  * Wechsel abseits. Die Folge steht fest in `haengung()`. Ab der großen
  * Breite wird sie sichtbar; darunter steht jedes Werk mittig, weil
  * eine Wand auf einem Handy keine zweite Achse hat.
  *
- * **Die Ebenen.** Drei Dinge liegen in jedem Block verschieden tief
- * und wandern beim Scrollen verschieden weit: das Werk am tiefsten
- * und langsamsten, die Beschriftung darüber, die Nummer an der Wand
- * am nächsten und schnellsten. Daraus entsteht der Raum. Gesteuert
- * über `--tiefe`, gerechnet in `globals.css`.
- *
- * **Der Auftakt** teilt sich einen Bildschirm mit dem ersten Werk,
- * statt allein einen zu belegen.
+ * **Die Ebenen.** Werk und Schild liegen verschieden tief und wandern
+ * beim Scrollen verschieden weit — das Werk am tiefsten und
+ * langsamsten. Daraus entsteht der Raum. Gesteuert über `--tiefe`,
+ * gerechnet in `globals.css`.
  */
 export default async function Startseite() {
   const [werke, texte] = await Promise.all([
@@ -51,58 +53,26 @@ export default async function Startseite() {
     holeTexte(),
   ]);
 
-  const [erstes, ...weitere] = werke;
-  const erstesBild = erstes ? hauptbild(erstes.bilder) : null;
-
   return (
     <div>
-      {/* --- Auftakt und erstes Werk --------------------------------------
-          Eine Komposition, keine zwei Stationen. */}
-      <section className="mx-auto max-w-[110rem] px-4 pt-2 sm:px-10 lg:px-16">
-        <div className="auftakt-raster">
-          <Wortweise
-            text={texte.startseiteAuftakt}
-            takt={45}
-            className="auftakt-satz erzaehlung text-lead text-balance"
-          />
-
-          {erstes && erstesBild && (
-            <div className="auftakt-bild werkreihe">
-              <div
-                className="werkflaeche heranruecken"
-                style={werkBreiteStil(
-                  erstesBild.breitePx,
-                  erstesBild.hoehePx,
-                  HOEHE_VH,
-                  BREITE_REM,
-                  88,
-                  HOEHE_ABZUG_REM,
-                )}
-              >
-                <WerkMitZoom
-                  schluessel={erstesBild.schluessel}
-                  alt={erstesBild.altText || erstes.titel}
-                  breitePx={erstesBild.breitePx}
-                  hoehePx={erstesBild.hoehePx}
-                  sizes="(max-width: 640px) 88vw, (max-width: 1024px) 82vw, 74rem"
-                  vorrang
-                />
-              </div>
-
-              <Saalschild werk={erstes} />
-            </div>
-          )}
-        </div>
+      {/* --- Der Saaltext --------------------------------------------------
+          Für sich allein, nichts daneben. Er spricht von der ganzen
+          Auswahl, nicht von einem Werk. */}
+      <section className="mx-auto max-w-[110rem] px-4 pt-16 pb-atem sm:px-10 lg:px-16">
+        <Wortweise
+          text={texte.startseiteAuftakt}
+          takt={45}
+          className="saaltext"
+        />
       </section>
 
-      {/* --- Die übrigen Werke --------------------------------------------- */}
-      {weitere.map((werk, versatz) => {
+      {/* --- Die Werke ------------------------------------------------------ */}
+      {werke.map((werk, nummer) => {
         const bild = hauptbild(werk.bilder);
         if (!bild) return null;
 
-        const nummer = versatz + 1;
+        const istErstes = nummer === 0;
         const platz = haengung(nummer);
-        const ruecken = haengungKlasse(platz.achse);
         const flaeche = werkBreiteStil(
           bild.breitePx,
           bild.hoehePx,
@@ -115,12 +85,20 @@ export default async function Startseite() {
         return (
           <section
             key={werk.id}
-            className="werkblock mt-stille px-4 sm:px-10 lg:px-16"
+            className={`werkblock px-4 sm:px-10 lg:px-16 ${
+              istErstes ? "" : "mt-stille"
+            }`}
             aria-labelledby={`werk-${werk.id}`}
           >
-            <div className={`mx-auto max-w-[110rem] ${ruecken}`}>
+            <div className={`mx-auto max-w-[110rem] ${haengungKlasse(platz.achse)}`}>
               <div
                 className="auftritt werkflaeche heranruecken"
+                /* Das erste Werk steht beim Laden schon im Bild. Es
+                   erscheint darum nicht, es ist da — sonst begänne die
+                   Seite auf halber Strecke einer Bewegung, die niemand
+                   ausgelöst hat. Wandern tut es trotzdem, sonst fiele
+                   es aus der Tiefenstaffelung heraus. */
+                data-erscheint={istErstes ? "nein" : undefined}
                 style={{ ...flaeche, "--tiefe": 0.3 } as React.CSSProperties}
               >
                 <WerkMitZoom
@@ -129,17 +107,18 @@ export default async function Startseite() {
                   breitePx={bild.breitePx}
                   hoehePx={bild.hoehePx}
                   sizes="(max-width: 640px) 88vw, (max-width: 1024px) 82vw, 74rem"
+                  vorrang={istErstes}
                 />
               </div>
 
               {/* Das Schild hängt neben dem Werk, auf der Seite, die
                   es frei lässt. Es liegt näher als das Werk und
-                  wandert beim Scrollen darum weiter — daher der Raum
-                  zwischen beiden. */}
+                  wandert beim Scrollen darum weiter. */}
               <Saalschild
                 werk={werk}
                 titelId={`werk-${werk.id}`}
                 className="auftritt"
+                erscheint={!istErstes}
                 style={{ "--tiefe": 1.1 } as React.CSSProperties}
               />
             </div>
@@ -148,7 +127,8 @@ export default async function Startseite() {
       })}
 
       {/* --- Das Zitat ----------------------------------------------------
-          Ein Satz, gesetzt wie ein Wandtext zwischen zwei Sälen. */}
+          Ein Satz, gesetzt wie ein Wandtext zwischen zwei Sälen — und
+          ebenfalls für sich, nicht neben einem Werk. */}
       {texte.startseiteZitat && (
         <section className="mx-auto max-w-[110rem] px-4 py-stille sm:px-10 lg:px-16">
           <blockquote
