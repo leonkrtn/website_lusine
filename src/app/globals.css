@@ -73,6 +73,14 @@
    -------------------------------------------------------------------------- */
 
 :root {
+  /* Wie weit der Verlauf unter der Kopfzeile reicht. Er beginnt
+     deckend weiss und wird erst nach dieser Strecke durchsichtig —
+     was darunter liegt, ist also nicht bloss zart, sondern am oberen
+     Ende schlicht verdeckt. Alles, was am Seitenanfang fest steht,
+     muss diese Strecke kennen. Sie steht darum hier und nicht als
+     Zahl in der Regel weiter unten. */
+  --kopf-auslauf: 2.5rem;
+
   /* Ausdruecklich KEIN Dark Mode. Er steht im direkten Widerspruch zum
      rahmenlosen Weiss-auf-Weiss-Prinzip: ein auf Weiss freigestelltes
      Gemaelde bekaeme auf dunklem Grund sofort eine sichtbare Kante. */
@@ -131,6 +139,30 @@ body {
 :focus-visible {
   outline: 1px solid var(--color-tinte);
   outline-offset: 4px;
+}
+
+/* Wo eine Seite anfaengt.
+
+   Der Verlauf unter der Kopfzeile ist an seiner Oberkante deckend
+   weiss. Was direkt darunter steht, ist nicht zart — es ist weg, und
+   die naechsten Zeilen sind aufgehellt. Am Seitenanfang steht der
+   Inhalt aber fest; er scrollt nicht durch, sondern bleibt dort. Er
+   braucht darum echten Abstand, nicht nur ein bisschen Luft.
+
+   Vorher waren es vier Rem von der Kopfzeile aus — nach Abzug des
+   Verlaufs blieben vierundzwanzig Punkte. Auf dem Handy, wo die
+   Kopfzeile den groesseren Teil des Bildschirms einnimmt, sah der
+   erste Satz dadurch aus, als klebte er am Rand. */
+.seitenanfang {
+  padding-top: calc(var(--kopf-auslauf) + 3.5rem);
+}
+
+/* Ein Gemaelde am Seitenanfang braucht nur knapp aus dem Verlauf
+   heraus: es steht ohnehin fuer sich, und jeder Punkt Hoehe zaehlt.
+   Wer diesen Wert aendert, muss den Hoehenabzug auf der Werkseite
+   mitziehen, sonst steht das Werk wieder unter der Falz. */
+.werkanfang {
+  padding-top: calc(var(--kopf-auslauf) + 0.75rem);
 }
 
 /* --------------------------------------------------------------------------
@@ -320,55 +352,50 @@ body {
         transform: translate3d(0, calc(var(--tiefe) * -7vh), 0);
       }
     }
+
+    /* Was beim Laden schon im Bild steht, erscheint nicht — es ist
+       bereits da. Sonst begänne die Seite auf halber Strecke einer
+       Bewegung, die niemand ausgelöst hat: ein halb durchsichtiges
+       Gemälde, das niemand angefasst hat.
+
+       Die Wanderung bleibt, sonst fiele das Werk aus der
+       Tiefenstaffelung heraus und läge plötzlich auf der Ebene der
+       Seite statt auf seiner eigenen. */
+    .auftritt[data-erscheint="nein"] {
+      animation-name: auftritt-wandern;
+    }
+
+    @keyframes auftritt-wandern {
+      0%,
+      34% {
+        transform: none;
+      }
+      100% {
+        transform: translate3d(0, calc(var(--tiefe) * -7vh), 0);
+      }
+    }
   }
 }
 
-/* 4b. Der Auftakt der Startseite.
+/* 4b. Der Saaltext.
 
-   Vorher stand hier ein Absatz allein auf einem Bildschirm, mit sehr
-   viel Luft darunter und einem Wegweiser nach unten. Viel Platz fuer
-   einen Satz, der dadurch nicht wichtiger wurde — er sah nur aus, als
-   haette man vergessen, etwas daneben zu stellen.
+   Der Satz am Kopf der Startseite gehört zu keinem einzelnen Werk,
+   sondern zur ganzen Auswahl. Darum steht er für sich, wie der
+   Saaltext am Eingang einer Ausstellung, und **nie** in einer Reihe
+   mit einem Gemälde: neben einem Werk steht nur dessen Saalschild.
+   Stünde anderer Text daneben, läse man ihn als Beschriftung — und
+   der Besucher hielte einen Satz über die Ausstellung für den Titel
+   des Bildes, vor dem er steht.
 
-   Jetzt teilen sich Satz und erstes Werk einen Bildschirm. Der Satz
-   steht links und unten, das Werk rechts und gross: keine zwei
-   Stationen hintereinander, sondern eine Komposition. Und weil beide
-   beim Scrollen verschieden schnell wandern, liegen sie sichtbar auf
-   verschiedenen Ebenen statt flach nebeneinander. */
-.auftakt-raster {
-  display: grid;
-  gap: 3.5rem;
-  align-items: center;
-}
-
-@media (min-width: 64rem) {
-  .auftakt-raster {
-    /* `minmax(0, 1fr)` statt `1fr`: sonst zieht die Spalte sich auf
-       die Wunschbreite des Werks auf, und knapp ueber der Schwelle
-       laeuft die Seite um wenige Punkte ueber. */
-    grid-template-columns: minmax(16rem, 22rem) minmax(0, 1fr);
-    gap: 0 4rem;
-  }
-
-  /* Zwei Zeilen: oben das Werk, darunter sein Schildchen. Der Satz
-     richtet sich am **Werk** aus, nicht an beidem zusammen — sonst
-     schoebe ihn die Beschriftung unter die Falz, und der erste Satz
-     der Seite waere der einzige, den man nicht sieht. */
-  .auftakt-satz {
-    grid-column: 1;
-    grid-row: 1;
-    align-self: end;
-    padding-bottom: 6vh;
-  }
-
-  /* Werk und Schild bilden hier eine Reihe in der zweiten Spalte,
-     rechtsbündig. Von links nach rechts liest die Seite damit: Satz,
-     Werk, Schild — drei Dinge, keine zwei Stapel. */
-  .auftakt-bild {
-    grid-column: 2;
-    grid-row: 1;
-    justify-self: end;
-  }
+   Eine Stufe größer als der Erzähltext und mit eigener Zeilenbreite:
+   ein Saaltext wird aus einigen Schritten Entfernung gelesen, ein
+   Erzähltext aus Lesenähe. */
+.saaltext {
+  font-size: var(--text-lead);
+  line-height: 1.7;
+  max-width: 38rem;
+  letter-spacing: 0.003em;
+  text-wrap: pretty;
 }
 
 /* 4c. Das Saalschild und die Reihe, in der es neben dem Werk hängt.
@@ -497,6 +524,64 @@ body {
     width: auto;
     margin-bottom: 0;
   }
+}
+
+/* 4d. Das Zeichen für das Menü.
+
+   Zwei Striche, nicht drei. Drei sind die Gewohnheit aus dem
+   Baukasten; zwei sagen dasselbe und sind das ruhigere Zeichen — und
+   auf einer Seite, deren ganzes Gerüst aus Haarlinien besteht, das
+   einzig stimmige. Ein Punkt stark, wie jede andere Linie hier auch.
+
+   Beim Öffnen drehen sich die beiden zum Kreuz. Das ist keine
+   Zierde: dieselben zwei Striche werden zum Schließen-Zeichen, statt
+   dass ein Wort durch ein anderes ersetzt wird. Man sieht, dass es
+   derselbe Schalter ist.
+
+   Die Fläche zum Antippen ist größer als das Zeichen — ein Finger
+   trifft keine vierundzwanzig auf elf Punkte. */
+.burger {
+  position: relative;
+  display: block;
+  width: 1.5rem;
+  height: 0.6875rem;
+  /* Vergrößert die Trefferfläche, ohne das Zeichen zu verrücken. */
+  padding: 0;
+  margin: 0.5rem 0;
+  box-sizing: content-box;
+}
+
+.burger::before {
+  content: "";
+  position: absolute;
+  inset: -0.75rem -0.5rem;
+}
+
+.burger span {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background-color: var(--color-tinte);
+  transition: transform 520ms var(--ease-ruhig);
+}
+
+.burger span:first-child {
+  top: 0;
+}
+
+.burger span:last-child {
+  bottom: 0;
+}
+
+/* Beide wandern auf die Mitte und kreuzen sich dort. Die halbe
+   Strecke ist die halbe Höhe abzüglich der halben Strichstärke. */
+.burger[data-offen="ja"] span:first-child {
+  transform: translateY(0.3125rem) rotate(45deg);
+}
+
+.burger[data-offen="ja"] span:last-child {
+  transform: translateY(-0.3125rem) rotate(-45deg);
 }
 
 /* 5. Wortweises Erscheinen. Ein Satz baut sich auf, statt einfach da
@@ -883,7 +968,7 @@ body {
   top: 100%;
   left: 0;
   right: 0;
-  height: 2.5rem;
+  height: var(--kopf-auslauf);
   pointer-events: none;
   background: linear-gradient(
     to bottom,

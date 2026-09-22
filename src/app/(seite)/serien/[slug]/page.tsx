@@ -38,7 +38,7 @@ export default async function SerieSeite({ params }: Props) {
   const werke = await holeWerkeDerSerie(serie.id);
 
   return (
-    <div className="mx-auto max-w-[110rem] px-4 pt-16 sm:px-10 lg:px-16">
+    <div className="seitenanfang mx-auto max-w-[110rem] px-4 sm:px-10 lg:px-16">
       <Einblenden als="header" className="mx-auto max-w-[34rem] text-center">
         <p className="beschriftung">Serie</p>
         <h1 className="mt-6 text-gross leading-tight text-balance">

@@ -94,6 +94,14 @@ Das ist keine Geschmacksfrage, sondern die tragende Gestaltungsregel.
 
 Im Code sichern sie zwei Vorkehrungen ab:
 
+0. **Der Auslauf unter der Kopfzeile** (`--kopf-auslauf`) ist an seiner
+   Oberkante **deckend** weiß, nicht bloß zart. Was direkt darunter
+   steht, ist nicht gedämpft, sondern weg. Beim Scrollen ist das
+   gewollt; am Seitenanfang aber steht der Inhalt fest, und dann ist
+   es ein Fehler. Dafür gibt es `.seitenanfang` (Text) und
+   `.werkanfang` (ein Gemälde, das nur knapp herausmuss). Wer
+   `.werkanfang` ändert, muss den Höhenabzug auf der Werkseite
+   mitziehen, sonst steht das Werk unter der Falz.
 1. **Die Verbotsliste** am Ende von `src/app/globals.css` schließt für
    jede Fläche mit der Klasse `.werkbild` `border`, `border-radius` und
    `box-shadow` aus. Wer ein Bild einbaut, vergibt diese Klasse.
@@ -157,6 +165,14 @@ Weiteres:
   `hoeheCm`) und **Verzeichnis** (als Liste). Alle drei stehen fertig im
   HTML, `Katalog.tsx` legt nur ein `data-Attribut` um. Ohne JavaScript
   bleibt die Wand stehen.
+- **Neben einem Werk steht nur sein Saalschild.** Kein anderer Text
+  darf waagerecht daneben stehen — kein Auftaktsatz, keine
+  Serieneinleitung, kein Fließtext. Wer einen Satz neben ein Gemälde
+  setzt, macht ihn zur Beschriftung dieses Gemäldes, ganz gleich
+  wovon er handelt: der Besucher läse einen Text über die Ausstellung
+  als Titel des Bildes, vor dem er steht. Solche Texte stehen für
+  sich, wie der Saaltext am Eingang (`.saaltext`), oder über dem
+  Werk — nie in einer Reihe damit.
 - **Neben jedem Werk hängt ein Saalschild** (`Saalschild.tsx`): Titel
   kursiv, Jahr, Technik, Träger, Maße, Ausführung, dann der Preis —
   in dieser Reihenfolge, weil sie der Frage folgt, die jemand vor
@@ -167,9 +183,7 @@ Weiteres:
   Schild. Unter 48 rem rutscht es unter das Werk.
 - Die Startseite hängt die Werke abwechselnd links, mittig und rechts.
   Die Folge steht fest in `haengung()` in `src/lib/darstellung.ts` — eine
-  Wand, die sich bei jedem Aufruf neu ordnet, wäre keine Hängung. Der
-  Auftaktsatz teilt sich einen Bildschirm mit dem ersten Werk, statt
-  allein einen zu belegen.
+  Wand, die sich bei jedem Aufruf neu ordnet, wäre keine Hängung.
 - **Werke erscheinen scrollgebunden, nicht auf eigener Uhr.** `.auftritt`
   in `globals.css` ist eine einzige Kurve an einer einzigen Zeitachse,
   und die Zeitachse ist das Scrollen. Vorher waren es zwei Bewegungen —

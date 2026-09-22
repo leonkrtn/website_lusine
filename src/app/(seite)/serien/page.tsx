@@ -1,9 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Einblenden } from "@/components/Einblenden";
+import { Saalschild } from "@/components/Saalschild";
 import { Werkbild } from "@/components/Werkbild";
 import { holeSerien, holeWerkeDerSerie } from "@/lib/daten";
-import { hauptbild, werkBreiteStil } from "@/lib/darstellung";
+import {
+  haengungKlasse,
+  hauptbild,
+  werkBreiteStil,
+} from "@/lib/darstellung";
 
 export const metadata: Metadata = {
   title: "Serien",
@@ -29,7 +34,7 @@ export default async function SerienSeite() {
   );
 
   return (
-    <div className="mx-auto max-w-[110rem] px-4 pt-16 sm:px-10 lg:px-16">
+    <div className="seitenanfang mx-auto max-w-[110rem] px-4 sm:px-10 lg:px-16">
       <Einblenden als="header">
         <h1 className="text-gross leading-tight">Serien</h1>
         <p className="erzaehlung mt-8">
@@ -47,39 +52,20 @@ export default async function SerienSeite() {
             const bild = stellvertreter ? hauptbild(stellvertreter.bilder) : null;
 
             return (
-              <section
-                key={serie.id}
-                className="mb-stille grid grid-cols-1 items-center gap-12 md:grid-cols-2 md:gap-24"
-              >
-                {/* Die Bildspalte wechselt die Seite, damit die Uebersicht
-                    beim Scrollen nicht zur Liste erstarrt. */}
-                <Einblenden
-                  className={nummer % 2 === 1 ? "md:order-2" : undefined}
-                >
-                  {bild && (
-                    <Link href={`/serien/${serie.slug}`} className="block">
-                      <div
-                        className="werkflaeche mx-auto"
-                        style={werkBreiteStil(bild.breitePx, bild.hoehePx, 58, 30)}
-                      >
-                        <Werkbild
-                          schluessel={bild.schluessel}
-                          alt={bild.altText || serie.titel}
-                          breitePx={bild.breitePx}
-                          hoehePx={bild.hoehePx}
-                          sizes="(max-width: 768px) 88vw, 30rem"
-                          className="transition-opacity duration-700 hover:opacity-90"
-                        />
-                      </div>
-                    </Link>
-                  )}
-                </Einblenden>
+              /* Der Serientext steht **über** dem Werk, nicht daneben.
+                 Er gehört zu keinem einzelnen Gemälde, sondern zur
+                 Gruppe — neben einem Werk steht nur dessen Saalschild.
+                 Stünde er in einer Reihe damit, läse man „Stille
+                 Räume" als Titel genau des Bildes, das daneben hängt.
 
-                <Einblenden verzoegerung={120}>
+                 So gelesen ist die Seite auch stimmig mit der einzelnen
+                 Serienseite: erst der Wandtext, dann die Werke. */
+              <section key={serie.id} className="mb-stille">
+                <Einblenden className="max-w-[38rem]">
                   <h2 className="text-titel leading-tight">
                     <Link
                       href={`/serien/${serie.slug}`}
-                      className="transition-opacity duration-500 hover:opacity-60"
+                      className="unterstrich"
                     >
                       {serie.titel}
                     </Link>
@@ -94,11 +80,41 @@ export default async function SerienSeite() {
                       .join(" · ")}
                   </p>
 
-                  <p className="erzaehlung mt-8">{serie.einleitung}</p>
+                  <p className="saaltext mt-8">{serie.einleitung}</p>
+                </Einblenden>
 
+                {bild && stellvertreter && (
+                  /* Ein Werk der Serie, stellvertretend — und darum
+                     mit seinem eigenen Schild daneben, damit klar
+                     bleibt, welches Bild man sieht. Die Seite, an der
+                     es hängt, wechselt von Serie zu Serie, damit die
+                     Übersicht beim Scrollen nicht zur Liste erstarrt. */
+                  <div
+                    className={`mt-atem ${haengungKlasse(
+                      nummer % 2 === 1 ? "rechts" : "links",
+                    )}`}
+                  >
+                    <div
+                      className="werkflaeche heranruecken"
+                      style={werkBreiteStil(bild.breitePx, bild.hoehePx, 62, 34)}
+                    >
+                      <Werkbild
+                        schluessel={bild.schluessel}
+                        alt={bild.altText || stellvertreter.titel}
+                        breitePx={bild.breitePx}
+                        hoehePx={bild.hoehePx}
+                        sizes="(max-width: 768px) 88vw, 34rem"
+                      />
+                    </div>
+
+                    <Saalschild werk={stellvertreter} knapp />
+                  </div>
+                )}
+
+                <Einblenden className="mt-atem">
                   <Link
                     href={`/serien/${serie.slug}`}
-                    className="mt-10 inline-block border-b border-tinte pb-1 text-klein transition-opacity duration-500 hover:opacity-60"
+                    className="border-b border-tinte pb-1 text-klein transition-opacity duration-500 hover:opacity-60"
                   >
                     Serie ansehen
                   </Link>
