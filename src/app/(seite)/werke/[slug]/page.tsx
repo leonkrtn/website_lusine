@@ -90,8 +90,7 @@ export default async function WerkSeite({ params }: Props) {
       {/* --- 1. Das Werk und sein Schild -----------------------------------
           Wie an einer Wand: das Gemälde, daneben das Saalschild mit
           Titel, Angaben und Preis. Wer aus der Galerie kommt, sieht
-          das Werk hierher wandern; wer von draußen kommt, beginnt am
-          Pinselstrich. Siehe `Werkanfang.tsx`. */}
+          das Werk hierher wandern. Siehe `Werkanfang.tsx`. */}
       {bild && (
         <Werkanfang
           werk={werk}

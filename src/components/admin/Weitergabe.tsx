@@ -13,9 +13,8 @@ import type { Werk } from "@/lib/typen";
  * zwischen fremden Bildern. Er kann Neugier wecken, aber nicht zeigen,
  * wie die Farbe liegt, wie groß das Bild ist, was es erzählt. Darum
  * beginnt der Beitrag mit der Nahaufnahme und endet mit dem ganzen
- * Werk auf Weiß — und wer dem Link folgt, kommt auf der Werkseite
- * wieder am Pinselstrich an und tritt dort zurück, bis das Werk in
- * voller Auflösung dasteht (`Werkanfang.tsx`).
+ * Werk auf Weiß — und wer dem Link folgt, sieht es auf der Werkseite
+ * in voller Auflösung.
  *
  * Die Bilder entstehen in `src/lib/sozialbild.tsx`; hier wird nur
  * verlinkt.
@@ -74,9 +73,8 @@ export function Weitergabe({ werk }: { werk: Werk }) {
       <h2 className="text-lead leading-snug">Für Instagram und Pinterest</h2>
       <p className="mt-2 max-w-xl text-klein text-tinte-leise">
         Draußen der Ausschnitt, drinnen das Ganze: auf Instagram zuerst die
-        Nahaufnahme, dann das ganze Werk. Wer dem Link folgt, kommt auf der
-        Werkseite wieder am Pinselstrich an und tritt zurück, bis das Werk
-        dasteht. Die Bilder erneuern sich, sobald das Werk gespeichert wird.
+        Nahaufnahme, dann das ganze Werk. Wer dem Link folgt, sieht auf der
+        Werkseite das ganze Werk. Die Bilder erneuern sich, sobald das Werk gespeichert wird.
       </p>
 
       {formate.length === 0 ? (
