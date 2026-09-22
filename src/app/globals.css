@@ -81,6 +81,13 @@
      Zahl in der Regel weiter unten. */
   --kopf-auslauf: 2.5rem;
 
+  /* Wie hoch die Kopfzeile selbst ist: zweimal ihr Rand (`py-6`) und
+     der Schriftzug (1.375rem, Zeilenhoehe 1). Gebraucht nur dort, wo
+     etwas unter ihr stehen bleibt statt unter ihr hindurchzulaufen —
+     im Auftakt der Startseite. Wer die Kopfzeile aendert, zieht das
+     hier nach. */
+  --kopf-hoehe: 4.375rem;
+
   /* Ausdruecklich KEIN Dark Mode. Er steht im direkten Widerspruch zum
      rahmenlosen Weiss-auf-Weiss-Prinzip: ein auf Weiss freigestelltes
      Gemaelde bekaeme auf dunklem Grund sofort eine sichtbare Kante. */
@@ -372,6 +379,105 @@ body {
       }
       100% {
         transform: translate3d(0, calc(var(--tiefe) * -7vh), 0);
+      }
+    }
+  }
+}
+
+/* 4a. Der Auftakt: vom Pinselstrich zum ganzen Werk.
+
+   Die Startseite oeffnet mit der Oberflaeche des ersten Werks,
+   bildschirmfuellend. Wer scrollt, tritt zurueck: die Buehne bleibt
+   stehen, das Werk schrumpft auf sein Mass und steht am Ende frei auf
+   dem Papier. Erst dann tritt das Schild hinzu. Gebaut in
+   `Auftakt.tsx`, das auch die Naehe misst.
+
+   Die Zeitachse ist der ganze Abschnitt (`view-timeline`), gelesen
+   ueber `contain`: sie laeuft genau so lange, wie der Abschnitt das
+   Fenster ausfuellt — also genau so lange, wie die Buehne steht.
+   Vorher, oben am Seitenanfang, steht alles auf dem Anfangsbild.
+
+   Eine Bewegung je Gegenstand: das Bild tritt zurueck, das Schild
+   erscheint. Nichts davon wandert zusaetzlich.
+
+   Ohne Scroll-Zeitachse oder bei reduzierter Bewegung greift nur der
+   Teil ausserhalb der Abfrage: das Werk steht am Seitenanfang wie auf
+   der Werkseite, und die Strecke darunter hat keine Hoehe. */
+.auftakt-buehne {
+  padding-top: calc(var(--kopf-auslauf) + 0.75rem);
+}
+
+.auftakt-weg {
+  height: 0;
+}
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .auftakt {
+      view-timeline: --auftakt block;
+    }
+
+    /* Die Buehne steht beim Zuruecktreten und liegt dabei unter der
+       Kopfzeile, nicht darunter wie der uebrige Inhalt. Darum rechnet
+       ihr oberer Rand die Kopfzeile selbst mit ein — dieselbe
+       Strecke wie `.werkanfang`, nur um die Kopfzeile laenger. Wer
+       hier aendert, zieht den Hoehenabzug in `Auftakt.tsx` nach.
+
+       `overflow: clip` haelt das vergroesserte Bild in der Buehne;
+       `clip` statt `hidden`, damit kein Scrollbehaelter entsteht, der
+       das Kleben aufhoebe. */
+    .auftakt-buehne {
+      position: sticky;
+      top: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-height: 100svh;
+      padding-top: calc(var(--kopf-hoehe) + var(--kopf-auslauf) + 0.75rem);
+      padding-bottom: 1.5rem;
+      overflow: clip;
+    }
+
+    /* Die Strecke, ueber die das Zuruecktreten laeuft. Lang genug,
+       dass es ruhig geht; kurz genug, dass niemand glaubt, die Seite
+       hinge. */
+    .auftakt-weg {
+      height: 130svh;
+    }
+
+    .auftakt-bild {
+      transform-origin: 50% 50%;
+      animation: auftakt-naehe linear both;
+      animation-timeline: --auftakt;
+      animation-range: contain 0% contain 78%;
+    }
+
+    /* Die Vergroesserung wird in `Auftakt.tsx` gemessen. Bis das
+       geschehen ist, gilt ein Wert, der auf den ueblichen Fenstern
+       schon deckt — sonst stuende beim ersten Bild fuer einen
+       Augenblick das kleine Werk da und spraenge dann heran. */
+    @keyframes auftakt-naehe {
+      from {
+        transform: scale(var(--auftakt-naehe, 6));
+        animation-timing-function: var(--ease-ruhig);
+      }
+      to {
+        transform: none;
+      }
+    }
+
+    .auftakt-schild {
+      animation: auftakt-schild linear both;
+      animation-timeline: --auftakt;
+      animation-range: contain 66% contain 94%;
+    }
+
+    @keyframes auftakt-schild {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
       }
     }
   }
@@ -888,6 +994,8 @@ body {
      vollstaendig da. Sie haengen ohnehin an einer
      no-preference-Abfrage; das hier ist der Riegel davor. */
   .auftritt,
+  .auftakt-bild,
+  .auftakt-schild,
   .naharbeit,
   .naharbeit img {
     animation: none;
