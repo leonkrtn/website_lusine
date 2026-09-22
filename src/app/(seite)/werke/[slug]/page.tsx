@@ -158,9 +158,7 @@ export default async function WerkSeite({ params }: Props) {
         <section className="mt-stille px-4">
           <Einblenden>
             <blockquote className="mx-auto max-w-3xl text-center">
-              <p className="text-gross leading-[1.25] text-balance italic">
-                „{werk.zitat}“
-              </p>
+              <p className="zitat text-balance">„{werk.zitat}“</p>
             </blockquote>
           </Einblenden>
         </section>

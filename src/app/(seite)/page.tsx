@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Einblenden } from "@/components/Einblenden";
 import { Parallax } from "@/components/Parallax";
+import { Wortweise } from "@/components/Wortweise";
 import { WerkMitZoom } from "@/components/WerkMitZoom";
 import { holeStartseitenWerke, holeTexte } from "@/lib/daten";
 import { hauptbild, werkBreiteStil } from "@/lib/darstellung";
@@ -26,11 +27,12 @@ export default async function Startseite() {
           Nur Schrift, sehr viel Luft. Der Blick soll zur Ruhe kommen,
           bevor das erste Werk erscheint. */}
       <section className="mx-auto max-w-[110rem] px-4 pt-16 pb-stille sm:px-10 lg:px-16">
-        <Einblenden>
-          <p className="erzaehlung max-w-2xl text-lead text-balance">
-            {texte.startseiteAuftakt}
-          </p>
-        </Einblenden>
+        <Wortweise
+          text={texte.startseiteAuftakt}
+          takt={45}
+          className="erzaehlung max-w-2xl text-lead text-balance"
+        />
+        <div className="scrollhinweis mt-atem" aria-hidden="true" />
       </section>
 
       {/* --- Die Werke ---------------------------------------------------- */}
@@ -43,21 +45,25 @@ export default async function Startseite() {
         return (
           <section
             key={werk.id}
-            className="mb-stille flex flex-col items-center px-4"
+            className="werkblock mb-stille flex flex-col items-center px-4"
             aria-labelledby={`werk-${werk.id}`}
           >
-            <Einblenden className="w-full" schwelle={0.05}>
-              <Parallax staerke={istErstes ? 0 : 0.06}>
+            <Einblenden
+              className="w-full"
+              schwelle={0.05}
+              bewegung={istErstes ? "weich" : "tiefe"}
+            >
+              <Parallax staerke={istErstes ? 0 : 0.07}>
                 <div
-                  className="mx-auto"
-                  style={werkBreiteStil(bild.breitePx, bild.hoehePx, 76, 52)}
+                  className="heranruecken mx-auto"
+                  style={werkBreiteStil(bild.breitePx, bild.hoehePx, 82, 60)}
                 >
                   <WerkMitZoom
                     schluessel={bild.schluessel}
                     alt={bild.altText || werk.titel}
                     breitePx={bild.breitePx}
                     hoehePx={bild.hoehePx}
-                    sizes="(max-width: 640px) 88vw, (max-width: 1024px) 70vw, 52rem"
+                    sizes="(max-width: 640px) 88vw, (max-width: 1024px) 76vw, 60rem"
                     vorrang={istErstes}
                   />
                 </div>
@@ -66,10 +72,7 @@ export default async function Startseite() {
 
             <Einblenden verzoegerung={140} className="mt-10 text-center">
               <h2 id={`werk-${werk.id}`} className="text-titel leading-tight">
-                <Link
-                  href={`/werke/${werk.slug}`}
-                  className="transition-opacity duration-500 hover:opacity-60"
-                >
+                <Link href={`/werke/${werk.slug}`} className="unterstrich">
                   {werk.titel}
                 </Link>
               </h2>
@@ -95,14 +98,18 @@ export default async function Startseite() {
           zwischen zwei Saelen. */}
       {texte.startseiteZitat && (
         <section className="mx-auto max-w-[110rem] px-4 py-stille sm:px-10 lg:px-16">
-          <Einblenden>
+          <Parallax staerke={0.05}>
             <blockquote className="mx-auto max-w-4xl text-center">
-              <p className="text-gross leading-[1.25] text-balance italic">
-                „{texte.startseiteZitat}“
-              </p>
-              <footer className="beschriftung mt-10 not-italic">Lusine</footer>
+              <Wortweise
+                text={`„${texte.startseiteZitat}“`}
+                takt={80}
+                className="zitat text-balance"
+              />
+              <Einblenden verzoegerung={260}>
+                <footer className="beschriftung mt-10 not-italic">Lusine</footer>
+              </Einblenden>
             </blockquote>
-          </Einblenden>
+          </Parallax>
         </section>
       )}
 

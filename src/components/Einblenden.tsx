@@ -9,6 +9,12 @@ type Props = {
   verzoegerung?: number;
   /** Wie weit das Element im Bild sein muss, bevor es erscheint. */
   schwelle?: number;
+  /**
+   * Wie das Element erscheint. "weich" hebt es nur an; "tiefe" laesst
+   * es zusaetzlich einen Schritt herantreten. Beides ist in
+   * globals.css definiert.
+   */
+  bewegung?: "weich" | "tiefe";
   als?: ElementType;
   className?: string;
 };
@@ -24,6 +30,7 @@ export function Einblenden({
   children,
   verzoegerung = 0,
   schwelle = 0.12,
+  bewegung = "weich",
   als: Element = "div",
   className = "",
 }: Props) {
@@ -63,6 +70,7 @@ export function Einblenden({
       ref={ref}
       className={`einblenden ${className}`}
       data-sichtbar={sichtbar ? "true" : "false"}
+      data-bewegung={bewegung}
       style={verzoegerung ? { transitionDelay: `${verzoegerung}ms` } : undefined}
     >
       {children}
