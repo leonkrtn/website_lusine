@@ -4,7 +4,6 @@ import { Werkbild } from "@/components/Werkbild";
 import { Saalschild } from "@/components/Saalschild";
 import { Signatur } from "@/components/Signatur";
 import { Einblenden } from "@/components/Einblenden";
-import { hauptbild, werkBreiteStil } from "@/lib/darstellung";
 import { werkseitenQuelle } from "@/lib/werkseitenbild";
 import { hauptbild, pinFuer, werkBreiteStil } from "@/lib/darstellung";
 import { type Werk } from "@/lib/typen";

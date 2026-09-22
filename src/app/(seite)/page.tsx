@@ -69,7 +69,12 @@ export default async function Startseite() {
       {/* --- Der Auftakt ---------------------------------------------------
           Vom Pinselstrich zum ganzen Werk. */}
       {erstes && erstesBild && (
-        <Auftakt werk={erstes} bild={erstesBild} pin={pinFuer(erstes)} />
+        <Auftakt
+          werk={erstes}
+          bild={erstesBild}
+          wanderung={`werk-${erstes.id}`}
+          pin={pinFuer(erstes)}
+        />
       )}
 
       {/* --- Der Saaltext --------------------------------------------------
@@ -129,17 +134,10 @@ export default async function Startseite() {
                       breitePx={bild.breitePx}
                       hoehePx={bild.hoehePx}
                       sizes="(max-width: 640px) 88vw, (max-width: 1024px) 82vw, 74rem"
+                      pin={pinFuer(werk)}
                     />
                   </div>
                 </ViewTransition>
-                <WerkMitZoom
-                  schluessel={bild.schluessel}
-                  alt={bild.altText || werk.titel}
-                  breitePx={bild.breitePx}
-                  hoehePx={bild.hoehePx}
-                  sizes="(max-width: 640px) 88vw, (max-width: 1024px) 82vw, 74rem"
-                  pin={pinFuer(werk)}
-                />
               </div>
 
               {/* Das Schild hängt neben dem Werk, auf der Seite, die
