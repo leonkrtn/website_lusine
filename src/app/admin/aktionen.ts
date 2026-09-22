@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { supabaseServer, angemeldeterBenutzer } from "@/lib/supabase/server";
-import { loescheBild } from "@/lib/r2";
+import { loescheBild } from "@/lib/speicher";
 import { demoModus } from "@/lib/umgebung";
 import { zuCent, zuSlug, type FormZustand } from "@/lib/adminzustand";
 import { WERK_STATUS } from "@/lib/typen";

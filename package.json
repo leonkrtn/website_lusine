@@ -6,9 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint src worker",
+    "lint": "eslint src",
     "typen": "tsc --noEmit",
-    "pruefen": "tsc --noEmit && eslint src worker",
+    "pruefen": "tsc --noEmit && eslint src",
     "platzhalter": "node scripts/gemaelde-erzeugen.mjs",
     "browserpruefung": "node scripts/pruefen-im-browser.mjs"
   },

@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { Werkformular } from "@/components/admin/Werkformular";
 import { Bilderverwaltung } from "@/components/admin/Bilderverwaltung";
 import { holeSerien, holeWerkNachId } from "@/lib/daten";
-import { demoModus, r2Konfiguriert } from "@/lib/umgebung";
+import { demoModus } from "@/lib/umgebung";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -42,19 +42,8 @@ export default async function WerkBearbeiten({ params, searchParams }: Props) {
       <section className="mt-12 border-t border-linie pt-10">
         <h2 className="text-lead leading-snug">Bilder</h2>
 
-        {!r2Konfiguriert() && !gesperrt && (
-          <p className="mt-4 max-w-xl bg-[#fdf4d8] px-4 py-3 text-klein">
-            Der Bildspeicher ist noch nicht eingerichtet. Sobald die
-            Cloudflare-Zugangsdaten hinterlegt sind, lassen sich hier Bilder
-            hochladen.
-          </p>
-        )}
-
         <div className="mt-8">
-          <Bilderverwaltung
-            werk={werk}
-            gesperrt={gesperrt || !r2Konfiguriert()}
-          />
+          <Bilderverwaltung werk={werk} gesperrt={gesperrt} />
         </div>
       </section>
 

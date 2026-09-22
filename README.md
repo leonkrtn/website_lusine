@@ -50,7 +50,7 @@ Beispielwerken; gespeichert wird nichts.
 
 ## Einrichtung
 
-Drei Dienste, in dieser Reihenfolge. Nach jedem Schritt läuft mehr — die
+Zwei Dienste, in dieser Reihenfolge. Nach jedem Schritt läuft mehr — die
 Seite ist in jedem Zwischenstand lauffähig.
 
 Die Zugangsdaten gehören nach `.env.local` (Vorlage: `.env.example`).
@@ -60,8 +60,9 @@ Diese Datei gehört **nicht** ins Repository.
 
 1. Projekt anlegen auf <https://supabase.com>
 2. **SQL Editor → New query** → Inhalt von `supabase/01_schema.sql`
-   einfügen → **Run**. Das Skript ist wiederholbar und zerstört keine
-   Daten.
+   einfügen → **Run**. Dann dasselbe mit `supabase/02_speicher.sql`, das
+   den Ablageort für die Bilder anlegt. Beide Skripte sind wiederholbar
+   und zerstören keine Daten.
 3. **Authentication → Sign In / Providers**: „Allow new users to sign up“
    **abschalten**. Es soll genau einen Zugang geben.
 4. **Authentication → Users → Add user**: Lusines E-Mail-Adresse und ein
@@ -77,32 +78,11 @@ SUPABASE_SERVICE_ROLE_KEY=
 Der Dienstschlüssel umgeht alle Zugriffsregeln und darf niemals im Browser
 landen — deshalb trägt er kein `NEXT_PUBLIC_`.
 
-Ab jetzt ist `/admin` passwortgeschützt und die Seite zeigt echte Daten.
-Sie ist zunächst leer; die Beispielwerke gehören zum Demo-Modus.
+Ab jetzt ist `/admin` passwortgeschützt, die Seite zeigt echte Daten und
+Bilder lassen sich hochladen. Sie ist zunächst leer; die Beispielwerke
+gehören zum Demo-Modus.
 
-### 2. Cloudflare R2 — Bilder
-
-```bash
-cd worker
-npx wrangler login
-npx wrangler r2 bucket create luart-werke
-npx wrangler deploy
-```
-
-Die ausgegebene Worker-Adresse und die R2-Zugangsdaten
-(**R2 → Manage R2 API Tokens**) nach `.env.local`:
-
-```
-R2_KONTO_ID=
-R2_ZUGRIFFSSCHLUESSEL_ID=
-R2_GEHEIMER_SCHLUESSEL=
-R2_BUCKET=luart-werke
-NEXT_PUBLIC_BILD_BASIS_URL=https://luart-bilder.<konto>.workers.dev
-```
-
-Ab jetzt lassen sich Bilder hochladen. Näheres in `worker/README.md`.
-
-### 3. Resend — E-Mail
+### 2. Resend — E-Mail
 
 Verschickt die Eingangsbestätigung an Interessenten und benachrichtigt
 Lusine über neue Anfragen. Konto auf <https://resend.com>, Absenderdomain
@@ -154,14 +134,20 @@ src/
   lib/
     daten.ts          Die einzige Stelle, an der gelesen wird
     varianten.ts      Bildverarbeitung und Weißabgleich
+    speicher.ts       Ablage der Bilder
     bilder.ts         Bildadressen, Preise, Maße
   data/               Beispielwerke für den Demo-Modus
-supabase/             Datenbankschema
-worker/               Cloudflare Worker für die Bildauslieferung
-scripts/              Erzeugt die Platzhalter-Gemälde
+supabase/             Datenbankschema und Bildspeicher
+scripts/              Platzhalter-Gemälde und Browserprüfung
 ```
 
-**`src/lib/daten.ts`** ist der Schlüssel zum Verständnis: jede Funktion
+**`src/lib/bilder.ts`** beantwortet alle Fragen zu Bildadressen an einer
+Stelle: wo eine Datei liegt, welche Größen es gibt, wie ein `srcset`
+aussieht. Die Anzeigekomponenten wissen nichts über den Speicherort —
+deshalb war der Wechsel von einem externen Anbieter hierher ein Eingriff
+in eine einzige Datei.
+
+**`src/lib/daten.ts`** ist der zweite Schlüssel zum Verständnis: jede Funktion
 beantwortet dieselbe Frage zweimal — einmal aus Supabase, einmal aus den
 Beispieldaten. Welcher Weg genommen wird, entscheidet allein, ob
 Zugangsdaten hinterlegt sind. Deshalb ändert der Umstieg auf echte Daten
@@ -197,7 +183,11 @@ Original das wichtigste Verkaufsargument.
 - farbtreu, ohne Farbstich
 - zusätzlich zwei bis drei Nahaufnahmen der Oberfläche
 
-Weicht der Hintergrund ab, meldet das der Upload und bietet eine Korrektur
-an. Die Korrektur verschiebt dabei auch die Bildfarben leicht — das
+Jedes Bild wird beim Hochladen in fünf Breiten und drei Formaten abgelegt;
+welche Fassung ein Besucher bekommt, entscheidet sein Browser anhand von
+Bildschirm und unterstützten Formaten.
+
+Weicht der Hintergrund von Reinweiß ab, meldet das der Upload und bietet
+eine Korrektur an. Die Korrektur verschiebt dabei auch die Bildfarben leicht — das
 gleicht einen Farbstich der Aufnahme mit aus, ersetzt aber keine gute
 Aufnahme.

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { angemeldeterBenutzer, supabaseServer } from "@/lib/supabase/server";
-import { holeObjekt, ladeHoch } from "@/lib/r2";
+import { holeObjekt, ladeHoch } from "@/lib/speicher";
 import {
   erzeugeSignaturVarianten,
   erzeugeVarianten,
@@ -52,8 +52,10 @@ export async function POST(anfrage: Request) {
     return NextResponse.json({ fehler: "Angaben unvollständig." }, { status: 400 });
   }
 
-  // Nur eigene Schluessel verarbeiten — sonst liesse sich diese
-  // Schnittstelle nutzen, um beliebige Objekte zu ueberschreiben.
+  // Nur eigene Schluessel verarbeiten. Der Browser bestimmt den Pfad,
+  // also wird er hier gegen das erwartete Muster geprueft — sonst liesse
+  // sich ueber diese Schnittstelle an beliebige Stellen im Speicher
+  // schreiben.
   if (!/^(werke|signaturen)\/[a-z0-9-]+$/.test(praefix) || !ablage.startsWith(`${praefix}/`)) {
     return NextResponse.json({ fehler: "Ungültiger Schlüssel." }, { status: 400 });
   }

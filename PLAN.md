@@ -3,8 +3,12 @@
 Online-Galerie für die Künstlerin Lusine, unter dem Namen LUART.
 Kein Shop: wenige, kuratierte Originale, jedes mit seiner eigenen Geschichte.
 
-> **Änderung während der Umsetzung:** Der ursprünglich geplante Direktkauf
-> über Stripe ist entfallen. Die Seite zeigt Werke und Preise; der Kauf
+> **Zwei Änderungen während der Umsetzung:** Der Bildspeicher liegt bei
+> Supabase statt bei Cloudflare R2 — bei einer Galerie dieser Größe ist
+> ein zweiter Anbieter samt Worker mehr Aufwand als Nutzen, und die
+> Formatwahl trifft ohnehin der Browser besser als ein Dienst.
+>
+> Der ursprünglich geplante Direktkauf über Stripe ist entfallen. Die Seite zeigt Werke und Preise; der Kauf
 > entsteht im persönlichen Austausch über das Anfrageformular. Damit
 > verschwinden Zahlungsdienst, Bestellverwaltung und die automatische
 > Verkaufssperre — und mit ihnen ein gutes Stück Pflichten und Wartung.
@@ -41,7 +45,7 @@ Gestaltungsprinzipien, die jede spätere Entscheidung überstimmen:
 | Serien | Eigene Ebene mit Einleitungstext |
 | Backend | Eigenes Admin-Panel unter `/admin`, gleiche Codebasis |
 | Daten | Supabase (Postgres + Auth) |
-| Bilder | Cloudflare R2 mit Worker als Auslieferungs-/Resize-Schicht |
+| Bilder | Supabase Storage, Formatwahl im Browser über `picture` |
 | Hintergrund | Reinweiß `#FFFFFF` überall |
 | Typografie | Durchgängig Serif (Titel und Fließtext) |
 | Startseite | 5 im Admin wählbare Werke, je bildschirmfüllend |
@@ -130,22 +134,24 @@ Admin-Account sichtbar; geschrieben wird dort nur serverseitig.
 
 ---
 
-## 6. Bild-Pipeline (Cloudflare R2 + Worker)
+## 6. Bild-Pipeline
 
-1. **Upload** im Admin per Drag & Drop. Die Next.js-API erzeugt eine
-   vorsignierte URL, der Browser lädt direkt nach R2 hoch — große Dateien
-   belasten den Server nicht.
-2. **Weißabgleich-Prüfung** beim Upload: Ich messe die Eckpixel und warne, wenn
-   der Bildhintergrund nicht exakt `#FFFFFF` ist. Optional wird er automatisch
-   auf Reinweiß gezogen. Das ist die technische Absicherung für den
-   rahmenlosen Effekt.
-3. **Auslieferung** über einen Cloudflare Worker unter eigener Route: Der Worker
-   liefert je nach angefragter Breite eine passende Variante als AVIF/WebP aus
-   und cacht sie am Edge. Das Original bleibt unangetastet in R2.
-4. **Im Frontend** wird über `next/image` mit einem eigenen Loader angebunden,
-   der auf den Worker zeigt — mit sauberem `srcset` für alle Bildschirmgrößen.
-
----
+1. **Upload** im Admin per Drag & Drop, unmittelbar aus dem Browser in
+   den Speicher — unter der Anmeldung der laufenden Sitzung. Der Umweg
+   über den eigenen Server entfällt; er könnte ein Foto in voller
+   Auflösung ohnehin nicht annehmen.
+2. **Weißabgleich-Prüfung** noch davor: der Browser misst die Randstreifen
+   und warnt, wenn der Bildhintergrund nicht reinweiß ist. Auf Wunsch
+   wird er dorthin gezogen. Das ist die technische Absicherung für den
+   rahmenlosen Effekt — und sie greift, bevor Megabyte durch die Leitung
+   gehen.
+3. **Umrechnung** auf dem Server: fünf Breiten in AVIF, WebP und JPEG,
+   dazu die unveränderte Ausgangsdatei als Archiv.
+4. **Auslieferung** direkt aus dem Speicher. Welche Fassung ein Besucher
+   bekommt, entscheidet sein Browser: `picture` wählt das beste Format,
+   das er versteht, `srcset` die Größe für seinen Bildschirm. Diese Wahl
+   fällt damit erst im Moment der Darstellung — genauer, als ein Server
+   sie treffen könnte, und ohne einen Dienst dazwischen.
 
 ## 7. Design-System
 
@@ -204,7 +210,7 @@ Lusine, Eingangsbestätigung an die anfragende Person.
 | **0** | Projektgerüst: Next.js, TypeScript, Tailwind, Linting, `.env.example`, README | Repo läuft lokal |
 | **1** | Design-System: Tokens, Typografie, Raster, Motion-Bausteine | Sichtbare Stilvorlage |
 | **2** | Supabase: Tabellen, RLS, Auth, Seed mit Platzhalterwerken | Daten stehen |
-| **3** | Bild-Pipeline: R2, Worker, Upload, Weißprüfung, Image-Loader | Bilder laufen |
+| **3** | Bild-Pipeline: Upload, Weißprüfung, Umrechnung, Auslieferung | Bilder laufen |
 | **4** | Öffentliches Frontend: Start, Katalog, Werk, Serien, Über, Kontakt | Website steht |
 | **5** | Admin-Panel: Werke, Serien, Bilder, Signaturen, Texte | Lusine kann pflegen |
 | **6** | Anfragen und E-Mails | Interessenten erreichen Lusine |
@@ -217,8 +223,7 @@ Lusine, Eingangsbestätigung an die anfragende Person.
 Die Phasen 0–5 kann ich vollständig mit Platzhaltern bauen. Für Phase 6 und 7
 werden Zugänge benötigt:
 
-- Supabase-Projekt (URL, Anon-Key, Service-Key)
-- Cloudflare-Konto mit R2-Bucket und Worker-Route
+- Supabase-Projekt (URL, Anon-Key, Service-Key) — deckt Daten und Bilder ab
 - Resend-Konto für E-Mails
 - Gewünschte Domain
 - Angaben für das Impressum

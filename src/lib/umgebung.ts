@@ -104,19 +104,17 @@ export function supabaseDienstschluesselVorhanden(): boolean {
   return Boolean(supabaseAdresse() && supabaseDienstSchluessel());
 }
 
-/** Liefert der Cloudflare Worker die Bilder aus? */
-export function bildWorkerKonfiguriert(): boolean {
-  return Boolean(process.env.NEXT_PUBLIC_BILD_BASIS_URL);
-}
-
-/** Ist der R2-Speicher fuer Uploads eingerichtet? */
-export function r2Konfiguriert(): boolean {
-  return Boolean(
-    process.env.R2_KONTO_ID &&
-      process.env.R2_ZUGRIFFSSCHLUESSEL_ID &&
-      process.env.R2_GEHEIMER_SCHLUESSEL &&
-      process.env.R2_BUCKET,
-  );
+/**
+ * Koennen Bilder abgelegt werden?
+ *
+ * Der Bildspeicher gehoert zum selben Supabase-Projekt wie die
+ * Werkdaten. Es gibt darum nichts Eigenes einzurichten und nichts
+ * Eigenes, das ausfallen koennte — wer die Datenbank hat, hat auch den
+ * Speicher. Voraussetzung ist allein, dass supabase/02_speicher.sql
+ * eingespielt wurde.
+ */
+export function speicherKonfiguriert(): boolean {
+  return supabaseKonfiguriert();
 }
 
 /** Koennen E-Mails verschickt werden? */

@@ -5,6 +5,8 @@ import { useState, type ChangeEvent, type DragEvent } from "react";
 import { Werkbild } from "@/components/Werkbild";
 import { Signatur } from "@/components/Signatur";
 import { entferneBild, entferneSignatur } from "@/app/admin/aktionen";
+import { supabaseBrowser } from "@/lib/supabase/browser";
+import { BEHAELTER, speicherSchluessel } from "@/lib/bilder";
 import type { Werk } from "@/lib/typen";
 
 type Befund = {
@@ -218,36 +220,36 @@ export function Bilderverwaltung({
         }
       }
 
-      // --- Schritt 1: Hochladeadresse besorgen --------------------------
-      const vorbereitung = await fetch("/api/admin/upload/vorbereiten", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          dateiname: datei.name,
-          typ: datei.type,
-          bereich: art === "signatur" ? "signaturen" : "werke",
-        }),
-      });
+      // --- Schritt 1: die Ausgangsdatei in den Speicher -----------------
+      // Unmittelbar aus dem Browser, unter der Anmeldung dieser Sitzung.
+      // Der Umweg ueber den eigenen Server entfaellt damit — er koennte
+      // ein Gemaeldefoto in voller Aufloesung ohnehin nicht annehmen,
+      // weil Serverless-Funktionen den Datenstrom eng begrenzen.
+      const praefix = speicherSchluessel(
+        art === "signatur" ? "signaturen" : "werke",
+        datei.name,
+      );
+      const endung = datei.type === "image/png" ? "png" : "jpg";
+      const ablage = `${praefix}/original.${endung}`;
 
-      const vorbereitet = await vorbereitung.json();
-      if (!vorbereitung.ok) throw new Error(vorbereitet.fehler ?? "Vorbereitung fehlgeschlagen.");
+      const speicher = supabaseBrowser();
+      const { error: hochladeFehler } = await speicher.storage
+        .from(BEHAELTER)
+        .upload(ablage, datei, { contentType: datei.type, upsert: true });
 
-      // --- Schritt 2: unmittelbar in den Speicher -----------------------
-      const hochgeladen = await fetch(vorbereitet.adresse, {
-        method: "PUT",
-        headers: { "content-type": datei.type },
-        body: datei,
-      });
+      if (hochladeFehler) {
+        throw new Error(
+          `Die Datei konnte nicht übertragen werden: ${hochladeFehler.message}`,
+        );
+      }
 
-      if (!hochgeladen.ok) throw new Error("Die Datei konnte nicht übertragen werden.");
-
-      // --- Schritt 3: umrechnen und eintragen ---------------------------
+      // --- Schritt 2: umrechnen und eintragen ---------------------------
       const verarbeitung = await fetch("/api/admin/upload/verarbeiten", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
-          praefix: vorbereitet.praefix,
-          ablage: vorbereitet.ablage,
+          praefix,
+          ablage,
           werkId: werk.id,
           art,
           altText:

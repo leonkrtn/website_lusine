@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { holeAnfragen, holeWerke } from "@/lib/daten";
-import { demoModus, r2Konfiguriert, resendKonfiguriert } from "@/lib/umgebung";
+import { demoModus, resendKonfiguriert } from "@/lib/umgebung";
 import { STATUS_BESCHRIFTUNG } from "@/lib/typen";
 
 /**
@@ -18,8 +18,7 @@ export default async function AdminUebersicht() {
   const ohnePreis = verfuegbar.filter((werk) => werk.preisCent === null);
 
   const einrichtung = [
-    { name: "Datenbank (Supabase)", fertig: !demoModus() },
-    { name: "Bildspeicher (Cloudflare R2)", fertig: r2Konfiguriert() },
+    { name: "Datenbank und Bildspeicher (Supabase)", fertig: !demoModus() },
     { name: "E-Mail (Resend)", fertig: resendKonfiguriert() },
   ];
   const offeneEinrichtung = einrichtung.filter((eintrag) => !eintrag.fertig);

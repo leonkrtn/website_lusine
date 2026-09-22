@@ -1,94 +1,115 @@
-import { bildWorkerKonfiguriert } from "@/lib/umgebung";
+import { VARIANTEN_BREITEN, SIGNATUR_BREITEN } from "@/lib/bildformate";
+import { supabaseAdresse } from "@/lib/umgebung";
 
 /**
- * Wo ein Bild herkommt.
+ * Wo ein Bild herkommt und in welchen Fassungen es vorliegt.
  *
  * Es gibt zwei Faelle, und der Schluessel selbst sagt, welcher vorliegt:
  *
- *   "/werke/titel.jpg"  — beginnt mit einem Schraegstrich: eine Datei
- *                         unter /public. Das ist der Demo-Modus.
- *   "werke/abc123.jpg"  — ohne Schraegstrich: ein Objekt im
- *                         R2-Speicher, ausgeliefert vom Worker.
+ *   "/werke/titel.jpg"   — beginnt mit einem Schraegstrich: eine Datei
+ *                          unter /public. Das ist der Demo-Modus, hier
+ *                          gibt es nur diese eine Fassung.
+ *   "werke/abc123"       — ohne Schraegstrich: ein Ordner im Speicher.
+ *                          Darunter liegen alle Groessen in allen
+ *                          Formaten.
  *
  * Dadurch koennen beide Faelle nebeneinander bestehen, und der Umstieg
  * auf echte Bilder braucht keine Umstellung im Code.
  */
 
+/**
+ * Der Behaelter im Speicher. Heisst bewusst nicht wie die Bereiche
+ * darin ("werke", "signaturen") — sonst stuende in jeder Bildadresse
+ * "werke/werke", und Adressen aendert man spaeter nicht mehr ohne Umzug.
+ */
+export const BEHAELTER = "bilder";
+
 export function istLokalesBild(schluessel: string): boolean {
   return schluessel.startsWith("/");
 }
 
-/** Die Basisadresse des Bild-Workers, ohne abschliessenden Schraegstrich. */
-export function bildBasisUrl(): string {
-  return (process.env.NEXT_PUBLIC_BILD_BASIS_URL ?? "").replace(/\/$/, "");
+/** Die oeffentliche Adresse einer Datei im Speicher. */
+export function speicherUrl(pfad: string): string {
+  const basis = supabaseAdresse();
+  if (!basis) return "";
+
+  return `${basis}/storage/v1/object/public/${BEHAELTER}/${pfad}`;
 }
 
 /**
- * Die Adresse, unter der ein Bild erreichbar ist.
+ * Die Adresse, unter der ein Bild in einer bestimmten Fassung liegt.
  *
- * Bei lokalen Dateien der Pfad selbst — Next.js optimiert sie dann mit
- * seiner eingebauten Bildverarbeitung. Bei R2-Objekten die Adresse des
- * Workers, der die passende Variante erzeugt.
+ * Im Demo-Modus gibt es nur die eine Datei; Groesse und Format werden
+ * dort ignoriert.
  */
-export function bildQuelle(schluessel: string): string {
+export function bildQuelle(
+  schluessel: string,
+  breite?: number,
+  format: "avif" | "webp" | "jpg" | "png" = "jpg",
+): string {
   if (!schluessel) return "";
   if (istLokalesBild(schluessel)) return schluessel;
 
-  const basis = bildBasisUrl();
-  if (!basis) {
-    // R2-Schluessel ohne Worker: es gibt nichts auszuliefern.
-    return "";
-  }
+  if (!breite) return speicherUrl(`${schluessel}/original.jpg`);
 
-  return `${basis}/${schluessel.replace(/^\//, "")}`;
+  return speicherUrl(
+    `${schluessel}/${String(breite).padStart(4, "0")}.${format}`,
+  );
 }
 
 /**
- * Bildlader fuer next/image bei Bildern aus dem Worker.
+ * Ein srcset fuer ein Format.
  *
- * Der Worker erzeugt die Variante selbst, darum wird Next.js' eigene
- * Optimierung hier umgangen — sonst wuerde dasselbe Bild zweimal
- * verkleinert, was sichtbar Schaerfe kostet.
- *
- * Wichtig: Diese Funktion darf keine Werte von aussen einfangen, weil
- * sie als Eigenschaft an eine Client Component gereicht wird.
+ * Frueher hat ein eigener Dienst die passende Fassung herausgesucht.
+ * Das ist nicht noetig: der Browser weiss selbst am besten, wie breit
+ * er das Bild darstellt und welche Formate er versteht. Er bekommt die
+ * Liste und waehlt — das spart einen ganzen Dienst und ist obendrein
+ * genauer, weil die Wahl erst im Moment der Darstellung faellt.
  */
-export function workerLader({
-  src,
-  width,
-  quality,
-}: {
-  src: string;
-  width: number;
-  quality?: number;
-}): string {
-  const trenner = src.includes("?") ? "&" : "?";
-  return `${src}${trenner}b=${width}&q=${quality ?? 82}`;
+export function variantenSatz(
+  schluessel: string,
+  format: "avif" | "webp" | "jpg" | "png",
+  hoechsteBreite = 0,
+  breiten: readonly number[] = VARIANTEN_BREITEN,
+): string {
+  if (istLokalesBild(schluessel)) return "";
+
+  // Keine Fassung anbieten, die es nicht gibt: beim Hochladen wird nicht
+  // hochgerechnet, ein kleines Ausgangsbild hat also keine grossen
+  // Varianten.
+  const verfuegbar = hoechsteBreite
+    ? breiten.filter((breite) => breite <= hoechsteBreite * 1.05)
+    : breiten;
+
+  const liste = verfuegbar.length > 0 ? verfuegbar : [breiten[0]];
+
+  return liste
+    .map((breite) => `${bildQuelle(schluessel, breite, format)} ${breite}w`)
+    .join(", ");
 }
 
-/**
- * Ob fuer dieses Bild der Worker-Lader zu verwenden ist.
- * Lokale Dateien laufen weiter ueber die eingebaute Optimierung.
- */
-export function brauchtWorkerLader(schluessel: string): boolean {
-  return !istLokalesBild(schluessel) && bildWorkerKonfiguriert();
+/** Dasselbe fuer Signaturen, die eigene, kleinere Groessen haben. */
+export function signaturSatz(
+  schluessel: string,
+  format: "webp" | "png",
+): string {
+  return variantenSatz(schluessel, format, 0, SIGNATUR_BREITEN);
 }
 
 /**
  * Erzeugt aus einem Dateinamen einen Speicherschluessel.
- * Umlaute und Sonderzeichen fliegen raus — R2-Schluessel sollen sich
- * in einer Adresszeile ohne Kodierung lesen lassen.
+ * Umlaute und Sonderzeichen fliegen raus — ein Schluessel soll sich in
+ * einer Adresszeile ohne Kodierung lesen lassen.
  */
 export function speicherSchluessel(
   bereich: "werke" | "signaturen" | "seite",
   dateiname: string,
 ): string {
-  const endung = dateiname.includes(".")
-    ? dateiname.slice(dateiname.lastIndexOf(".")).toLowerCase()
-    : ".jpg";
-
   const basis = dateiname
-    .slice(0, dateiname.lastIndexOf(".") === -1 ? undefined : dateiname.lastIndexOf("."))
+    .slice(
+      0,
+      dateiname.lastIndexOf(".") === -1 ? undefined : dateiname.lastIndexOf("."),
+    )
     .toLowerCase()
     .replace(/ä/g, "ae")
     .replace(/ö/g, "oe")
@@ -102,7 +123,7 @@ export function speicherSchluessel(
   // die alte nicht ueberschreibt und Zwischenspeicher nicht veralten.
   const kennung = Math.random().toString(36).slice(2, 8);
 
-  return `${bereich}/${basis || "bild"}-${kennung}${endung}`;
+  return `${bereich}/${basis || "bild"}-${kennung}`;
 }
 
 /** Aus Cent eine lesbare Preisangabe. */

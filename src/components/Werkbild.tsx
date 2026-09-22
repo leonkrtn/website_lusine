@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { bildQuelle, istLokalesBild } from "@/lib/bilder";
+import { bildQuelle, istLokalesBild, variantenSatz } from "@/lib/bilder";
 import { VARIANTEN_BREITEN } from "@/lib/bildformate";
 
 type Props = {
@@ -7,7 +7,7 @@ type Props = {
   alt: string;
   breitePx: number;
   hoehePx: number;
-  /** Wie breit das Bild im Layout wird — bestimmt, welche Variante laedt. */
+  /** Wie breit das Bild im Layout wird — bestimmt, welche Fassung laedt. */
   sizes: string;
   /** Nur fuer das erste Bild der Startseite setzen. */
   vorrang?: boolean;
@@ -24,11 +24,14 @@ type Props = {
  *
  * Zwei Auslieferungswege, je nachdem woher das Bild kommt:
  *
- *   lokal   — eine Datei unter /public, die Next.js selbst optimiert.
- *   Worker  — ein Bild aus dem R2-Speicher. Dort liegen die Varianten
- *             bereits fertig; ein zweiter Verkleinerungsschritt durch
- *             Next.js wuerde nur Schaerfe kosten. Darum hier ein
- *             einfaches img mit selbst gebautem srcset.
+ *   lokal     — eine Datei unter /public, die Next.js selbst optimiert.
+ *   Speicher  — alle Groessen liegen fertig im Speicher. Statt sie von
+ *               einem Dienst aussuchen zu lassen, bekommt der Browser
+ *               die ganze Liste: `picture` waehlt das beste Format, das
+ *               er versteht, `srcset` die passende Groesse fuer seinen
+ *               Bildschirm. Diese Wahl faellt damit erst im Moment der
+ *               Darstellung — genauer, als ein Server sie treffen
+ *               koennte, und ohne einen einzigen Dienst dazwischen.
  */
 export function Werkbild({
   schluessel,
@@ -39,16 +42,12 @@ export function Werkbild({
   vorrang = false,
   className = "",
 }: Props) {
-  const quelle = bildQuelle(schluessel);
-  if (!quelle) return null;
-
-  const seitenverhaeltnis =
-    breitePx > 0 && hoehePx > 0 ? `${breitePx} / ${hoehePx}` : undefined;
+  if (!schluessel) return null;
 
   if (istLokalesBild(schluessel)) {
     return (
       <Image
-        src={quelle}
+        src={schluessel}
         alt={alt}
         width={breitePx || 1600}
         height={hoehePx || 2000}
@@ -60,33 +59,41 @@ export function Werkbild({
     );
   }
 
-  // Nur Varianten anbieten, die es auch gibt: der Worker legt keine
-  // Groesse an, die ueber das Ausgangsbild hinausginge.
-  const breiten = VARIANTEN_BREITEN.filter(
-    (breite) => !breitePx || breite <= breitePx * 1.05,
-  );
-  const verfuegbar = breiten.length > 0 ? breiten : [VARIANTEN_BREITEN[0]];
+  const groesste =
+    VARIANTEN_BREITEN.filter(
+      (breite) => !breitePx || breite <= breitePx * 1.05,
+    ).at(-1) ?? VARIANTEN_BREITEN[0];
 
-  const srcSet = verfuegbar
-    .map((breite) => `${quelle}?b=${breite} ${breite}w`)
-    .join(", ");
+  const seitenverhaeltnis =
+    breitePx > 0 && hoehePx > 0 ? `${breitePx} / ${hoehePx}` : undefined;
 
   return (
-    /* Die Varianten liegen fertig im Speicher; next/image wuerde sie ein
-       zweites Mal verkleinern und dabei Schaerfe kosten. */
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
-      src={`${quelle}?b=${verfuegbar[verfuegbar.length - 1]}`}
-      srcSet={srcSet}
-      sizes={sizes}
-      alt={alt}
-      width={breitePx || undefined}
-      height={hoehePx || undefined}
-      loading={vorrang ? "eager" : "lazy"}
-      fetchPriority={vorrang ? "high" : "auto"}
-      decoding="async"
-      style={seitenverhaeltnis ? { aspectRatio: seitenverhaeltnis } : undefined}
-      className={`werkbild h-auto w-full ${className}`}
-    />
+    <picture>
+      <source
+        type="image/avif"
+        srcSet={variantenSatz(schluessel, "avif", breitePx)}
+        sizes={sizes}
+      />
+      <source
+        type="image/webp"
+        srcSet={variantenSatz(schluessel, "webp", breitePx)}
+        sizes={sizes}
+      />
+      {/* Die Varianten liegen fertig im Speicher; next/image wuerde sie ein
+          zweites Mal verkleinern und dabei Schaerfe kosten. */}
+      <img
+        src={bildQuelle(schluessel, groesste, "jpg")}
+        srcSet={variantenSatz(schluessel, "jpg", breitePx)}
+        sizes={sizes}
+        alt={alt}
+        width={breitePx || undefined}
+        height={hoehePx || undefined}
+        loading={vorrang ? "eager" : "lazy"}
+        fetchPriority={vorrang ? "high" : "auto"}
+        decoding="async"
+        style={seitenverhaeltnis ? { aspectRatio: seitenverhaeltnis } : undefined}
+        className={`werkbild h-auto w-full ${className}`}
+      />
+    </picture>
   );
 }

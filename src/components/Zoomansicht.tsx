@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { bildQuelle, istLokalesBild } from "@/lib/bilder";
+import { bildQuelle, istLokalesBild, variantenSatz } from "@/lib/bilder";
+import { VARIANTEN_BREITEN } from "@/lib/bildformate";
 
 type Props = {
   schluessel: string;
@@ -83,12 +84,12 @@ export function Zoomansicht({ schluessel, alt, offen, beimSchliessen }: Props) {
 
   if (!offen) return null;
 
-  const quelle = bildQuelle(schluessel);
-  if (!quelle) return null;
-
-  // In der Zoomansicht immer die groesste verfuegbare Variante: hier
-  // geht es ausschliesslich um Schaerfe.
-  const adresse = istLokalesBild(schluessel) ? quelle : `${quelle}?b=3840`;
+  // In der Zoomansicht zaehlt allein die Schaerfe, darum die groesste
+  // vorhandene Fassung.
+  const lokal = istLokalesBild(schluessel);
+  const groesste = VARIANTEN_BREITEN.at(-1);
+  const adresse = lokal ? schluessel : bildQuelle(schluessel, groesste, "jpg");
+  if (!adresse) return null;
 
   /** Beim Hineinzoomen auf die angeklickte Stelle ausrichten. */
   const beiKlick = (ereignis: React.MouseEvent<HTMLElement>) => {
@@ -148,6 +149,7 @@ export function Zoomansicht({ schluessel, alt, offen, beimSchliessen }: Props) {
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={adresse}
+          srcSet={lokal ? undefined : variantenSatz(schluessel, "jpg")}
           alt={alt}
           onClick={beiKlick}
           style={{
