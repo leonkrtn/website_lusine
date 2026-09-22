@@ -58,7 +58,7 @@ export default async function Startseite() {
       {/* --- Der Saaltext --------------------------------------------------
           Für sich allein, nichts daneben. Er spricht von der ganzen
           Auswahl, nicht von einem Werk. */}
-      <section className="mx-auto max-w-[110rem] px-4 pt-16 pb-atem sm:px-10 lg:px-16">
+      <section className="seitenanfang mx-auto max-w-[110rem] px-4 pb-atem sm:px-10 lg:px-16">
         <Wortweise
           text={texte.startseiteAuftakt}
           takt={45}

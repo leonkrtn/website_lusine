@@ -101,11 +101,14 @@ export default async function WerkSeite({ params }: Props) {
           kommt, sieht sein Werk an diesen Platz wandern. Nichts
           blendet darunter, nichts schneidet gleichzeitig hinein. */}
       {bild && (
-        <section className="mx-auto max-w-[110rem] px-4 pt-2 sm:px-10 lg:px-16">
+        <section className="werkanfang mx-auto max-w-[110rem] px-4 sm:px-10 lg:px-16">
           <div className="werkreihe werkreihe--mitte">
             <div
               className="werkflaeche"
-              style={werkBreiteStil(bild.breitePx, bild.hoehePx, 100, 64, 88, 6)}
+              /* Der Abzug deckt Kopfzeile, Verlauf und den Rand
+                 darunter ab — siehe `.werkanfang` in globals.css.
+                 Ohne ihn stünde das Werk unter der Falz. */
+              style={werkBreiteStil(bild.breitePx, bild.hoehePx, 100, 64, 88, 10)}
             >
               <ViewTransition name={`werk-${werk.id}`} share="wanderung" default="none">
                 <div>

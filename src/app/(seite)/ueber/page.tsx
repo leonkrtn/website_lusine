@@ -20,7 +20,7 @@ export default async function UeberSeite() {
   const portraet = texte.ueberPortraitSchluessel ?? (demoModus() ? "/portraet-lusine.jpg" : null);
 
   return (
-    <div className="mx-auto max-w-[110rem] px-4 pt-16 sm:px-10 lg:px-16">
+    <div className="seitenanfang mx-auto max-w-[110rem] px-4 sm:px-10 lg:px-16">
       <div className="grid grid-cols-1 gap-16 md:grid-cols-[1fr_1.1fr] md:gap-24 lg:gap-32">
         <Einblenden>
           {portraet && (

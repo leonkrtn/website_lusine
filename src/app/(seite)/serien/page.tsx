@@ -34,7 +34,7 @@ export default async function SerienSeite() {
   );
 
   return (
-    <div className="mx-auto max-w-[110rem] px-4 pt-16 sm:px-10 lg:px-16">
+    <div className="seitenanfang mx-auto max-w-[110rem] px-4 sm:px-10 lg:px-16">
       <Einblenden als="header">
         <h1 className="text-gross leading-tight">Serien</h1>
         <p className="erzaehlung mt-8">

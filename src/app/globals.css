@@ -73,6 +73,14 @@
    -------------------------------------------------------------------------- */
 
 :root {
+  /* Wie weit der Verlauf unter der Kopfzeile reicht. Er beginnt
+     deckend weiss und wird erst nach dieser Strecke durchsichtig —
+     was darunter liegt, ist also nicht bloss zart, sondern am oberen
+     Ende schlicht verdeckt. Alles, was am Seitenanfang fest steht,
+     muss diese Strecke kennen. Sie steht darum hier und nicht als
+     Zahl in der Regel weiter unten. */
+  --kopf-auslauf: 2.5rem;
+
   /* Ausdruecklich KEIN Dark Mode. Er steht im direkten Widerspruch zum
      rahmenlosen Weiss-auf-Weiss-Prinzip: ein auf Weiss freigestelltes
      Gemaelde bekaeme auf dunklem Grund sofort eine sichtbare Kante. */
@@ -131,6 +139,30 @@ body {
 :focus-visible {
   outline: 1px solid var(--color-tinte);
   outline-offset: 4px;
+}
+
+/* Wo eine Seite anfaengt.
+
+   Der Verlauf unter der Kopfzeile ist an seiner Oberkante deckend
+   weiss. Was direkt darunter steht, ist nicht zart — es ist weg, und
+   die naechsten Zeilen sind aufgehellt. Am Seitenanfang steht der
+   Inhalt aber fest; er scrollt nicht durch, sondern bleibt dort. Er
+   braucht darum echten Abstand, nicht nur ein bisschen Luft.
+
+   Vorher waren es vier Rem von der Kopfzeile aus — nach Abzug des
+   Verlaufs blieben vierundzwanzig Punkte. Auf dem Handy, wo die
+   Kopfzeile den groesseren Teil des Bildschirms einnimmt, sah der
+   erste Satz dadurch aus, als klebte er am Rand. */
+.seitenanfang {
+  padding-top: calc(var(--kopf-auslauf) + 3.5rem);
+}
+
+/* Ein Gemaelde am Seitenanfang braucht nur knapp aus dem Verlauf
+   heraus: es steht ohnehin fuer sich, und jeder Punkt Hoehe zaehlt.
+   Wer diesen Wert aendert, muss den Hoehenabzug auf der Werkseite
+   mitziehen, sonst steht das Werk wieder unter der Falz. */
+.werkanfang {
+  padding-top: calc(var(--kopf-auslauf) + 0.75rem);
 }
 
 /* --------------------------------------------------------------------------
@@ -492,6 +524,64 @@ body {
     width: auto;
     margin-bottom: 0;
   }
+}
+
+/* 4d. Das Zeichen für das Menü.
+
+   Zwei Striche, nicht drei. Drei sind die Gewohnheit aus dem
+   Baukasten; zwei sagen dasselbe und sind das ruhigere Zeichen — und
+   auf einer Seite, deren ganzes Gerüst aus Haarlinien besteht, das
+   einzig stimmige. Ein Punkt stark, wie jede andere Linie hier auch.
+
+   Beim Öffnen drehen sich die beiden zum Kreuz. Das ist keine
+   Zierde: dieselben zwei Striche werden zum Schließen-Zeichen, statt
+   dass ein Wort durch ein anderes ersetzt wird. Man sieht, dass es
+   derselbe Schalter ist.
+
+   Die Fläche zum Antippen ist größer als das Zeichen — ein Finger
+   trifft keine vierundzwanzig auf elf Punkte. */
+.burger {
+  position: relative;
+  display: block;
+  width: 1.5rem;
+  height: 0.6875rem;
+  /* Vergrößert die Trefferfläche, ohne das Zeichen zu verrücken. */
+  padding: 0;
+  margin: 0.5rem 0;
+  box-sizing: content-box;
+}
+
+.burger::before {
+  content: "";
+  position: absolute;
+  inset: -0.75rem -0.5rem;
+}
+
+.burger span {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background-color: var(--color-tinte);
+  transition: transform 520ms var(--ease-ruhig);
+}
+
+.burger span:first-child {
+  top: 0;
+}
+
+.burger span:last-child {
+  bottom: 0;
+}
+
+/* Beide wandern auf die Mitte und kreuzen sich dort. Die halbe
+   Strecke ist die halbe Höhe abzüglich der halben Strichstärke. */
+.burger[data-offen="ja"] span:first-child {
+  transform: translateY(0.3125rem) rotate(45deg);
+}
+
+.burger[data-offen="ja"] span:last-child {
+  transform: translateY(-0.3125rem) rotate(-45deg);
 }
 
 /* 5. Wortweises Erscheinen. Ein Satz baut sich auf, statt einfach da
@@ -878,7 +968,7 @@ body {
   top: 100%;
   left: 0;
   right: 0;
-  height: 2.5rem;
+  height: var(--kopf-auslauf);
   pointer-events: none;
   background: linear-gradient(
     to bottom,

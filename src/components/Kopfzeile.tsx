@@ -60,14 +60,22 @@ export function Kopfzeile() {
           </ul>
         </nav>
 
+        {/* Zwei Haarlinien, die sich beim Öffnen zum Kreuz drehen.
+            Der Knopf trägt keinen Text, darum braucht er einen Namen
+            — und der wechselt mit dem Zustand, damit ein Vorlesegerät
+            sagt, was der nächste Druck bewirkt. Das Zeichen selbst
+            bleibt außen vor: `aria-hidden` an den Strichen. */}
         <button
           type="button"
           onClick={() => setMenueOffen((offen) => !offen)}
           aria-expanded={menueOffen}
           aria-controls="mobile-navigation"
-          className="text-klein text-tinte-leise sm:hidden"
+          aria-label={menueOffen ? "Menü schließen" : "Menü öffnen"}
+          data-offen={menueOffen ? "ja" : "nein"}
+          className="burger self-center sm:hidden"
         >
-          {menueOffen ? "Schließen" : "Menü"}
+          <span aria-hidden="true" />
+          <span aria-hidden="true" />
         </button>
       </div>
 
