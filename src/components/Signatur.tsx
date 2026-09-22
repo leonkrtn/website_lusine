@@ -40,6 +40,9 @@ export function Signatur({
       src={quelle}
       alt=""
       aria-hidden="true"
+      /* Eine Signatur allein auf einer Pinnwand wäre ein Autogramm
+         ohne Bild. */
+      data-pin-nopin="true"
       data-werk={werkTitel}
       loading="lazy"
       decoding="async"

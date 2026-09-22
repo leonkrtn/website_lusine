@@ -1,3 +1,7 @@
+import { masseText } from "@/lib/bilder";
+import { seitenUrl } from "@/lib/umgebung";
+import type { Werk } from "@/lib/typen";
+
 /**
  * Berechnet die Breite, mit der ein Werk auf der Seite steht.
  *
@@ -117,4 +121,49 @@ export function haengung(nummer: number): Haengung {
  */
 export function haengungKlasse(achse: Haengung["achse"]): string {
   return `werkreihe werkreihe--${achse}`;
+}
+
+/**
+ * Die Beschreibung, die ein Pin mitnimmt.
+ *
+ * Ein Pin wandert weiter, von Pinnwand zu Pinnwand, und nimmt nur
+ * diesen einen Satz mit. Darum steht darin, was auf dem Saalschild
+ * steht, und dazu der Name — draussen haengen viele Haende.
+ */
+function pinBeschreibung(werk: Werk): string {
+  const masse = masseText(werk.breiteCm, werk.hoeheCm, werk.tiefeCm);
+  return [
+    `${werk.titel}${werk.jahr ? `, ${werk.jahr}` : ""}`,
+    werk.technik,
+    masse,
+    "Original von Lusine — LUART",
+  ]
+    .filter(Boolean)
+    .join(" · ");
+}
+
+/** Was Pinterest mitnimmt, wenn jemand ein Werk von der Seite merkt. */
+export type PinAngaben = {
+  /** Das Bild, das auf der Pinnwand landet. */
+  bild: string;
+  beschreibung: string;
+  /** Wohin der Pin zurückführt. */
+  adresse: string;
+};
+
+/**
+ * Die Pin-Angaben eines Werks. Nur auf dem Server aufrufen: die
+ * Adresse der Seite kennt der Browser nicht.
+ *
+ * Gemerkt wird nicht das nackte Foto, sondern das Werk mit seinem
+ * Schild (`/werke/<slug>/bild/pinterest`) — so trägt der Pin Titel,
+ * Name und Adresse mit, wohin er auch weitergemerkt wird.
+ */
+export function pinFuer(werk: Werk): PinAngaben {
+  const adresse = `${seitenUrl()}/werke/${werk.slug}`;
+  return {
+    bild: `${adresse}/bild/pinterest`,
+    beschreibung: pinBeschreibung(werk),
+    adresse,
+  };
 }

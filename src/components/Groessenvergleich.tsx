@@ -69,6 +69,10 @@ export function Groessenvergleich({
               breitePx={breitePx}
               hoehePx={hoehePx}
               sizes="20rem"
+              /* Das Werk im Vergleich ist verkleinert und steht neben
+                 einem Blatt Papier — gemerkt werden soll das Werk
+                 selbst, nicht diese Skizze. */
+              pin={false}
             />
           </div>
 

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Werkformular } from "@/components/admin/Werkformular";
 import { Bilderverwaltung } from "@/components/admin/Bilderverwaltung";
+import { Weitergabe } from "@/components/admin/Weitergabe";
 import { holeSerien, holeWerkNachId } from "@/lib/daten";
 import { demoModus } from "@/lib/umgebung";
 
@@ -49,6 +50,10 @@ export default async function WerkBearbeiten({ params, searchParams }: Props) {
 
       <div className="mt-16">
         <Werkformular werk={werk} serien={serien} gesperrt={gesperrt} />
+      </div>
+
+      <div className="mt-16">
+        <Weitergabe werk={werk} />
       </div>
     </div>
   );
