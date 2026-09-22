@@ -35,6 +35,17 @@ function zuZahl(wert: unknown): number | null {
   return Number.isFinite(zahl) ? zahl : null;
 }
 
+/**
+ * Laesst nur eine sechsstellige Hexfarbe durch.
+ *
+ * Der Wert wird als CSS-Variable ins Markup geschrieben. Was von dort
+ * in ein `style`-Attribut wandert, muss geprueft sein — auch wenn im
+ * Admin nur Lusine schreibt.
+ */
+function istHexfarbe(wert: unknown): boolean {
+  return typeof wert === "string" && /^#[0-9a-fA-F]{6}$/.test(wert);
+}
+
 function zuSerie(zeile: Zeile): Serie {
   return {
     id: String(zeile.id),
@@ -88,6 +99,7 @@ function zuWerk(zeile: Zeile): Werk {
           ? "reserviert"
           : "verfuegbar",
     anfrageErlaubt: zeile.anfrage_erlaubt !== false,
+    leitfarbe: istHexfarbe(zeile.leitfarbe) ? String(zeile.leitfarbe) : null,
     signaturSchluessel: zeile.signatur_schluessel
       ? String(zeile.signatur_schluessel)
       : null,

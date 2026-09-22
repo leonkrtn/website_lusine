@@ -101,6 +101,17 @@ Im Code sichern sie zwei Vorkehrungen ab:
    Seite und alle übergeordneten Flächen reinweiß sind. Lohnt sich
    besonders, nachdem echte Aufnahmen die Platzhalter ersetzt haben.
 
+**Was davor liegen darf und was nie dahinter.** Weil Bildgrund und
+Seitengrund derselbe Weißton sind, kann Schrift über die Kante eines
+Werks hinauslaufen, ohne sie zu verraten — das nutzt `.werkschild` auf
+der Startseite. Umgekehrt gilt das nicht: alles, was **hinter** einem
+Werk läge, schaute an dessen Rand hervor und zeichnete genau den Umriss,
+den es nicht geben darf. Davor ist erlaubt, dahinter nie.
+
+Trägt eine Aufnahme Farbe bis an die Unterkante, steht die Schrift auf
+Farbe statt auf Weiß. Dafür gibt es `--schild-hoch`; auf `0` gesetzt ist
+die Überlappung weg.
+
 **Die dritte Vorkehrung liegt außerhalb des Codes.** Es gab einmal eine
 Weißmessung beim Hochladen, die den Bildhintergrund maß und auf Wunsch
 korrigierte. Sie wurde auf Wunsch entfernt: Bilder werden unverändert
@@ -128,10 +139,48 @@ Daten keine Zeile in den Seiten.
 eine Datei liegt, welche Größen es gibt, wie ein `srcset` aussieht. Die
 Anzeigekomponenten wissen nichts über den Speicherort.
 
+**`src/schriften/`** — EB Garamond, selbst gehostet statt über
+`next/font/google`. Die Google-Auslieferung enthält **nur Kerning**;
+Mediävalziffern, Kapitälchen und Ligaturen fehlen dort, und genau die
+tragen den Satz. Herkunft, Lizenz und der Befehl, mit dem die Dateien
+gebaut wurden, stehen in `src/schriften/HERKUNFT.md`.
+
+Eine Eigenheit ist dort festgehalten, weil sie sonst niemand findet:
+bei `lang="de"` ersetzt die Schrift über `locl` das `f` durch eine
+deutsche Variante, die das Kapitälchen-Lookup dann nicht mehr erfasst.
+Darum steht in `.beschriftung` ein `font-feature-settings: "locl" 0`.
+Ohne das bliebe in „Öl auf Leinwand" genau ein Buchstabe gemein.
+
 Weiteres:
 
 - `src/app/(seite)/` — die öffentliche Galerie, `src/app/admin/` — die
   Verwaltung. Die Trennung als Route Group gibt beiden ein eigenes Layout.
+- Der Katalog unter `/werke` kennt drei Ansichten: **Wand** (alle gleich
+  groß), **Maßstab** (im wahren Größenverhältnis, gerechnet aus
+  `hoeheCm`) und **Verzeichnis** (als Liste). Alle drei stehen fertig im
+  HTML, `Katalog.tsx` legt nur ein `data-Attribut` um. Ohne JavaScript
+  bleibt die Wand stehen.
+- Die Startseite hängt die Werke abwechselnd links, mittig und rechts.
+  Die Folge steht fest in `haengung()` in `src/lib/darstellung.ts` — eine
+  Wand, die sich bei jedem Aufruf neu ordnet, wäre keine Hängung. Der
+  Auftaktsatz teilt sich einen Bildschirm mit dem ersten Werk, statt
+  allein einen zu belegen.
+- **Werke erscheinen scrollgebunden, nicht auf eigener Uhr.** `.auftritt`
+  in `globals.css` ist eine einzige Kurve an einer einzigen Zeitachse,
+  und die Zeitachse ist das Scrollen. Vorher waren es zwei Bewegungen —
+  ein Einblenden ab einer Schwelle und ein Parallax darunter —, die sich
+  gegenseitig störten. Wer hier etwas ergänzt: **eine** Bewegung je
+  Gegenstand, sonst zuckt es wieder.
+- `--tiefe` sagt, auf welcher Ebene etwas liegt. Was näher liegt,
+  wandert beim Scrollen weiter; das Werk selbst liegt am tiefsten. Daher
+  kommt der Raum.
+- Beim Seitenwechsel wandert ein Werk per View Transition an seinen
+  neuen Platz. Der alte `seitenwechsel`-Übergang läuft darum nur noch,
+  wo der Browser keine View Transitions kann — beides zugleich ergab
+  zwei Bewegungen auf demselben Bild.
+- Jedes Werk kann eine **Leitfarbe** tragen (Hexwert, von Hand im Admin).
+  Sie färbt nie eine Fläche, nur die Auswahlmarkierung und die Linie über
+  dem Datenblatt — der Grund bleibt überall reinweiß.
 - Öffentliche Seiten lesen über `supabaseOeffentlich()` **ohne Cookies**,
   damit Next.js sie vorrendern kann. Der Cookie-Client bleibt dem
   Admin-Bereich vorbehalten.

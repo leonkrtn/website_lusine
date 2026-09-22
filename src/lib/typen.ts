@@ -82,6 +82,17 @@ export type Werk = {
   status: WerkStatus;
   anfrageErlaubt: boolean;
 
+  /**
+   * Die eine Farbe, die dieses Werk traegt — als Hexwert, von Hand im
+   * Admin gesetzt. Nicht aus dem Bild gerechnet: die Aufnahmen werden
+   * nicht angetastet, und welche Farbe ein Werk traegt, weiss die
+   * Malerin besser als ein Mittelwert.
+   *
+   * Sie faerbt nie eine Flaeche, immer nur eine Linie oder die
+   * Auswahlmarkierung. Der Grund bleibt ueberall reinweiss.
+   */
+  leitfarbe: string | null;
+
   /** Die individuelle Signatur dieses Werks als freigestelltes PNG. */
   signaturSchluessel: string | null;
 

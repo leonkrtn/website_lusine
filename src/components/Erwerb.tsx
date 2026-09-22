@@ -28,7 +28,9 @@ export function Erwerb({ werk }: { werk: Werk }) {
         <p className="text-lead text-tinte-leise">Verkauft</p>
       ) : (
         <>
-          <p className="text-lead">{preisText(werk.preisCent, werk.waehrung)}</p>
+          <p className="zahlenspalte text-lead">
+            {preisText(werk.preisCent, werk.waehrung)}
+          </p>
 
           {werk.preisCent !== null && (
             <p className="beschriftung mt-3">

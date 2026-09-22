@@ -59,7 +59,7 @@ export default async function SerienSeite() {
                   {bild && (
                     <Link href={`/serien/${serie.slug}`} className="block">
                       <div
-                        className="mx-auto"
+                        className="werkflaeche mx-auto"
                         style={werkBreiteStil(bild.breitePx, bild.hoehePx, 58, 30)}
                       >
                         <Werkbild

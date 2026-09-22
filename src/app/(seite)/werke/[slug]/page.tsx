@@ -1,8 +1,9 @@
+import type { CSSProperties } from "react";
+import { ViewTransition } from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Einblenden } from "@/components/Einblenden";
-import { Parallax } from "@/components/Parallax";
 import { WerkMitZoom } from "@/components/WerkMitZoom";
 import { Werkbild } from "@/components/Werkbild";
 import { Signatur } from "@/components/Signatur";
@@ -81,22 +82,40 @@ export default async function WerkSeite({ params }: Props) {
   ].filter((eintrag): eintrag is { feld: string; wert: string } => Boolean(eintrag));
 
   return (
-    <article>
-      {/* --- 1. Das Werk, groß und allein --------------------------------- */}
+    <article
+      /* Die Leitfarbe gilt nur innerhalb dieses Werks. Sie faerbt die
+         Auswahlmarkierung und die Linie ueber dem Datenblatt — nie
+         eine Flaeche, damit das Papier reinweiss bleibt. Steht keine
+         da, greifen ueberall die Standardwerte. */
+      style={
+        werk.leitfarbe ? ({ "--leitfarbe": werk.leitfarbe } as CSSProperties) : undefined
+      }
+      data-leitfarbe={werk.leitfarbe ? "ja" : undefined}
+    >
+      {/* --- 1. Das Werk, groß und allein ---------------------------------
+          Genau eine Bewegung beim Ankommen: wer aus dem Katalog kommt,
+          sieht sein Werk an diesen Platz wandern. Sonst steht es
+          einfach da. Nichts blendet darunter, nichts schneidet
+          gleichzeitig hinein — beides gab es hier einmal, und zu
+          dritt ergab das kein Ankommen, sondern ein Zucken. */}
       {bild && (
         <section className="flex justify-center px-4 pt-8">
           <div
-            className="w-full"
-            style={werkBreiteStil(bild.breitePx, bild.hoehePx, 80, 56)}
+            className="werkflaeche w-full"
+            style={werkBreiteStil(bild.breitePx, bild.hoehePx, 86, 64)}
           >
-            <WerkMitZoom
-              schluessel={bild.schluessel}
-              alt={bild.altText || werk.titel}
-              breitePx={bild.breitePx}
-              hoehePx={bild.hoehePx}
-              sizes="(max-width: 640px) 92vw, (max-width: 1024px) 78vw, 56rem"
-              vorrang
-            />
+            <ViewTransition name={`werk-${werk.id}`} share="wanderung" default="none">
+              <div>
+                <WerkMitZoom
+                  schluessel={bild.schluessel}
+                  alt={bild.altText || werk.titel}
+                  breitePx={bild.breitePx}
+                  hoehePx={bild.hoehePx}
+                  sizes="(max-width: 640px) 92vw, (max-width: 1024px) 78vw, 64rem"
+                  vorrang
+                />
+              </div>
+            </ViewTransition>
           </div>
         </section>
       )}
@@ -171,18 +190,19 @@ export default async function WerkSeite({ params }: Props) {
       {details.length > 0 && (
         <section className="mt-stille px-4" aria-label="Detailaufnahmen">
           <div className="mx-auto grid max-w-5xl grid-cols-1 gap-16 sm:grid-cols-2">
-            {details.map((detail, nummer) => (
-              <Einblenden key={detail.id} verzoegerung={nummer * 120}>
-                <Parallax staerke={0.05}>
-                  <Werkbild
-                    schluessel={detail.schluessel}
-                    alt={detail.altText || `${werk.titel} — Detail`}
-                    breitePx={detail.breitePx}
-                    hoehePx={detail.hoehePx}
-                    sizes="(max-width: 640px) 92vw, 34rem"
-                  />
-                </Parallax>
-              </Einblenden>
+            {details.map((detail) => (
+              /* Der Ausschnitt oeffnet sich beim Scrollen aus der Mitte
+                 heraus — hier ist ein Rechteck aus Farbe die Sache
+                 selbst, nicht ein zugeschnittenes Werk. */
+              <div key={detail.id} className="naharbeit">
+                <Werkbild
+                  schluessel={detail.schluessel}
+                  alt={detail.altText || `${werk.titel} — Detail`}
+                  breitePx={detail.breitePx}
+                  hoehePx={detail.hoehePx}
+                  sizes="(max-width: 640px) 92vw, 34rem"
+                />
+              </div>
             ))}
           </div>
           <p className="beschriftung mt-10 text-center">
@@ -193,7 +213,7 @@ export default async function WerkSeite({ params }: Props) {
 
       {/* --- 6. Datenblatt und 7. Erwerb ----------------------------------- */}
       <section className="mt-stille px-4">
-        <div className="mx-auto grid max-w-5xl grid-cols-1 gap-16 border-t border-linie pt-16 md:grid-cols-2 md:gap-24">
+        <div className="leitlinie mx-auto grid max-w-5xl grid-cols-1 gap-16 pt-16 md:grid-cols-2 md:gap-24">
           <Einblenden>
             <h2 className="beschriftung">Das Werk</h2>
             <dl className="mt-8">
@@ -203,7 +223,7 @@ export default async function WerkSeite({ params }: Props) {
                   className="flex justify-between gap-6 border-b border-linie py-3 text-klein"
                 >
                   <dt className="text-tinte-leise">{eintrag.feld}</dt>
-                  <dd className="text-right">{eintrag.wert}</dd>
+                  <dd className="zahlenspalte text-right">{eintrag.wert}</dd>
                 </div>
               ))}
             </dl>

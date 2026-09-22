@@ -1,6 +1,13 @@
 "use client";
 
-import { useEffect, useRef, useState, type ElementType, type ReactNode } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type ElementType,
+  type ReactNode,
+} from "react";
 
 type Props = {
   children: ReactNode;
@@ -9,14 +16,10 @@ type Props = {
   verzoegerung?: number;
   /** Wie weit das Element im Bild sein muss, bevor es erscheint. */
   schwelle?: number;
-  /**
-   * Wie das Element erscheint. "weich" hebt es nur an; "tiefe" laesst
-   * es zusaetzlich einen Schritt herantreten. Beides ist in
-   * globals.css definiert.
-   */
-  bewegung?: "weich" | "tiefe";
   als?: ElementType;
   className?: string;
+  /** Wird mit der Verzoegerung zusammengefuehrt, nicht ersetzt. */
+  style?: CSSProperties;
 };
 
 /**
@@ -30,9 +33,9 @@ export function Einblenden({
   children,
   verzoegerung = 0,
   schwelle = 0.12,
-  bewegung = "weich",
   als: Element = "div",
   className = "",
+  style,
 }: Props) {
   const ref = useRef<HTMLElement>(null);
   const [sichtbar, setSichtbar] = useState(false);
@@ -70,8 +73,9 @@ export function Einblenden({
       ref={ref}
       className={`einblenden ${className}`}
       data-sichtbar={sichtbar ? "true" : "false"}
-      data-bewegung={bewegung}
-      style={verzoegerung ? { transitionDelay: `${verzoegerung}ms` } : undefined}
+      style={
+        verzoegerung ? { ...style, transitionDelay: `${verzoegerung}ms` } : style
+      }
     >
       {children}
     </Element>
