@@ -1,4 +1,6 @@
-import Link from "next/link";
+import { WerkVerweis } from "@/components/WerkVerweis";
+import { hauptbild } from "@/lib/darstellung";
+import { werkseitenQuelle } from "@/lib/werkseitenbild";
 import { masseText, preisText } from "@/lib/bilder";
 import { STATUS_BESCHRIFTUNG, type Werk } from "@/lib/typen";
 
@@ -83,9 +85,13 @@ export function Saalschild({
     >
       <Ueberschrift id={titelId} className="saalschild-titel">
         {verlinkt ? (
-          <Link href={`/werke/${werk.slug}`} className="unterstrich">
+          <WerkVerweis
+            href={`/werke/${werk.slug}`}
+            quelle={werkseitenQuelle(hauptbild(werk.bilder))}
+            className="unterstrich"
+          >
             {werk.titel}
-          </Link>
+          </WerkVerweis>
         ) : (
           werk.titel
         )}

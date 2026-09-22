@@ -1,3 +1,4 @@
+import { ViewTransition } from "react";
 import Link from "next/link";
 import { Auftakt } from "@/components/Auftakt";
 import { Einblenden } from "@/components/Einblenden";
@@ -116,6 +117,21 @@ export default async function Startseite() {
                 className="auftritt werkflaeche heranruecken"
                 style={{ ...flaeche, "--tiefe": 0.3 } as React.CSSProperties}
               >
+                {/* Derselbe Name wie im Katalog und auf der Werkseite:
+                    wer hier auf den Titel tippt, sieht das Werk an
+                    seinen Platz wandern, statt dass zwei Seiten
+                    ineinander blenden. */}
+                <ViewTransition name={`werk-${werk.id}`} share="wanderung" default="none">
+                  <div>
+                    <WerkMitZoom
+                      schluessel={bild.schluessel}
+                      alt={bild.altText || werk.titel}
+                      breitePx={bild.breitePx}
+                      hoehePx={bild.hoehePx}
+                      sizes="(max-width: 640px) 88vw, (max-width: 1024px) 82vw, 74rem"
+                    />
+                  </div>
+                </ViewTransition>
                 <WerkMitZoom
                   schluessel={bild.schluessel}
                   alt={bild.altText || werk.titel}

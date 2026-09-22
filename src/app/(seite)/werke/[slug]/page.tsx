@@ -17,6 +17,7 @@ import {
 import { absaetze, detailbilder, hauptbild, pinFuer } from "@/lib/darstellung";
 import { masseText } from "@/lib/bilder";
 import { STATUS_BESCHRIFTUNG } from "@/lib/typen";
+import { WERKSEITE_SIZES } from "@/lib/werkseitenbild";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -103,6 +104,43 @@ export default async function WerkSeite({ params }: Props) {
           das Werk hierher wandern; wer von draußen kommt, beginnt am
           Pinselstrich. Siehe `Werkanfang.tsx`. */}
       {bild && (
+        <section className="werkanfang mx-auto max-w-[110rem] px-4 sm:px-10 lg:px-16">
+          <div className="werkreihe werkreihe--mitte">
+            <div
+              className="werkflaeche"
+              /* Der Abzug deckt Kopfzeile, Verlauf und den Rand
+                 darunter ab — siehe `.werkanfang` in globals.css.
+                 Ohne ihn stünde das Werk unter der Falz. */
+              style={werkBreiteStil(bild.breitePx, bild.hoehePx, 100, 64, 88, 10)}
+            >
+              <ViewTransition name={`werk-${werk.id}`} share="wanderung" default="none">
+                <div>
+                  <WerkMitZoom
+                    schluessel={bild.schluessel}
+                    alt={bild.altText || werk.titel}
+                    breitePx={bild.breitePx}
+                    hoehePx={bild.hoehePx}
+                    sizes={WERKSEITE_SIZES}
+                    vorrang
+                  />
+                </div>
+              </ViewTransition>
+            </div>
+
+            <Saalschild werk={werk} als="h1" verlinkt={false}>
+              {werk.serie && (
+                <p className="mt-6 text-klein">
+                  <Link
+                    href={`/serien/${werk.serie.slug}`}
+                    className="text-tinte-leise transition-colors duration-500 hover:text-tinte"
+                  >
+                    aus der Serie „{werk.serie.titel}“
+                  </Link>
+                </p>
+              )}
+            </Saalschild>
+          </div>
+        </section>
         <Werkanfang
           werk={werk}
           bild={bild}

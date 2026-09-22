@@ -1,9 +1,11 @@
 import { ViewTransition } from "react";
-import Link from "next/link";
+import { WerkVerweis } from "@/components/WerkVerweis";
 import { Werkbild } from "@/components/Werkbild";
 import { Saalschild } from "@/components/Saalschild";
 import { Signatur } from "@/components/Signatur";
 import { Einblenden } from "@/components/Einblenden";
+import { hauptbild, werkBreiteStil } from "@/lib/darstellung";
+import { werkseitenQuelle } from "@/lib/werkseitenbild";
 import { hauptbild, pinFuer, werkBreiteStil } from "@/lib/darstellung";
 import { type Werk } from "@/lib/typen";
 
@@ -64,8 +66,9 @@ export function Werkkachel({
               Alternativtext beschreibt das Gemälde und ist für
               jemanden, der die Seite vorgelesen bekommt, das
               Einzige, was vom Bild übrig bleibt. */}
-          <Link
+          <WerkVerweis
             href={`/werke/${werk.slug}`}
+            quelle={werkseitenQuelle(bild)}
             className="block"
             tabIndex={-1}
           >
@@ -82,7 +85,7 @@ export function Werkkachel({
                 />
               </ViewTransition>
             </div>
-          </Link>
+          </WerkVerweis>
 
           <Saalschild werk={werk} knapp>
             {/* Die Signatur nimmt immer ihren Platz ein, auch

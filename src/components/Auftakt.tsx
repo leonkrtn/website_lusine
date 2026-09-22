@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef, ViewTransition } from "react";
 import { useEffect, useRef, ViewTransition, type ReactNode } from "react";
 import { Saalschild } from "@/components/Saalschild";
 import { WerkMitZoom } from "@/components/WerkMitZoom";
@@ -166,6 +167,25 @@ export function Auftakt({
             )}
           >
             <div className="auftakt-bild">
+              {/* Der Name gehört ins Innere der Vergrößerung, nicht an
+                  sie: so nimmt die Wanderung zur Werkseite das Werk in
+                  der Größe mit, in der es gerade steht. */}
+              <ViewTransition name={`werk-${werk.id}`} share="wanderung" default="none">
+                <div>
+                  <WerkMitZoom
+                    schluessel={bild.schluessel}
+                    alt={bild.altText || werk.titel}
+                    breitePx={bild.breitePx}
+                    hoehePx={bild.hoehePx}
+                    /* Groß angefordert, weil das Bild am Anfang um ein
+                       Vielfaches vergrößert steht. Mit der üblichen
+                       Größe wäre der Pinselstrich, um den es geht, ein
+                       Brei. */
+                    sizes="(max-width: 640px) 300vw, 200vw"
+                    vorrang
+                  />
+                </div>
+              </ViewTransition>
               {wanderung ? (
                 <ViewTransition name={wanderung} share="wanderung" default="none">
                   <div>{werkbild}</div>

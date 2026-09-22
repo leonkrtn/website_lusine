@@ -94,9 +94,16 @@
   color-scheme: light only;
 }
 
+/* Kein `scroll-behavior: smooth`. Es stand hier und machte jeden
+   Sprung, den nicht die Hand macht, zu einer Fahrt: nach einem Klick
+   rollte die neue Seite von der alten Hoehe an ihren Anfang, beim
+   Zurueck die Startseite vom Anfang an die alte Stelle — beides
+   mitten in der Wanderung eines Werks und quer durch den Auftakt.
+   Bewegen soll sich hier nur, was der Finger bewegt. Der einzige
+   Sprung innerhalb einer Seite ist „Zum Inhalt springen“, und der
+   soll springen. */
 html {
   -webkit-text-size-adjust: 100%;
-  scroll-behavior: smooth;
 
   /* Haengende Interpunktion: das oeffnende Anfuehrungszeichen eines
      Zitats haengt in den Rand, damit die Textkante gerade bleibt. So
@@ -784,6 +791,25 @@ body {
   }
 }
 
+/* Die Kopfzeile steht beim Wechsel still und liegt obenauf.
+
+   Ohne eigenen Namen gehoerte sie zur Seite, die ueberblendet wird,
+   und das wandernde Werk laege darueber: ein Gemaelde, das knapp
+   unter der Kopfzeile stand, als man klickte — auf der Startseite
+   der Normalfall —, fuhr ueber Schriftzug und Navigation hinweg, und
+   beide blendeten dabei halb aus. Mit eigenem Namen wird sie fuer
+   sich aufgenommen; alte und neue Fassung sind gleich, also bewegt
+   sich nichts, und `z-index` legt sie ueber jede Wanderung — samt
+   ihrem Auslauf, unter dem das Werk dann verschwindet wie beim
+   Scrollen. */
+.kopfzeile {
+  view-transition-name: kopfzeile;
+}
+
+::view-transition-group(kopfzeile) {
+  z-index: 2;
+}
+
 /* Der Rest der Seite bleibt beim Wechsel ruhig: ein Werk wandert,
    alles andere blendet. */
 ::view-transition-old(root),
@@ -976,10 +1002,6 @@ body {
 /* Wer ruhige Darstellung eingestellt hat, bekommt sie auch.
    Der Inhalt bleibt vollstaendig sichtbar und bedienbar. */
 @media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
-
   .einblenden {
     opacity: 1;
     transform: none;
