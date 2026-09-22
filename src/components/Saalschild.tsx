@@ -27,6 +27,14 @@ type Props = {
    */
   knapp?: boolean;
   /**
+   * Die Startseite: nur Titel, Jahr und die Serie, wenn es eine gibt.
+   * Keine Technik, keine Maße, kein Preis. Die Startseite ist eine
+   * Auswahl, kein Katalog — wer mehr wissen will, folgt dem Titel.
+   * Die Serie steht hier, weil das Schild sie sonst nicht kennt: an
+   * einem `Werk` hängt nur ihre Kennung.
+   */
+  schlicht?: { serie: string | null };
+  /**
    * Ob das Schild beim Scrollen erscheint. Beim ersten Werk nicht: es
    * steht beim Laden schon im Bild und ist daher einfach da.
    */
@@ -63,6 +71,7 @@ export function Saalschild({
   als: Ueberschrift = "h2",
   verlinkt = true,
   knapp = false,
+  schlicht,
   erscheint = true,
   className = "",
   style,
@@ -98,19 +107,29 @@ export function Saalschild({
         {werk.jahr && <span className="saalschild-jahr">, {werk.jahr}</span>}
       </Ueberschrift>
 
-      {angaben.length > 0 && (
-        <p className="saalschild-angaben">
-          {angaben.map((zeile, nummer) => (
-            <span key={nummer}>{zeile}</span>
-          ))}
-        </p>
-      )}
+      {schlicht ? (
+        schlicht.serie && (
+          <p className="saalschild-angaben">
+            aus der Serie „{schlicht.serie}“
+          </p>
+        )
+      ) : (
+        <>
+          {angaben.length > 0 && (
+            <p className="saalschild-angaben">
+              {angaben.map((zeile, nummer) => (
+                <span key={nummer}>{zeile}</span>
+              ))}
+            </p>
+          )}
 
-      <p className="saalschild-preis">
-        {werk.status === "verfuegbar"
-          ? preisText(werk.preisCent, werk.waehrung)
-          : STATUS_BESCHRIFTUNG[werk.status]}
-      </p>
+          <p className="saalschild-preis">
+            {werk.status === "verfuegbar"
+              ? preisText(werk.preisCent, werk.waehrung)
+              : STATUS_BESCHRIFTUNG[werk.status]}
+          </p>
+        </>
+      )}
 
       {children}
     </div>

@@ -184,6 +184,9 @@ Weiteres:
   hängt; so wird ein Saalschild gesetzt. Werk und Schild bilden eine
   `.werkreihe` — wird der Platz eng, gibt das Werk nach, nicht das
   Schild. Unter 48 rem rutscht es unter das Werk.
+  **Ausnahme Startseite:** dort trägt das Schild nur Titel, Jahr und
+  die Serie, wenn es eine gibt (`schlicht`) — keine Technik, keine
+  Maße, kein Preis. Die Startseite ist eine Auswahl, kein Katalog.
 - **Die Startseite beginnt mit dem Pinselstrich** (`Auftakt.tsx`): das
   erste Werk steht zuerst bildschirmfüllend vergrößert da und tritt beim
   Scrollen auf sein Maß zurück, während die Bühne stehen bleibt. Wie

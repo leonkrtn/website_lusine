@@ -31,6 +31,12 @@ type Props = {
   pin?: PinAngaben;
   /** Wird ins Schild unter die Angaben gehängt. */
   children?: ReactNode;
+  /**
+   * Das Schild in der Fassung der Startseite: nur Titel, Jahr und
+   * Serie (siehe `schlicht` in `Saalschild.tsx`). Auf der Werkseite
+   * bleibt es weg, dort trägt das Schild alle Angaben.
+   */
+  schlicht?: { serie: string | null };
 };
 
 /**
@@ -87,6 +93,7 @@ export function Auftakt({
   wanderung,
   pin,
   children,
+  schlicht,
 }: Props) {
   const abschnitt = useRef<HTMLElement>(null);
   const buehne = useRef<HTMLDivElement>(null);
@@ -184,6 +191,7 @@ export function Auftakt({
             titelId={`werk-${werk.id}`}
             als={als}
             verlinkt={verlinkt}
+            schlicht={schlicht}
             className="auftakt-schild"
             erscheint={false}
           >
