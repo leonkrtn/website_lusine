@@ -1,6 +1,7 @@
 import { ViewTransition, type CSSProperties } from "react";
 import Link from "next/link";
 import { Werkbild } from "@/components/Werkbild";
+import { Saalschild } from "@/components/Saalschild";
 import { Signatur } from "@/components/Signatur";
 import { Einblenden } from "@/components/Einblenden";
 import {
@@ -8,7 +9,7 @@ import {
   wahreBreiteStil,
   werkBreiteStil,
 } from "@/lib/darstellung";
-import { STATUS_BESCHRIFTUNG, type Werk } from "@/lib/typen";
+import { type Werk } from "@/lib/typen";
 
 type Props = {
   werk: Werk;
@@ -66,64 +67,66 @@ export function Werkkachel({
 
   return (
     <Einblenden verzoegerung={verzoegerung} als="article">
-      <Link href={`/werke/${werk.slug}`} className="group block">
-        {/* Museale Haengung: alle Werke einer Zeile teilen sich dieselbe
-            Mittelachse, unabhaengig von Hoch- oder Querformat. Genau so
-            haengt man Bilder an eine Wand — und nur so stehen die Titel
-            darunter auf einer Linie, statt zu tanzen. */}
-        <div
-          className="flex items-center justify-center"
-          style={{ height: `${maxHoeheVh}vh` }}
-        >
-          <div
-            className="werkflaeche kachel-flaeche mx-auto"
-            style={
-              {
-                "--breite-wand": wand.width,
-                "--breite-wahr": wahr.width,
-              } as CSSProperties
-            }
+      {/* Museale Hängung: alle Werke einer Zeile teilen sich dieselbe
+          Mittelachse, unabhängig von Hoch- oder Querformat. Genau so
+          hängt man Bilder an eine Wand.
+
+          Werk und Schild bilden darin eine Reihe: das Schild hängt an
+          der Unterkante des Werks, nicht am Boden der Zeile — sonst
+          hinge es bei einem Querformat weit unter dem Bild in der
+          Luft. */}
+      <div
+        className="flex items-center justify-center"
+        style={{ height: `${maxHoeheVh}vh` }}
+      >
+        <div className="werkreihe werkreihe--eng group">
+          {/* `tabIndex={-1}`, weil der Titel auf dem Schild zum selben
+              Werk führt: mit der Tastatur soll man nicht zweimal
+              dieselbe Station anfahren. Nicht `aria-hidden` — der
+              Alternativtext beschreibt das Gemälde und ist für
+              jemanden, der die Seite vorgelesen bekommt, das
+              Einzige, was vom Bild übrig bleibt. */}
+          <Link
+            href={`/werke/${werk.slug}`}
+            className="block"
+            tabIndex={-1}
           >
-            <ViewTransition name={`werk-${werk.id}`} share="wanderung" default="none">
-              <Werkbild
-                schluessel={bild.schluessel}
-                alt={bild.altText || werk.titel}
-                breitePx={bild.breitePx}
-                hoehePx={bild.hoehePx}
-                sizes={sizes}
-                className="transition-opacity duration-700 group-hover:opacity-90"
+            <div
+              className="werkflaeche kachel-flaeche"
+              style={
+                {
+                  "--breite-wand": wand.width,
+                  "--breite-wahr": wahr.width,
+                } as CSSProperties
+              }
+            >
+              <ViewTransition name={`werk-${werk.id}`} share="wanderung" default="none">
+                <Werkbild
+                  schluessel={bild.schluessel}
+                  alt={bild.altText || werk.titel}
+                  breitePx={bild.breitePx}
+                  hoehePx={bild.hoehePx}
+                  sizes={sizes}
+                  className="transition-opacity duration-700 group-hover:opacity-90"
+                />
+              </ViewTransition>
+            </div>
+          </Link>
+
+          <Saalschild werk={werk} knapp>
+            {/* Die Signatur nimmt immer ihren Platz ein, auch
+                unsichtbar — sonst spränge das Schild beim
+                Darüberfahren. */}
+            <div className="mt-5 flex h-10 items-center opacity-0 transition-opacity duration-700 [@media(hover:hover)]:group-hover:opacity-100">
+              <Signatur
+                schluessel={werk.signaturSchluessel}
+                werkTitel={werk.titel}
+                breite={130}
               />
-            </ViewTransition>
-          </div>
+            </div>
+          </Saalschild>
         </div>
-
-        <div className="mt-6 text-center">
-          <h2 className="text-lead leading-snug">{werk.titel}</h2>
-
-          <p className="beschriftung mt-3">
-            {[
-              werk.jahr,
-              werk.technik,
-              werk.status !== "verfuegbar"
-                ? STATUS_BESCHRIFTUNG[werk.status]
-                : null,
-            ]
-              .filter(Boolean)
-              .join(" · ")}
-          </p>
-
-          {/* Die Signatur nimmt immer ihren Platz ein, auch unsichtbar —
-              sonst wuerde die Zeile darunter beim Darueberfahren
-              springen. */}
-          <div className="mt-5 flex h-10 items-center justify-center opacity-0 transition-opacity duration-700 [@media(hover:hover)]:group-hover:opacity-100">
-            <Signatur
-              schluessel={werk.signaturSchluessel}
-              werkTitel={werk.titel}
-              breite={150}
-            />
-          </div>
-        </div>
-      </Link>
+      </div>
     </Einblenden>
   );
 }

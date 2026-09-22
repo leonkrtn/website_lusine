@@ -103,14 +103,11 @@ Im Code sichern sie zwei Vorkehrungen ab:
 
 **Was davor liegen darf und was nie dahinter.** Weil Bildgrund und
 Seitengrund derselbe Weißton sind, kann Schrift über die Kante eines
-Werks hinauslaufen, ohne sie zu verraten — das nutzt `.werkschild` auf
-der Startseite. Umgekehrt gilt das nicht: alles, was **hinter** einem
-Werk läge, schaute an dessen Rand hervor und zeichnete genau den Umriss,
-den es nicht geben darf. Davor ist erlaubt, dahinter nie.
-
-Trägt eine Aufnahme Farbe bis an die Unterkante, steht die Schrift auf
-Farbe statt auf Weiß. Dafür gibt es `--schild-hoch`; auf `0` gesetzt ist
-die Überlappung weg.
+Werks hinauslaufen, ohne sie zu verraten. Umgekehrt gilt das nicht:
+alles, was **hinter** einem Werk läge, schaute an dessen Rand hervor
+und zeichnete genau den Umriss, den es nicht geben darf. Davor ist
+erlaubt, dahinter nie — daran scheitert jede Idee mit einer großen
+Zahl oder einem Schriftzug im Rücken des Bildes.
 
 **Die dritte Vorkehrung liegt außerhalb des Codes.** Es gab einmal eine
 Weißmessung beim Hochladen, die den Bildhintergrund maß und auf Wunsch
@@ -160,6 +157,14 @@ Weiteres:
   `hoeheCm`) und **Verzeichnis** (als Liste). Alle drei stehen fertig im
   HTML, `Katalog.tsx` legt nur ein `data-Attribut` um. Ohne JavaScript
   bleibt die Wand stehen.
+- **Neben jedem Werk hängt ein Saalschild** (`Saalschild.tsx`): Titel
+  kursiv, Jahr, Technik, Träger, Maße, Ausführung, dann der Preis —
+  in dieser Reihenfolge, weil sie der Frage folgt, die jemand vor
+  einem Bild hat: Was ist das? Woraus? Wie groß? Und erst zuletzt: zu
+  haben? Linksbündig im Flattersatz, auch wenn es links vom Werk
+  hängt; so wird ein Saalschild gesetzt. Werk und Schild bilden eine
+  `.werkreihe` — wird der Platz eng, gibt das Werk nach, nicht das
+  Schild. Unter 48 rem rutscht es unter das Werk.
 - Die Startseite hängt die Werke abwechselnd links, mittig und rechts.
   Die Folge steht fest in `haengung()` in `src/lib/darstellung.ts` — eine
   Wand, die sich bei jedem Aufruf neu ordnet, wäre keine Hängung. Der

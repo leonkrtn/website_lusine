@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Einblenden } from "@/components/Einblenden";
+import { Saalschild } from "@/components/Saalschild";
 import { Wortweise } from "@/components/Wortweise";
 import { WerkMitZoom } from "@/components/WerkMitZoom";
 import { holeStartseitenWerke, holeTexte } from "@/lib/daten";
@@ -9,7 +10,6 @@ import {
   hauptbild,
   werkBreiteStil,
 } from "@/lib/darstellung";
-import { STATUS_BESCHRIFTUNG } from "@/lib/typen";
 
 /**
  * Wie hoch und wie breit ein Werk auf der Startseite höchstens steht.
@@ -67,9 +67,9 @@ export default async function Startseite() {
           />
 
           {erstes && erstesBild && (
-            <>
+            <div className="auftakt-bild werkreihe">
               <div
-                className="auftakt-bild werkflaeche heranruecken"
+                className="werkflaeche heranruecken"
                 style={werkBreiteStil(
                   erstesBild.breitePx,
                   erstesBild.hoehePx,
@@ -89,26 +89,8 @@ export default async function Startseite() {
                 />
               </div>
 
-              <Einblenden
-                verzoegerung={200}
-                className="auftakt-schild werkschild werkflaeche mx-auto text-center lg:mr-0 lg:ml-auto"
-                style={werkBreiteStil(
-                  erstesBild.breitePx,
-                  erstesBild.hoehePx,
-                  HOEHE_VH,
-                  BREITE_REM,
-                  88,
-                  HOEHE_ABZUG_REM,
-                )}
-              >
-                <h2 className="text-titel leading-tight">
-                  <Link href={`/werke/${erstes.slug}`} className="unterstrich">
-                    {erstes.titel}
-                  </Link>
-                </h2>
-                <p className="beschriftung mt-4">{beschriftung(erstes)}</p>
-              </Einblenden>
-            </>
+              <Saalschild werk={erstes} />
+            </div>
           )}
         </div>
       </section>
@@ -136,9 +118,9 @@ export default async function Startseite() {
             className="werkblock mt-stille px-4 sm:px-10 lg:px-16"
             aria-labelledby={`werk-${werk.id}`}
           >
-            <div className="relative mx-auto max-w-[110rem]">
+            <div className={`mx-auto max-w-[110rem] ${ruecken}`}>
               <div
-                className={`auftritt werkflaeche heranruecken mx-auto ${ruecken}`}
+                className="auftritt werkflaeche heranruecken"
                 style={{ ...flaeche, "--tiefe": 0.3 } as React.CSSProperties}
               >
                 <WerkMitZoom
@@ -150,23 +132,16 @@ export default async function Startseite() {
                 />
               </div>
 
-              {/* Das Schildchen folgt dem Werk an seine Achse — es
-                  hängt beim Bild, nicht in der Mitte der Wand. Es
-                  liegt näher als das Werk, wandert darum weiter und
-                  reicht über dessen untere Kante: zwei Ebenen, ohne
-                  dass ein Rechteck sichtbar wird. Siehe
-                  `.werkschild` in globals.css. */}
-              <div
-                className={`auftritt werkschild werkflaeche mx-auto text-center ${ruecken}`}
-                style={{ ...flaeche, "--tiefe": 1.1 } as React.CSSProperties}
-              >
-                <h2 id={`werk-${werk.id}`} className="text-titel leading-tight">
-                  <Link href={`/werke/${werk.slug}`} className="unterstrich">
-                    {werk.titel}
-                  </Link>
-                </h2>
-                <p className="beschriftung mt-4">{beschriftung(werk)}</p>
-              </div>
+              {/* Das Schild hängt neben dem Werk, auf der Seite, die
+                  es frei lässt. Es liegt näher als das Werk und
+                  wandert beim Scrollen darum weiter — daher der Raum
+                  zwischen beiden. */}
+              <Saalschild
+                werk={werk}
+                titelId={`werk-${werk.id}`}
+                className="auftritt"
+                style={{ "--tiefe": 1.1 } as React.CSSProperties}
+              />
             </div>
           </section>
         );
@@ -208,19 +183,4 @@ export default async function Startseite() {
       </section>
     </div>
   );
-}
-
-/** Jahr, Technik und — falls zutreffend — der Status, als eine Zeile. */
-function beschriftung(werk: {
-  jahr: number | null;
-  technik: string;
-  status: keyof typeof STATUS_BESCHRIFTUNG;
-}): string {
-  return [
-    werk.jahr,
-    werk.technik,
-    werk.status !== "verfuegbar" ? STATUS_BESCHRIFTUNG[werk.status] : null,
-  ]
-    .filter(Boolean)
-    .join(" · ");
 }
