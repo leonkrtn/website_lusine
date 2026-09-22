@@ -81,12 +81,12 @@
      Zahl in der Regel weiter unten. */
   --kopf-auslauf: 2.5rem;
 
-  /* Wie hoch die Kopfzeile selbst ist: zweimal ihr Rand (`py-6`) und
-     der Schriftzug (1.375rem, Zeilenhoehe 1). Gebraucht nur dort, wo
-     etwas unter ihr stehen bleibt statt unter ihr hindurchzulaufen —
-     im Auftakt der Startseite. Wer die Kopfzeile aendert, zieht das
-     hier nach. */
-  --kopf-hoehe: 4.375rem;
+  /* Wie hoch die Kopfzeile selbst ist. Gebraucht nur dort, wo etwas
+     unter ihr stehen bleibt statt unter ihr hindurchzulaufen — im
+     Auftakt der Startseite. Die Kopfzeile misst sich selbst und
+     ueberschreibt diesen Wert; er gilt nur bis dahin und ist darum
+     so nah wie moeglich am gemessenen gewaehlt. */
+  --kopf-hoehe: 75px;
 
   /* Ausdruecklich KEIN Dark Mode. Er steht im direkten Widerspruch zum
      rahmenlosen Weiss-auf-Weiss-Prinzip: ein auf Weiss freigestelltes
@@ -170,6 +170,12 @@ body {
    mitziehen, sonst steht das Werk wieder unter der Falz. */
 .werkanfang {
   padding-top: calc(var(--kopf-auslauf) + 0.75rem);
+}
+
+@media (min-width: 40rem) {
+  :root {
+    --kopf-hoehe: 83px;
+  }
 }
 
 /* --------------------------------------------------------------------------
@@ -413,8 +419,16 @@ body {
 
 @supports (animation-timeline: view()) {
   @media (prefers-reduced-motion: no-preference) {
+    /* Der Abschnitt rueckt um die Hoehe der Kopfzeile nach oben,
+       unter sie. So steht die Buehne vom ersten Punkt an still, und
+       die Zeitachse beginnt genau bei Scrollstellung null. Vorher lag
+       der Abschnitt unter der Kopfzeile: die ersten achtzig Punkte
+       Scrollen schoben die Buehne nur hoch, bevor sie haften blieb
+       und das Zuruecktreten begann — ein toter Weg am Anfang, genau
+       dort, wo der Effekt sitzen muss. */
     .auftakt {
       view-timeline: --auftakt block;
+      margin-top: calc(-1 * var(--kopf-hoehe));
     }
 
     /* Die Buehne steht beim Zuruecktreten und liegt dabei unter der
