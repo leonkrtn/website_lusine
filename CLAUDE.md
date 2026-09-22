@@ -231,6 +231,12 @@ npm run browserpruefung  # Prüft die laufende Seite im Browser
 npm run platzhalter      # Erzeugt die Demo-Bilder neu
 ```
 
+Das Favicon ist der Schriftzug LUART aus der Kopfzeile, als Umriss
+aus der eigenen Schriftdatei. Neu erzeugt wird es mit
+`python3 scripts/favicon-schriftzug.py` (schreibt `src/app/icon.svg`)
+und danach `node scripts/favicon-erzeugen.mjs` (`favicon.ico`,
+`apple-icon.png`).
+
 Die Browserprüfung braucht einen laufenden `npm run start` und einmalig
 `npm i -D playwright`. Playwright steht nicht in `package.json`: es lädt
 einen kompletten Browser herunter und wird für den Betrieb nicht
