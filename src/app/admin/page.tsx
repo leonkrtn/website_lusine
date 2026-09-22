@@ -2,6 +2,7 @@ import Link from "next/link";
 import { holeAnfragen, holeWerke } from "@/lib/daten";
 import { demoModus } from "@/lib/umgebung";
 import { STATUS_BESCHRIFTUNG } from "@/lib/typen";
+import { Zeichen } from "@/components/admin/Zeichen";
 
 /**
  * Die Uebersicht beantwortet drei Fragen auf einen Blick:
@@ -132,8 +133,10 @@ export default async function AdminUebersicht() {
           <ul className="mt-6 space-y-2">
             {einrichtung.map((eintrag) => (
               <li key={eintrag.name} className="text-klein">
-                <span className={eintrag.fertig ? "text-tinte-still" : ""}>
-                  {eintrag.fertig ? "✓" : "○"} {eintrag.name}
+                <span
+                  className={`inline-flex items-center gap-2 ${eintrag.fertig ? "text-tinte-still" : ""}`}
+                >
+                  <Zeichen name={eintrag.fertig ? "erledigt" : "offen"} /> {eintrag.name}
                 </span>
               </li>
             ))}

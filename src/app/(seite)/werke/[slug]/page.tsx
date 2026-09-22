@@ -1,4 +1,3 @@
-import type { CSSProperties } from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -87,21 +86,11 @@ export default async function WerkSeite({ params }: Props) {
   ].filter((eintrag): eintrag is { feld: string; wert: string } => Boolean(eintrag));
 
   return (
-    <article
-      /* Die Leitfarbe gilt nur innerhalb dieses Werks. Sie faerbt die
-         Auswahlmarkierung und die Linie ueber dem Datenblatt — nie
-         eine Flaeche, damit das Papier reinweiss bleibt. Steht keine
-         da, greifen ueberall die Standardwerte. */
-      style={
-        werk.leitfarbe ? ({ "--leitfarbe": werk.leitfarbe } as CSSProperties) : undefined
-      }
-      data-leitfarbe={werk.leitfarbe ? "ja" : undefined}
-    >
+    <article>
       {/* --- 1. Das Werk und sein Schild -----------------------------------
           Wie an einer Wand: das Gemälde, daneben das Saalschild mit
           Titel, Angaben und Preis. Wer aus der Galerie kommt, sieht
-          das Werk hierher wandern; wer von draußen kommt, beginnt am
-          Pinselstrich. Siehe `Werkanfang.tsx`. */}
+          das Werk hierher wandern. Siehe `Werkanfang.tsx`. */}
       {bild && (
         <Werkanfang
           werk={werk}
@@ -197,7 +186,7 @@ export default async function WerkSeite({ params }: Props) {
 
       {/* --- 6. Datenblatt und 7. Erwerb ----------------------------------- */}
       <section className="mt-stille px-4">
-        <div className="leitlinie mx-auto grid max-w-5xl grid-cols-1 gap-16 pt-16 md:grid-cols-2 md:gap-24">
+        <div className="mx-auto grid border-t border-linie max-w-5xl grid-cols-1 gap-16 pt-16 md:grid-cols-2 md:gap-24">
           <Einblenden>
             <h2 className="beschriftung">Das Werk</h2>
             <dl className="mt-8">

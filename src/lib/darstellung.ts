@@ -89,8 +89,8 @@ export type Haengung = {
  *
  * Die Folge ist fest und nicht zufällig — eine Wand, die sich bei
  * jedem Aufruf neu ordnet, ist keine Hängung, sondern ein Generator.
- * Das erste Werk hängt immer mittig und immer groß: es ist der
- * Auftakt, und ein Auftakt steht nicht abseits.
+ * Das erste Werk hängt immer mittig und immer groß: es begrüßt, und
+ * wer begrüßt, steht nicht abseits.
  *
  * Die Größen liegen eng beieinander (0,84 bis 1). Der Wechsel soll
  * zu spüren sein, ohne dass ein Werk klein wird — ein Gemälde, das

@@ -1,8 +1,8 @@
 import { ViewTransition } from "react";
 import Link from "next/link";
-import { Auftakt } from "@/components/Auftakt";
 import { Einblenden } from "@/components/Einblenden";
 import { Saalschild } from "@/components/Saalschild";
+import { Werkanfang } from "@/components/Werkanfang";
 import { Wortweise } from "@/components/Wortweise";
 import { WerkMitZoom } from "@/components/WerkMitZoom";
 import { holeSerien, holeStartseitenWerke, holeTexte } from "@/lib/daten";
@@ -33,10 +33,8 @@ const BREITE_REM = 74;
  * scrollt, sieht immer nur ein Bild — das ist die Übersetzung eines
  * gut gehängten Galerieraums in eine Website.
  *
- * **Der Auftakt.** Das erste Werk steht vor allem anderen, und es
- * beginnt nicht als Bild, sondern als seine Oberfläche: so nah, dass
- * man den Pinselstrich sieht. Wer scrollt, tritt zurück, bis das Werk
- * ganz dasteht. Siehe `Auftakt.tsx`.
+ * **Der Anfang.** Das erste Werk steht vor allem anderen, groß und
+ * mittig, so wie der Kopf einer Werkseite (`Werkanfang.tsx`).
  *
  * **Neben einem Werk steht nur sein Saalschild.** Der Auftaktsatz
  * gehört zu keinem Gemälde, sondern zur ganzen Auswahl — er steht
@@ -45,7 +43,7 @@ const BREITE_REM = 74;
  * ihn als Beschriftung, und das wäre schlicht falsch.
  *
  * **Die Hängung.** Gehängt wird wie an einer Wand, nicht wie in einer
- * Liste: das erste Werk groß und mittig als Auftakt, die folgenden im
+ * Liste: das erste Werk groß und mittig, die folgenden im
  * Wechsel abseits. Die Folge steht fest in `haengung()`. Ab der großen
  * Breite wird sie sichtbar; darunter steht jedes Werk mittig, weil
  * eine Wand auf einem Handy keine zweite Achse hat.
@@ -72,13 +70,14 @@ export default async function Startseite() {
 
   return (
     <div>
-      {/* --- Der Auftakt ---------------------------------------------------
-          Vom Pinselstrich zum ganzen Werk. */}
+      {/* --- Das erste Werk ---------------------------------------------- */}
       {erstes && erstesBild && (
-        <Auftakt
+        <Werkanfang
           werk={erstes}
           bild={erstesBild}
-          wanderung={`werk-${erstes.id}`}
+          breiteRem={BREITE_REM}
+          als="h2"
+          verlinkt
           pin={pinFuer(erstes)}
           schlicht={{ serie: serieVon(erstes) }}
         />
@@ -86,7 +85,7 @@ export default async function Startseite() {
 
       {/* --- Der Saaltext --------------------------------------------------
           Für sich allein, nichts daneben. Er spricht von der ganzen
-          Auswahl, nicht von einem Werk. Er steht nach dem Auftakt, mit
+          Auswahl, nicht von einem Werk. Er steht nach dem ersten Werk, mit
           Abstand zu beiden Seiten — nicht in einer Reihe mit einem Bild. */}
       <section
         className={`mx-auto max-w-[110rem] px-4 pb-atem sm:px-10 lg:px-16 ${
@@ -105,7 +104,7 @@ export default async function Startseite() {
         const bild = hauptbild(werk.bilder);
         if (!bild) return null;
 
-        /* Die Hängung zählt weiter, als stünde der Auftakt noch in
+        /* Die Hängung zählt weiter, als stünde das erste Werk noch in
            der Reihe — sonst verschöbe sich die ganze Wand um einen
            Platz. */
         const platz = haengung(index + 1);

@@ -187,15 +187,10 @@ Weiteres:
   **Ausnahme Startseite:** dort trägt das Schild nur Titel, Jahr und
   die Serie, wenn es eine gibt (`schlicht`) — keine Technik, keine
   Maße, kein Preis. Die Startseite ist eine Auswahl, kein Katalog.
-- **Die Startseite beginnt mit dem Pinselstrich** (`Auftakt.tsx`): das
-  erste Werk steht zuerst bildschirmfüllend vergrößert da und tritt beim
-  Scrollen auf sein Maß zurück, während die Bühne stehen bleibt. Wie
-  stark vergrößert wird, misst die Komponente aus Werkformat und
-  Fenster (`--auftakt-naehe`). Der Abschnitt rückt um die Höhe der
-  Kopfzeile unter sie (`--kopf-hoehe`, von `Kopfzeile.tsx` gemessen),
-  damit der Zoom beim ersten gescrollten Punkt beginnt und nicht erst
-  nach einem Leerweg. Ohne Scroll-Zeitachse oder bei
-  reduzierter Bewegung steht das Werk einfach am Seitenanfang.
+- **Das erste Werk steht einfach da.** Startseite und Werkseite beginnen
+  mit einem Werk in voller Größe (`Werkanfang.tsx`), ohne Vergrößerung
+  und ohne eigene Bewegung. Ein Zoom vom Pinselstrich aus gab es einmal;
+  er wurde auf Wunsch entfernt.
 - Die Startseite hängt die Werke abwechselnd links, mittig und rechts.
   Die Folge steht fest in `haengung()` in `src/lib/darstellung.ts` — eine
   Wand, die sich bei jedem Aufruf neu ordnet, wäre keine Hängung.
@@ -227,15 +222,6 @@ Weiteres:
   sichtbaren Fahrt — von der Startseite aus über zweitausend Punkte,
   mitten in der Wanderung. Bewegen soll sich nur, was der Finger
   bewegt.
-- **Von draußen kommt man am Pinselstrich an.** Wer eine Werkseite
-  als erste Seite eines Besuchs öffnet — über eine Instagram-Story,
-  einen Pin, eine Nachricht —, sieht sie mit dem Auftakt der
-  Startseite beginnen: bildschirmfüllend nah, dann zurücktretend.
-  Wer aus der Galerie kommt, sieht das Werk wie bisher an seinen
-  Platz wandern. Unterschieden wird in `src/lib/ankunft.ts`: der
-  Server rendert immer die Ankunft, `Schwelle.tsx` im Layout legt
-  nach der ersten Seite den Schalter um, `Werkanfang.tsx` liest ihn.
-  Kein Referrer, kein Abfrageparameter — die Seiten bleiben statisch.
 - **Bilder für draußen** entstehen in `src/lib/sozialbild.tsx`:
   Linkvorschau (`opengraph-image.tsx` neben der Werkseite) und unter
   `/werke/<slug>/bild/pinterest`, `…/instagram`, `…/instagram-nah`.
@@ -250,9 +236,6 @@ Weiteres:
   `darstellung.ts`). Signaturen und der Größenvergleich tragen
   `data-pin-nopin`. Wer ein neues Bild einbaut, das ein Werk zeigt,
   aber nicht das Werk ist, schließt es genauso aus.
-- Jedes Werk kann eine **Leitfarbe** tragen (Hexwert, von Hand im Admin).
-  Sie färbt nie eine Fläche, nur die Auswahlmarkierung und die Linie über
-  dem Datenblatt — der Grund bleibt überall reinweiß.
 - Öffentliche Seiten lesen über `supabaseOeffentlich()` **ohne Cookies**,
   damit Next.js sie vorrendern kann. Der Cookie-Client bleibt dem
   Admin-Bereich vorbehalten.

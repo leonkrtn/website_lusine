@@ -81,13 +81,6 @@
      Zahl in der Regel weiter unten. */
   --kopf-auslauf: 2.5rem;
 
-  /* Wie hoch die Kopfzeile selbst ist. Gebraucht nur dort, wo etwas
-     unter ihr stehen bleibt statt unter ihr hindurchzulaufen — im
-     Auftakt der Startseite. Die Kopfzeile misst sich selbst und
-     ueberschreibt diesen Wert; er gilt nur bis dahin und ist darum
-     so nah wie moeglich am gemessenen gewaehlt. */
-  --kopf-hoehe: 75px;
-
   /* Ausdruecklich KEIN Dark Mode. Er steht im direkten Widerspruch zum
      rahmenlosen Weiss-auf-Weiss-Prinzip: ein auf Weiss freigestelltes
      Gemaelde bekaeme auf dunklem Grund sofort eine sichtbare Kante. */
@@ -98,7 +91,7 @@
    Sprung, den nicht die Hand macht, zu einer Fahrt: nach einem Klick
    rollte die neue Seite von der alten Hoehe an ihren Anfang, beim
    Zurueck die Startseite vom Anfang an die alte Stelle — beides
-   mitten in der Wanderung eines Werks und quer durch den Auftakt.
+   mitten in der Wanderung eines Werks.
    Bewegen soll sich hier nur, was der Finger bewegt. Der einzige
    Sprung innerhalb einer Seite ist „Zum Inhalt springen“, und der
    soll springen. */
@@ -177,12 +170,6 @@ body {
    mitziehen, sonst steht das Werk wieder unter der Falz. */
 .werkanfang {
   padding-top: calc(var(--kopf-auslauf) + 0.75rem);
-}
-
-@media (min-width: 40rem) {
-  :root {
-    --kopf-hoehe: 83px;
-  }
 }
 
 /* --------------------------------------------------------------------------
@@ -392,113 +379,6 @@ body {
       }
       100% {
         transform: translate3d(0, calc(var(--tiefe) * -7vh), 0);
-      }
-    }
-  }
-}
-
-/* 4a. Der Auftakt: vom Pinselstrich zum ganzen Werk.
-
-   Die Startseite oeffnet mit der Oberflaeche des ersten Werks,
-   bildschirmfuellend. Wer scrollt, tritt zurueck: die Buehne bleibt
-   stehen, das Werk schrumpft auf sein Mass und steht am Ende frei auf
-   dem Papier. Erst dann tritt das Schild hinzu. Gebaut in
-   `Auftakt.tsx`, das auch die Naehe misst.
-
-   Die Zeitachse ist der ganze Abschnitt (`view-timeline`), gelesen
-   ueber `contain`: sie laeuft genau so lange, wie der Abschnitt das
-   Fenster ausfuellt — also genau so lange, wie die Buehne steht.
-   Vorher, oben am Seitenanfang, steht alles auf dem Anfangsbild.
-
-   Eine Bewegung je Gegenstand: das Bild tritt zurueck, das Schild
-   erscheint. Nichts davon wandert zusaetzlich.
-
-   Ohne Scroll-Zeitachse oder bei reduzierter Bewegung greift nur der
-   Teil ausserhalb der Abfrage: das Werk steht am Seitenanfang wie auf
-   der Werkseite, und die Strecke darunter hat keine Hoehe. */
-.auftakt-buehne {
-  padding-top: calc(var(--kopf-auslauf) + 0.75rem);
-}
-
-.auftakt-weg {
-  height: 0;
-}
-
-@supports (animation-timeline: view()) {
-  @media (prefers-reduced-motion: no-preference) {
-    /* Der Abschnitt rueckt um die Hoehe der Kopfzeile nach oben,
-       unter sie. So steht die Buehne vom ersten Punkt an still, und
-       die Zeitachse beginnt genau bei Scrollstellung null. Vorher lag
-       der Abschnitt unter der Kopfzeile: die ersten achtzig Punkte
-       Scrollen schoben die Buehne nur hoch, bevor sie haften blieb
-       und das Zuruecktreten begann — ein toter Weg am Anfang, genau
-       dort, wo der Effekt sitzen muss. */
-    .auftakt {
-      view-timeline: --auftakt block;
-      margin-top: calc(-1 * var(--kopf-hoehe));
-    }
-
-    /* Die Buehne steht beim Zuruecktreten und liegt dabei unter der
-       Kopfzeile, nicht darunter wie der uebrige Inhalt. Darum rechnet
-       ihr oberer Rand die Kopfzeile selbst mit ein — dieselbe
-       Strecke wie `.werkanfang`, nur um die Kopfzeile laenger. Wer
-       hier aendert, zieht den Hoehenabzug in `Auftakt.tsx` nach.
-
-       `overflow: clip` haelt das vergroesserte Bild in der Buehne;
-       `clip` statt `hidden`, damit kein Scrollbehaelter entsteht, der
-       das Kleben aufhoebe. */
-    .auftakt-buehne {
-      position: sticky;
-      top: 0;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      min-height: 100svh;
-      padding-top: calc(var(--kopf-hoehe) + var(--kopf-auslauf) + 0.75rem);
-      padding-bottom: 1.5rem;
-      overflow: clip;
-    }
-
-    /* Die Strecke, ueber die das Zuruecktreten laeuft. Lang genug,
-       dass es ruhig geht; kurz genug, dass niemand glaubt, die Seite
-       hinge. */
-    .auftakt-weg {
-      height: 130svh;
-    }
-
-    .auftakt-bild {
-      transform-origin: 50% 50%;
-      animation: auftakt-naehe linear both;
-      animation-timeline: --auftakt;
-      animation-range: contain 0% contain 78%;
-    }
-
-    /* Die Vergroesserung wird in `Auftakt.tsx` gemessen. Bis das
-       geschehen ist, gilt ein Wert, der auf den ueblichen Fenstern
-       schon deckt — sonst stuende beim ersten Bild fuer einen
-       Augenblick das kleine Werk da und spraenge dann heran. */
-    @keyframes auftakt-naehe {
-      from {
-        transform: scale(var(--auftakt-naehe, 6));
-        animation-timing-function: var(--ease-ruhig);
-      }
-      to {
-        transform: none;
-      }
-    }
-
-    .auftakt-schild {
-      animation: auftakt-schild linear both;
-      animation-timeline: --auftakt;
-      animation-range: contain 66% contain 94%;
-    }
-
-    @keyframes auftakt-schild {
-      from {
-        opacity: 0;
-      }
-      to {
-        opacity: 1;
       }
     }
   }
@@ -866,34 +746,6 @@ body {
   }
 }
 
-/* 11. Die Leitfarbe eines Werks.
-
-   Sie faerbt nie eine Flaeche. Zwei Stellen, mehr nicht: die
-   Auswahlmarkierung und die Linie ueber dem Datenblatt, die von der
-   Farbe in nichts auslaeuft. Auf Reinweiss bleibt der Grund damit
-   unberuehrt — die Verbotsliste gilt unveraendert. */
-[data-leitfarbe="ja"] ::selection {
-  background-color: color-mix(in srgb, var(--leitfarbe) 22%, var(--color-papier));
-  color: var(--color-tinte);
-}
-
-.leitlinie {
-  border-top: 1px solid var(--color-linie);
-}
-
-[data-leitfarbe="ja"] .leitlinie {
-  border-top-color: transparent;
-  background-image: linear-gradient(
-    to right,
-    color-mix(in srgb, var(--leitfarbe) 55%, var(--color-papier)),
-    var(--color-linie) 38%,
-    var(--color-linie)
-  );
-  background-repeat: no-repeat;
-  background-position: 0 0;
-  background-size: 100% 1px;
-}
-
 /* 12. Die Ansichten des Katalogs: Wand und Liste.
 
    Beide stehen im HTML; umgeschaltet wird allein ueber ein
@@ -1030,8 +882,6 @@ body {
      vollstaendig da. Sie haengen ohnehin an einer
      no-preference-Abfrage; das hier ist der Riegel davor. */
   .auftritt,
-  .auftakt-bild,
-  .auftakt-schild,
   .naharbeit,
   .naharbeit img {
     animation: none;

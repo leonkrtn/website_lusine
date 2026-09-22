@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 const navigation = [
   { pfad: "/werke", name: "Werke" },
@@ -21,29 +21,6 @@ export function Kopfzeile() {
   const pfad = usePathname();
   const [menueOffen, setMenueOffen] = useState(false);
 
-  const kopf = useRef<HTMLElement>(null);
-
-  /* Die eigene Höhe als `--kopf-hoehe` für alles, was unter der
-     Kopfzeile stehen bleibt, statt unter ihr hindurchzulaufen — den
-     Auftakt der Startseite. Gemessen statt festgeschrieben, weil die
-     Höhe mit der Schriftgröße gleitet: 75 Punkte auf dem Handy, gut
-     83 am Schreibtisch. Eine feste Zahl stimmte nur zufällig. */
-  useEffect(() => {
-    const kopfEl = kopf.current;
-    if (!kopfEl) return;
-
-    const messen = () =>
-      document.documentElement.style.setProperty(
-        "--kopf-hoehe",
-        `${kopfEl.getBoundingClientRect().height}px`,
-      );
-
-    messen();
-    const beobachter = new ResizeObserver(messen);
-    beobachter.observe(kopfEl);
-    return () => beobachter.disconnect();
-  }, []);
-
   // Bei offenem Menue nicht im Hintergrund scrollen.
   useEffect(() => {
     document.body.style.overflow = menueOffen ? "hidden" : "";
@@ -55,7 +32,7 @@ export function Kopfzeile() {
   const istAktiv = (ziel: string) => pfad === ziel || pfad.startsWith(`${ziel}/`);
 
   return (
-    <header ref={kopf} className="kopfzeile nicht-drucken sticky top-0 z-40 bg-papier">
+    <header className="kopfzeile nicht-drucken sticky top-0 z-40 bg-papier">
       <div className="mx-auto flex max-w-[110rem] items-baseline justify-between px-4 py-6 sm:px-10 lg:px-16">
         <Link
           href="/"

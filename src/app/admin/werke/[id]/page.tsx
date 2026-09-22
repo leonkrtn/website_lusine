@@ -5,6 +5,7 @@ import { Bilderverwaltung } from "@/components/admin/Bilderverwaltung";
 import { Weitergabe } from "@/components/admin/Weitergabe";
 import { holeSerien, holeWerkNachId } from "@/lib/daten";
 import { demoModus } from "@/lib/umgebung";
+import { Zeichen } from "@/components/admin/Zeichen";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -23,8 +24,8 @@ export default async function WerkBearbeiten({ params, searchParams }: Props) {
 
   return (
     <div>
-      <Link href="/admin/werke" className="beschriftung">
-        ← Werke
+      <Link href="/admin/werke" className="beschriftung inline-flex items-center gap-1.5">
+        <Zeichen name="zurueck" /> Werke
       </Link>
 
       <h1 className="mt-6 text-titel leading-tight">{werk.titel}</h1>

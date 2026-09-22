@@ -5,7 +5,6 @@ import { useFormStatus } from "react-dom";
 import Link from "next/link";
 import {
   Auswahl,
-  Farbfeld,
   Feld,
   Gruppe,
   Meldung,
@@ -15,6 +14,7 @@ import {
 import { speichereWerk, loescheWerk } from "@/app/admin/aktionen";
 import { FORM_START, centZuEingabe } from "@/lib/adminzustand";
 import { WERK_STATUS, STATUS_BESCHRIFTUNG, type Serie, type Werk } from "@/lib/typen";
+import { Zeichen } from "@/components/admin/Zeichen";
 
 function Speichern({ neu }: { neu: boolean }) {
   const { pending } = useFormStatus();
@@ -168,13 +168,6 @@ export function Werkformular({ werk, serien, gesperrt = false }: Props) {
           standardwert={werk?.editionInfo}
           gesperrt={gesperrt}
         />
-
-        <Farbfeld
-          name="leitfarbe"
-          beschriftung="Leitfarbe"
-          hinweis="Der eine Ton, der das Werk trägt. Er färbt keine Fläche — nur die Linie über dem Datenblatt und die Auswahlmarkierung auf dieser einen Werkseite. Leer lassen, wenn das Werk keinen hat."
-          standardwert={werk?.leitfarbe}
-        />
       </Gruppe>
 
       <Gruppe titel="Preis und Verfügbarkeit">
@@ -254,9 +247,9 @@ export function Werkformular({ werk, serien, gesperrt = false }: Props) {
           <Link
             href={`/werke/${werk.slug}`}
             target="_blank"
-            className="text-klein text-tinte-leise transition-colors duration-300 hover:text-tinte"
+            className="inline-flex items-center gap-1.5 text-klein text-tinte-leise transition-colors duration-300 hover:text-tinte"
           >
-            Auf der Seite ansehen ↗
+            Auf der Seite ansehen <Zeichen name="extern" />
           </Link>
         )}
       </div>
