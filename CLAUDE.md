@@ -10,39 +10,6 @@ persönlichen Austausch.
 
 ## Offene Punkte
 
-### E-Mail-Versand fehlt
-
-**Zustand:** Geht eine Anfrage ein, wird sie in der Datenbank gespeichert
-und erscheint unter `/admin/anfragen`. Sonst passiert nichts — weder
-bekommt Lusine eine Benachrichtigung, noch die anfragende Person eine
-Eingangsbestätigung.
-
-**Warum das zählt:** Das Admin-Panel ist die einzige Stelle, an der eine
-Anfrage sichtbar wird. Eine Kaufanfrage, die niemand liest, ist ein
-verlorener Verkauf. Darum steht in der Admin-Übersicht oben ein
-deutlicher Hinweis, täglich hereinzusehen. Dieser Hinweis gehört
-entfernt, sobald der Versand steht.
-
-**Was zu tun ist, wenn es kommt:**
-
-1. `resend` als Abhängigkeit aufnehmen (oder einen anderen Dienst wählen)
-2. `src/lib/mail.ts` anlegen: Benachrichtigung ans Atelier,
-   Eingangsbestätigung an die anfragende Person. Beide Aufrufe müssen
-   fehlertolerant sein — eine Anfrage, die in der Datenbank steht, ist
-   angekommen, auch wenn der Versand klemmt.
-3. In `src/app/aktionen.ts` die markierte Stelle in `sendeAnfrage`
-   ersetzen (dort steht ein Kommentar, der auf diesen Abschnitt verweist)
-4. `resendKonfiguriert()` in `src/lib/umgebung.ts` wieder aufnehmen und in
-   die Einrichtungsliste der Admin-Übersicht eintragen
-5. Den gelben Hinweis in `src/app/admin/page.tsx` entfernen
-6. Datenschutzerklärung: Abschnitt zum E-Mail-Versand wieder aufnehmen
-   (Auftragsverarbeiter nennen), Nummerierung der Abschnitte anpassen
-7. `.env.example`, `README.md` und `PLAN.md` nachziehen
-
-Die Variablen hießen zuvor `RESEND_API_KEY`, `EMAIL_ABSENDER` und
-`EMAIL_ATELIER`. Der frühere Stand steht im Verlauf: `git log --all -S
-"resend" -- src/lib/mail.ts`.
-
 ### Bilder werden unverändert ausgeliefert
 
 **Zustand:** Was hochgeladen wird, landet unverändert im Speicher und
@@ -250,6 +217,11 @@ Weiteres:
 - Öffentliche Seiten lesen über `supabaseOeffentlich()` **ohne Cookies**,
   damit Next.js sie vorrendern kann. Der Cookie-Client bleibt dem
   Admin-Bereich vorbehalten.
+- **E-Mails** laufen über Resend (`src/lib/mail.ts`): eine Meldung an
+  `EMAIL_ATELIER` und eine Eingangsbestätigung an die anfragende Person.
+  Beide erst nach dem Speichern und fehlertolerant — eine Anfrage, die
+  in der Datenbank steht, ist angekommen, auch wenn der Versand klemmt.
+  Fehler landen im Serverprotokoll.
 - Jede Server Action im Admin prüft die Anmeldung **selbst**. Der Schutz
   in `src/proxy.ts` genügt nicht: eine Server Action ist eine eigene
   Adresse, die sich direkt aufrufen lässt.
