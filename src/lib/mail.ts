@@ -1,8 +1,19 @@
 import { Resend } from "resend";
-import { emailAbsender, emailAtelier, resendSchluessel, seitenUrl } from "@/lib/umgebung";
+import { bildAdresseVoll } from "@/lib/bilder";
+import { holeWerk } from "@/lib/daten";
+import { hauptbild } from "@/lib/darstellung";
+import {
+  ateliermeldung,
+  bestaetigung,
+  type Anfragedaten,
+  type Mailinhalt,
+  type MailWerk,
+} from "@/lib/mailvorlagen";
+import { emailAbsender, emailAtelier, resendSchluessel } from "@/lib/umgebung";
 
 /**
- * E-Mails zu eingegangenen Anfragen.
+ * E-Mails zu eingegangenen Anfragen. Wie sie aussehen, steht in
+ * `mailvorlagen.ts`; hier geht es nur ums Verschicken.
  *
  * Fehlt der Zugang, wird nichts verschickt und nichts geworfen: eine
  * Anfrage darf niemals daran scheitern, dass der E-Mail-Dienst klemmt.
@@ -14,29 +25,34 @@ function client(): Resend | null {
   return schluessel ? new Resend(schluessel) : null;
 }
 
-/** Schuetzt gegen eingeschleuste Auszeichnung in E-Mail-Texten. */
-function sicher(text: string): string {
-  return text
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
-}
+/**
+ * Das Werk, nach dem gefragt wurde — fuer Bild und Schild in der E-Mail.
+ * Laesst es sich nicht laden, geht die E-Mail ohne Bild hinaus.
+ */
+async function werkFuerMail(slug: string | null | undefined): Promise<MailWerk | null> {
+  if (!slug) return null;
 
-function rahmen(inhalt: string): string {
-  return `<div style="font-family:Georgia,'Times New Roman',serif;font-size:16px;line-height:1.7;color:#111111;background:#ffffff;padding:32px;max-width:560px">
-${inhalt}
-<p style="margin-top:40px;font-size:12px;letter-spacing:0.14em;text-transform:uppercase;color:#6f6a66">LUART</p>
-</div>`;
-}
+  try {
+    const werk = await holeWerk(slug);
+    if (!werk) return null;
 
-type Anfragedaten = {
-  name: string;
-  email: string;
-  nachricht: string;
-  werkTitel?: string | null;
-  werkSlug?: string | null;
-};
+    const bild = hauptbild(werk.bilder);
+    const src = bild ? bildAdresseVoll(bild.schluessel) : "";
+
+    return {
+      titel: werk.titel,
+      slug: werk.slug,
+      jahr: werk.jahr,
+      technik: werk.technik,
+      breiteCm: werk.breiteCm,
+      hoeheCm: werk.hoeheCm,
+      tiefeCm: werk.tiefeCm,
+      bild: bild && src ? { src, breitePx: bild.breitePx, hoehePx: bild.hoehePx } : null,
+    };
+  } catch {
+    return null;
+  }
+}
 
 /**
  * Verschickt eine E-Mail und schluckt jeden Fehler.
@@ -46,66 +62,51 @@ type Anfragedaten = {
  * klemmender Versand auffaellt, ohne die Anfrage zu gefaehrden.
  */
 async function verschicke(
+  dienst: Resend,
   zweck: string,
-  nachricht: Parameters<Resend["emails"]["send"]>[0],
+  an: string,
+  inhalt: Mailinhalt,
+  antwortAn: string | null,
 ): Promise<void> {
-  const dienst = client();
-  if (!dienst) return;
-
   try {
-    const { error } = await dienst.emails.send(nachricht);
+    const { error } = await dienst.emails.send({
+      from: emailAbsender(),
+      to: an,
+      ...(antwortAn ? { replyTo: antwortAn } : {}),
+      subject: inhalt.betreff,
+      html: inhalt.html,
+      text: inhalt.text,
+    });
     if (error) console.error(`E-Mail (${zweck}) abgelehnt:`, error);
   } catch (fehler) {
     console.error(`E-Mail (${zweck}) gescheitert:`, fehler);
   }
 }
 
-/** Meldung an das Atelier, dass eine Anfrage eingegangen ist. */
-export async function meldeAnfrageAnAtelier(daten: Anfragedaten): Promise<void> {
-  const ziel = emailAtelier();
-  if (!ziel) return;
+/**
+ * Beide E-Mails zu einer Anfrage: die Meldung an das Atelier und die
+ * Eingangsbestaetigung an die anfragende Person.
+ */
+export async function verschickeAnfragemails(daten: Anfragedaten): Promise<void> {
+  const dienst = client();
+  if (!dienst) return;
 
-  const betreff = daten.werkTitel
-    ? `Anfrage zu „${daten.werkTitel}“`
-    : "Neue Anfrage über die Website";
+  const werk = await werkFuerMail(daten.werkSlug);
+  const atelier = emailAtelier();
 
-  const link = daten.werkSlug
-    ? `<p><a href="${seitenUrl()}/werke/${encodeURIComponent(daten.werkSlug)}">Werk ansehen</a></p>`
-    : "";
-
-  await verschicke("Atelier", {
-    from: emailAbsender(),
-    to: ziel,
-    replyTo: daten.email,
-    subject: betreff,
-    html: rahmen(`
-<h1 style="font-size:22px;font-weight:normal;margin:0 0 24px">${sicher(betreff)}</h1>
-<p><strong>${sicher(daten.name)}</strong><br>${sicher(daten.email)}</p>
-<p style="white-space:pre-wrap;margin-top:24px">${sicher(daten.nachricht)}</p>
-${link}
-<p><a href="${seitenUrl()}/admin/anfragen">Alle Anfragen im Admin-Panel</a></p>`),
-  });
-}
-
-/** Eingangsbestaetigung an die anfragende Person. */
-export async function bestaetigeAnfrage(daten: Anfragedaten): Promise<void> {
-  const werk = daten.werkTitel
-    ? `zu <em>${sicher(daten.werkTitel)}</em> `
-    : "";
-
-  // Antwortet die Person auf die Bestaetigung, soll das beim Atelier
-  // ankommen und nicht bei einer Absenderadresse, die niemand liest.
-  const ziel = emailAtelier();
-
-  await verschicke("Bestätigung", {
-    from: emailAbsender(),
-    to: daten.email,
-    ...(ziel ? { replyTo: ziel } : {}),
-    subject: "Ihre Anfrage ist angekommen",
-    html: rahmen(`
-<p>Guten Tag ${sicher(daten.name)},</p>
-<p>vielen Dank für Ihre Nachricht ${werk}— sie ist angekommen. Ich melde mich persönlich bei Ihnen, in der Regel innerhalb von zwei Tagen.</p>
-<p style="white-space:pre-wrap;margin-top:24px;padding-left:16px;border-left:1px solid #d8d4d0;color:#6f6a66">${sicher(daten.nachricht)}</p>
-<p>Herzliche Grüße<br>Lusine</p>`),
-  });
+  await Promise.all([
+    // Antwortet das Atelier, geht die Antwort an die anfragende Person.
+    atelier
+      ? verschicke(dienst, "Atelier", atelier, ateliermeldung(daten, werk), daten.email)
+      : null,
+    // Antwortet die Person auf die Bestaetigung, soll das beim Atelier
+    // ankommen und nicht bei einer Absenderadresse, die niemand liest.
+    verschicke(
+      dienst,
+      "Bestätigung",
+      daten.email,
+      bestaetigung(daten, werk, { antwortMoeglich: Boolean(atelier) }),
+      atelier,
+    ),
+  ]);
 }
