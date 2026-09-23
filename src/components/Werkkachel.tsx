@@ -53,10 +53,15 @@ export function Werkkachel({
           Werk und Schild bilden darin eine Reihe: das Schild hängt an
           der Unterkante des Werks, nicht am Boden der Zeile — sonst
           hinge es bei einem Querformat weit unter dem Bild in der
-          Luft. */}
+          Luft.
+
+          Mindesthöhe, keine feste Höhe: auf dem Handy steht das
+          Schild unter dem Werk, und beides zusammen ist höher als
+          das Werk allein. Bei fester Höhe liefe das Schild in die
+          nächste Kachel und das folgende Werk läge darüber. */}
       <div
         className="flex items-center justify-center"
-        style={{ height: `${maxHoeheVh}vh` }}
+        style={{ minHeight: `${maxHoeheVh}vh` }}
       >
         <div className="werkreihe werkreihe--eng group">
           {/* `tabIndex={-1}`, weil der Titel auf dem Schild zum selben
