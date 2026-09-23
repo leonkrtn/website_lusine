@@ -52,16 +52,13 @@ Beispielwerken; gespeichert wird nichts.
 
 ## Einrichtung
 
-Ein Dienst. Nach jedem Schritt läuft mehr — die
+Zwei Dienste, in dieser Reihenfolge. Nach jedem Schritt läuft mehr — die
 Seite ist in jedem Zwischenstand lauffähig.
 
 Die Zugangsdaten gehören nach `.env.local` (Vorlage: `.env.example`).
 Diese Datei gehört **nicht** ins Repository.
 
-Ein E-Mail-Versand ist noch nicht angebunden: Anfragen erscheinen
-ausschließlich im Admin-Panel. Siehe `CLAUDE.md`, „Offene Punkte".
-
-### Supabase — Daten, Bilder und Anmeldung
+### 1. Supabase — Daten, Bilder und Anmeldung
 
 1. Projekt anlegen auf <https://supabase.com>
 2. **SQL Editor → New query** → Inhalt von `supabase/01_schema.sql`
@@ -86,6 +83,21 @@ landen — deshalb trägt er kein `NEXT_PUBLIC_`.
 Ab jetzt ist `/admin` passwortgeschützt, die Seite zeigt echte Daten und
 Bilder lassen sich hochladen. Sie ist zunächst leer; die Beispielwerke
 gehören zum Demo-Modus.
+
+### 2. Resend — E-Mail
+
+Verschickt die Eingangsbestätigung an Interessenten und meldet Lusine
+jede neue Anfrage. Die Domain `luart.online` ist bei Resend verifiziert.
+
+```
+RESEND_API_KEY=
+EMAIL_ABSENDER="LUART <atelier@luart.online>"
+EMAIL_ATELIER=
+```
+
+`EMAIL_ATELIER` ist die Adresse, an die die Meldung geht. Auf Vercel
+unter **Settings → Environment Variables** eintragen und neu deployen.
+Ob beides greift, zeigt die Admin-Übersicht unter „Noch einzurichten".
 
 ### Zuletzt: die Rechtstexte
 

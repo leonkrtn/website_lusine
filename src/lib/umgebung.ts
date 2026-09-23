@@ -2,7 +2,7 @@
  * Zentrale Stelle fuer alle Umgebungsvariablen.
  *
  * Die Seite muss in jedem Ausbauzustand lauffaehig sein: ohne Supabase,
- * ohne Bildspeicher. Jede Pruefung hier beantwortet die Frage
+ * ohne Bildspeicher, ohne E-Mail-Dienst. Jede Pruefung hier beantwortet die Frage
  * "ist dieser Baustein schon angeschlossen?" — der Rest des Codes
  * entscheidet daran, ob er echte Daten nutzt oder den Demo-Modus.
  */
@@ -115,6 +115,40 @@ export function supabaseDienstschluesselVorhanden(): boolean {
  */
 export function speicherKonfiguriert(): boolean {
   return supabaseKonfiguriert();
+}
+
+/** Liest eine Variable ohne mitkopierte Anfuehrungszeichen — oder null. */
+function geputzt(roh: string | undefined): string | null {
+  if (!roh) return null;
+  return roh.trim().replace(/^['"]|['"]$/g, "") || null;
+}
+
+/** Der Resend-Schluessel. Ohne ihn wird keine E-Mail verschickt. */
+export function resendSchluessel(): string | null {
+  return geputzt(process.env.RESEND_API_KEY);
+}
+
+/**
+ * Absender aller E-Mails. Die Domain muss bei Resend verifiziert sein;
+ * luart.online ist es.
+ */
+export function emailAbsender(): string {
+  return geputzt(process.env.EMAIL_ABSENDER) ?? "LUART <atelier@luart.online>";
+}
+
+/** Wohin die Meldung ueber eine neue Anfrage geht. */
+export function emailAtelier(): string | null {
+  return geputzt(process.env.EMAIL_ATELIER);
+}
+
+/** Bekommt die anfragende Person eine Eingangsbestaetigung? */
+export function resendKonfiguriert(): boolean {
+  return Boolean(resendSchluessel());
+}
+
+/** Erfaehrt das Atelier per E-Mail von einer neuen Anfrage? */
+export function ateliermeldungKonfiguriert(): boolean {
+  return Boolean(resendSchluessel() && emailAtelier());
 }
 
 /**

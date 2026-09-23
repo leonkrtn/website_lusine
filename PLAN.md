@@ -200,9 +200,8 @@ Pflichten eines Online-Shops.
 **Anfragen** landen im Admin-Panel und werden dort auf neu, beantwortet
 oder abgeschlossen gesetzt.
 
-Ein **E-Mail-Versand** ist vorerst nicht angebunden. Das Admin-Panel ist
-damit die einzige Stelle, an der eine Anfrage sichtbar wird — es weist
-oben deutlich darauf hin. Siehe `CLAUDE.md`, „Offene Punkte".
+**E-Mails** über Resend: Benachrichtigung an Lusine (`EMAIL_ATELIER`),
+Eingangsbestätigung an die anfragende Person.
 
 ## 10. Arbeitsphasen
 
@@ -214,7 +213,7 @@ oben deutlich darauf hin. Siehe `CLAUDE.md`, „Offene Punkte".
 | **3** | Bilder: Upload und Auslieferung | Bilder laufen |
 | **4** | Öffentliches Frontend: Start, Katalog, Werk, Serien, Über, Kontakt | Website steht |
 | **5** | Admin-Panel: Werke, Serien, Bilder, Signaturen, Texte | Lusine kann pflegen |
-| **6** | Anfragen | Interessenten erreichen Lusine |
+| **6** | Anfragen und E-Mails | Interessenten erreichen Lusine |
 | **7** | Rechtstexte, SEO, Performance, Barrierefreiheit, Deployment auf Vercel | Live |
 
 ---
