@@ -2,7 +2,7 @@
 
 import { z } from "zod";
 import { supabaseDienst } from "@/lib/supabase/dienst";
-import { bestaetigeAnfrage, meldeAnfrageAnAtelier } from "@/lib/mail";
+import { verschickeAnfragemails } from "@/lib/mail";
 import { demoModus } from "@/lib/umgebung";
 import type { AnfrageZustand } from "@/lib/formularzustand";
 
@@ -100,21 +100,13 @@ export async function sendeAnfrage(
   // Die E-Mails laufen bewusst nach dem Speichern und ohne Abbruch:
   // eine Anfrage, die in der Datenbank steht, ist angekommen — auch
   // wenn der Mailversand gerade klemmt.
-  await Promise.all([
-    meldeAnfrageAnAtelier({
-      name: daten.name,
-      email: daten.email,
-      nachricht: daten.nachricht,
-      werkTitel: daten.werkTitel ?? null,
-      werkSlug: daten.werkSlug ?? null,
-    }),
-    bestaetigeAnfrage({
-      name: daten.name,
-      email: daten.email,
-      nachricht: daten.nachricht,
-      werkTitel: daten.werkTitel ?? null,
-    }),
-  ]);
+  await verschickeAnfragemails({
+    name: daten.name,
+    email: daten.email,
+    nachricht: daten.nachricht,
+    werkTitel: daten.werkTitel ?? null,
+    werkSlug: daten.werkSlug ?? null,
+  });
 
   return { erfolg: true, fehler: null, felderfehler: {} };
 }

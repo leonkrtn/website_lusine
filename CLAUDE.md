@@ -221,7 +221,10 @@ Weiteres:
   `EMAIL_ATELIER` und eine Eingangsbestätigung an die anfragende Person.
   Beide erst nach dem Speichern und fehlertolerant — eine Anfrage, die
   in der Datenbank steht, ist angekommen, auch wenn der Versand klemmt.
-  Fehler landen im Serverprotokoll.
+  Fehler landen im Serverprotokoll. Das Aussehen steht getrennt in
+  `src/lib/mailvorlagen.ts`: Tabellen und Angaben am Element, weil
+  Postfächer kein Stylesheet kennen; Georgia statt Garamond; das
+  angefragte Werk auf Weiß mit seinem Schild, wie auf der Seite.
 - Jede Server Action im Admin prüft die Anmeldung **selbst**. Der Schutz
   in `src/proxy.ts` genügt nicht: eine Server Action ist eine eigene
   Adresse, die sich direkt aufrufen lässt.
